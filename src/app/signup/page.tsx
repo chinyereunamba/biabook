@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/base/buttons/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,12 +13,12 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
+import { SocialButton } from "@/components/base/buttons/social-button";
+import { Separator } from "react-aria-components";
 
 const steps = [
   { id: "01", name: "Account" },
   { id: "02", name: "Business Info" },
-  { id: "03", name: "Services" },
-  { id: "04", name: "Availability" },
 ];
 
 export default function SignupPage() {
@@ -31,7 +31,7 @@ export default function SignupPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-2xl p-8 space-y-8 bg-white rounded-lg shadow-md">
+      {/* <div className="w-full max-w-2xl p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">
             Create an account
@@ -83,43 +83,8 @@ export default function SignupPage() {
               </div>
             </div>
           )}
-          {step === 2 && (
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="serviceName">Service Name</Label>
-                <Input id="serviceName" placeholder="e.g. Haircut" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="duration">Duration</Label>
-                <Input id="duration" placeholder="e.g. 30 mins" />
-              </div>
-            </div>
-          )}
-          {step === 3 && (
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label>Availability</Label>
-                <div className="flex items-center gap-2">
-                  <Select defaultValue="Monday">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a day" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Monday">Monday</SelectItem>
-                      <SelectItem value="Tuesday">Tuesday</SelectItem>
-                      <SelectItem value="Wednesday">Wednesday</SelectItem>
-                      <SelectItem value="Thursday">Thursday</SelectItem>
-                      <SelectItem value="Friday">Friday</SelectItem>
-                      <SelectItem value="Saturday">Saturday</SelectItem>
-                      <SelectItem value="Sunday">Sunday</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input type="time" defaultValue="09:00" />
-                  <Input type="time" defaultValue="17:00" />
-                </div>
-              </div>
-            </div>
-          )}
+          
+          
         </div>
         <div className="flex justify-between">
           {step > 0 ? (
@@ -144,7 +109,30 @@ export default function SignupPage() {
             Log in
           </Link>
         </div>
-      </div>
+      </div> */}
+      <section className="space-y-4">
+        <h1 className="text-center text-2xl font-semibold">Sign up</h1>
+        <div className="flex w-90 flex-col gap-3">
+          <SocialButton
+            social="google"
+            theme="brand"
+            className="border-none bg-white text-black"
+          >
+            Sign up with Google
+          </SocialButton>
+          <SocialButton social="apple" theme="brand">
+            Sign up with Apple
+          </SocialButton>
+        </div>
+        <Separator />
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" type="email" placeholder="hello@example.com" />
+          <div>
+            <Button className="bg-primary w-full">Sign up</Button>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

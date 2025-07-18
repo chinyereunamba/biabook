@@ -12,6 +12,14 @@ import {
   ArrowRight,
   Zap,
   MessageSquare,
+  Search,
+  Scissors,
+  GraduationCap,
+  Camera,
+  Stethoscope,
+  Dumbbell,
+  Sparkles,
+  CheckCircle,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,7 +38,7 @@ export default function HomePage() {
   return (
     <main className="flex-1">
       {/* Hero Section */}
-      <section className="lg:min-h-180 relative flex w-full items-center justify-center overflow-hidden">
+      <section className="relative flex w-full items-center justify-center overflow-hidden lg:min-h-180">
         {/* Diagonal background */}
 
         <div className="relative z-10 container mx-auto flex flex-col-reverse items-center gap-8 px-4 md:flex-row md:gap-16 md:px-6">
@@ -50,7 +58,7 @@ export default function HomePage() {
                 className="bg-primary hover:bg-primary/90"
                 asChild
               >
-                <Link href="/auth/signup">
+                <Link href="/signup">
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
@@ -80,6 +88,73 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Business Types Section */}
+      <section className="bg-gray-50 py-20">
+        <div className="container mx-auto px-4">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-3xl font-bold text-gray-900">
+              Perfect for any service business
+            </h2>
+            <p className="text-xl text-gray-600">
+              Join thousands of professionals already using BookMe
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-6">
+            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-pink-50">
+                <Scissors className="h-6 w-6 text-pink-600" />
+              </div>
+              <h3 className="mb-2 font-semibold text-gray-900">Hair Salons</h3>
+              <p className="text-sm text-gray-500">Cuts, colors, styling</p>
+            </Card>
+
+            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
+                <GraduationCap className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="mb-2 font-semibold text-gray-900">Tutors</h3>
+              <p className="text-sm text-gray-500">Math, science, languages</p>
+            </Card>
+
+            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
+                <Camera className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="mb-2 font-semibold text-gray-900">
+                Photographers
+              </h3>
+              <p className="text-sm text-gray-500">
+                Portraits, events, weddings
+              </p>
+            </Card>
+
+            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-50">
+                <Stethoscope className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="mb-2 font-semibold text-gray-900">Doctors</h3>
+              <p className="text-sm text-gray-500">Consultations, checkups</p>
+            </Card>
+
+            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50">
+                <Dumbbell className="h-6 w-6 text-orange-600" />
+              </div>
+              <h3 className="mb-2 font-semibold text-gray-900">Trainers</h3>
+              <p className="text-sm text-gray-500">Personal fitness, yoga</p>
+            </Card>
+
+            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50">
+                <Sparkles className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="mb-2 font-semibold text-gray-900">Spas</h3>
+              <p className="text-sm text-gray-500">Massage, wellness</p>
+            </Card>
+          </div>
+        </div>
+      </section>
       <section id="features" className="relative bg-slate-900 py-20 text-white">
         <div className="relative container mx-auto px-4">
           <div className="grid gap-8 lg:grid-cols-3">
@@ -291,7 +366,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>
-              <Link href="/auth/signup">
+              <Link href="/signup">
                 Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
