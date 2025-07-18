@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from "react";
+import Image from "next/image";
 
 const mockBusiness = {
   name: "Sample Salon",
@@ -26,15 +27,15 @@ const timeSlots = [
   "04:00 PM",
 ];
 
-export default function BusinessBookingPage({ params }) {
-  const [selectedService, setSelectedService] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
+export default function BusinessBookingPage({ params }: { params: { slug: string } }) {
+  const [selectedService, setSelectedService] = useState<number | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", email: "" });
   const [confirmed, setConfirmed] = useState(false);
 
-  const handleInput = (e) =>
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setConfirmed(true);
   };
@@ -43,14 +44,16 @@ export default function BusinessBookingPage({ params }) {
     <main className="flex min-h-screen flex-col items-center bg-gradient-to-b from-blue-100 to-purple-100 px-4 py-8">
       <div className="w-full max-w-lg rounded-xl bg-white/80 p-6 shadow-lg">
         <div className="mb-4 flex items-center gap-4">
-          <img
+          <Image
             src={mockBusiness.logo}
             alt={mockBusiness.name}
+            width={64}
+            height={64}
             className="h-16 w-16 rounded-full"
           />
           <div>
             <h1 className="text-2xl font-bold text-blue-900">
-              {mockBusiness.name}
+              {params.slug}
             </h1>
             <p className="text-sm text-gray-700">{mockBusiness.description}</p>
           </div>

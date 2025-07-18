@@ -1,172 +1,149 @@
 "use client";
-import { signIn } from "next-auth/react";
 import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import Link from "next/link";
 
-const steps = ["Sign Up", "Business Info", "Services", "Availability"];
+const steps = [
+  { id: "01", name: "Account" },
+  { id: "02", name: "Business Info" },
+  { id: "03", name: "Services" },
+  { id: "04", name: "Availability" },
+];
 
 export default function SignupPage() {
   const [step, setStep] = useState(0);
-  // Placeholder state for each step
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-    businessName: "",
-    category: "",
-    description: "",
-    services: [{ name: "", duration: "" }],
-    availability: [{ day: "Monday", start: "09:00", end: "17:00" }],
-  });
 
   const next = () => setStep((s) => Math.min(s + 1, steps.length - 1));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
+  const progress = ((step + 1) / steps.length) * 100;
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-100 to-purple-100 px-4 py-8">
-      <div className="w-full max-w-lg rounded-xl bg-white/80 p-6 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold text-blue-900">
-          Business Sign Up
-        </h1>
-        <div className="mb-4 flex justify-center gap-2">
-          {steps.map((label, i) => (
-            <div
-              key={label}
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${i === step ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"}`}
-            >
-              {label}
-            </div>
-          ))}
+    <main className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="w-full max-w-2xl p-8 space-y-8 bg-white rounded-lg shadow-md">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Create an account
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Start your 30-day free trial.
+          </p>
         </div>
-        {step === 0 && (
-          <form className="space-y-4">
-            <input
-              type="email"
-              placeholder="Email"
-              className="w-full rounded border border-gray-300 px-3 py-2"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full rounded border border-gray-300 px-3 py-2"
-            />
-            <button
-              type="button"
-              className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 py-2 font-semibold text-white shadow"
-              onClick={next}
-            >
-              Continue
-            </button>
-            <div className="mt-2 text-center text-sm text-gray-600">or</div>
-            <button
-              type="button"
-              onClick={async () => await signIn("google")}
-              className="w-full rounded-lg border border-gray-300 py-2 font-semibold text-gray-700 shadow"
-            >
-              Continue with Google
-            </button>
-          </form>
-        )}
-        {step === 1 && (
-          <form className="space-y-4">
-            <input
-              type="text"
-              placeholder="Business Name"
-              className="w-full rounded border border-gray-300 px-3 py-2"
-            />
-            <input
-              type="text"
-              placeholder="Category (e.g. Salon, Clinic)"
-              className="w-full rounded border border-gray-300 px-3 py-2"
-            />
-            <textarea
-              placeholder="Description"
-              className="w-full rounded border border-gray-300 px-3 py-2"
-            />
-            <div className="flex justify-between">
-              <button
-                type="button"
-                className="rounded bg-gray-200 px-4 py-2"
-                onClick={prev}
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                className="rounded bg-blue-500 px-4 py-2 text-white"
-                onClick={next}
-              >
-                Continue
-              </button>
+        <Progress value={progress} className="mt-4" />
+        <div>
+          {step === 0 && (
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" placeholder="Enter your email" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" />
+              </div>
             </div>
-          </form>
-        )}
-        {step === 2 && (
-          <form className="space-y-4">
-            <input
-              type="text"
-              placeholder="Service Name"
-              className="w-full rounded border border-gray-300 px-3 py-2"
-            />
-            <input
-              type="text"
-              placeholder="Duration (e.g. 30 mins)"
-              className="w-full rounded border border-gray-300 px-3 py-2"
-            />
-            <div className="flex justify-between">
-              <button
-                type="button"
-                className="rounded bg-gray-200 px-4 py-2"
-                onClick={prev}
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                className="rounded bg-blue-500 px-4 py-2 text-white"
-                onClick={next}
-              >
-                Continue
-              </button>
+          )}
+          {step === 1 && (
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="businessName">Business Name</Label>
+                <Input id="businessName" placeholder="Enter your business name" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="category">Category</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="salon">Salon</SelectItem>
+                    <SelectItem value="clinic">Clinic</SelectItem>
+                    <SelectItem value="fitness">Fitness</SelectItem>
+                    <SelectItem value="consulting">Consulting</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Tell us about your business"
+                />
+              </div>
             </div>
-          </form>
-        )}
-        {step === 3 && (
-          <form className="space-y-4">
-            <select className="w-full rounded border border-gray-300 px-3 py-2">
-              <option>Monday</option>
-              <option>Tuesday</option>
-              <option>Wednesday</option>
-              <option>Thursday</option>
-              <option>Friday</option>
-              <option>Saturday</option>
-              <option>Sunday</option>
-            </select>
-            <div className="flex gap-2">
-              <input
-                type="time"
-                className="w-1/2 rounded border border-gray-300 px-3 py-2"
-              />
-              <input
-                type="time"
-                className="w-1/2 rounded border border-gray-300 px-3 py-2"
-              />
+          )}
+          {step === 2 && (
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="serviceName">Service Name</Label>
+                <Input id="serviceName" placeholder="e.g. Haircut" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="duration">Duration</Label>
+                <Input id="duration" placeholder="e.g. 30 mins" />
+              </div>
             </div>
-            <div className="flex justify-between">
-              <button
-                type="button"
-                className="rounded bg-gray-200 px-4 py-2"
-                onClick={prev}
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                className="rounded bg-green-500 px-4 py-2 text-white"
-              >
-                Finish
-              </button>
+          )}
+          {step === 3 && (
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label>Availability</Label>
+                <div className="flex items-center gap-2">
+                  <Select defaultValue="Monday">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a day" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Monday">Monday</SelectItem>
+                      <SelectItem value="Tuesday">Tuesday</SelectItem>
+                      <SelectItem value="Wednesday">Wednesday</SelectItem>
+                      <SelectItem value="Thursday">Thursday</SelectItem>
+                      <SelectItem value="Friday">Friday</SelectItem>
+                      <SelectItem value="Saturday">Saturday</SelectItem>
+                      <SelectItem value="Sunday">Sunday</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input type="time" defaultValue="09:00" />
+                  <Input type="time" defaultValue="17:00" />
+                </div>
+              </div>
             </div>
-          </form>
-        )}
+          )}
+        </div>
+        <div className="flex justify-between">
+          {step > 0 ? (
+            <Button variant="outline" onClick={prev}>
+              Previous
+            </Button>
+          ) : (
+            <div />
+          )}
+          {step < steps.length - 1 ? (
+            <Button onClick={next}>Next</Button>
+          ) : (
+            <Button>Create account</Button>
+          )}
+        </div>
+        <div className="text-center text-sm text-gray-600">
+          Already have an account?{" "}
+          <Link
+            href="/login"
+            className="font-medium text-primary hover:underline"
+          >
+            Log in
+          </Link>
+        </div>
       </div>
     </main>
   );

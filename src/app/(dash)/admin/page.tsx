@@ -10,13 +10,13 @@ const mockBusinesses = [
 export default function AdminPage() {
   const [businesses, setBusinesses] = useState(mockBusinesses);
 
-  const toggleActive = (id) => {
+  const toggleActive = (id: number) => {
     setBusinesses((bs) =>
       bs.map((b) => (b.id === id ? { ...b, active: !b.active } : b)),
     );
   };
 
-  const deleteBusiness = (id) => {
+  const deleteBusiness = (id: number) => {
     setBusinesses((bs) => bs.filter((b) => b.id !== id));
   };
 
