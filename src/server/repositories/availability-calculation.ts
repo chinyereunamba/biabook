@@ -51,7 +51,7 @@ export class AvailabilityCalculationEngine {
         const defaultOptions: Required<AvailabilityOptions> = {
             slotDuration: serviceId ? await this.getServiceDuration(serviceId) : 60, // Default 60 minutes if no service specified
             bufferTime: serviceId ? await this.getServiceBufferTime(serviceId) : 0,
-            startDate: this.getTodayDateString(),
+            startDate: this.getTodayDateString() as string,
             days: 30,
             startTime: "00:00",
             endTime: "23:59",
@@ -71,7 +71,7 @@ export class AvailabilityCalculationEngine {
         }
 
         // Get exceptions for the date range
-        const endDate = this.addDaysToDate(config.startDate, config.days - 1);
+        const endDate = this.addDaysToDate(config.startDate, config.days - 1) as string;
         const exceptions = await availabilityExceptionRepository.findByBusinessIdAndDateRange(
             businessId,
             config.startDate,
@@ -157,7 +157,7 @@ export class AvailabilityCalculationEngine {
     /**
      * Get today's date in YYYY-MM-DD format
      */
-    private getTodayDateString(): string {
+    private getTodayDateString(): string | undefined {
         const today = new Date();
         const dateString = today.toISOString().split('T')[0];
         return dateString;
@@ -166,7 +166,7 @@ export class AvailabilityCalculationEngine {
     /**
      * Add days to a date and return in YYYY-MM-DD format
      */
-    private addDaysToDate(dateStr: string, days: number): string {
+    private addDaysToDate(dateStr: string, days: number): string | undefined {
         const date = new Date(dateStr);
         date.setDate(date.getDate() + days);
         const result = date.toISOString().split('T')[0];

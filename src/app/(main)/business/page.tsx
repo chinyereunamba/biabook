@@ -19,61 +19,8 @@ export default function FindBusinessPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  // Mock business data
-  const businesses = [
-    {
-      id: 1,
-      name: "Bella Hair Salon",
-      category: "Hair Salon",
-      rating: 4.8,
-      reviews: 124,
-      address: "123 Main St, City, State",
-      description:
-        "Professional hair salon offering premium cuts, colors, and styling services.",
-      services: ["Hair Cut", "Hair Color", "Styling"],
-      priceRange: "$25 - $120",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 2,
-      name: "MindMath Tutoring",
-      category: "Education",
-      rating: 4.9,
-      reviews: 67,
-      address: "456 Oak Ave, City, State",
-      description:
-        "Expert math tutoring for students of all levels with personalized approach.",
-      services: ["Algebra", "Calculus", "SAT Prep"],
-      priceRange: "$50 - $75",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 3,
-      name: "Wellness Clinic",
-      category: "Healthcare",
-      rating: 4.7,
-      reviews: 89,
-      address: "789 Pine Rd, City, State",
-      description:
-        "Comprehensive wellness and preventive care with experienced professionals.",
-      services: ["Consultation", "Physical Therapy", "Wellness Checkup"],
-      priceRange: "$80 - $120",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 4,
-      name: "Zen Spa & Wellness",
-      category: "Spa",
-      rating: 4.6,
-      reviews: 156,
-      address: "321 Elm St, City, State",
-      description:
-        "Relaxing spa treatments and wellness services in a tranquil environment.",
-      services: ["Massage", "Facial", "Aromatherapy"],
-      priceRange: "$60 - $150",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-  ];
+ 
+  const businesses = []
 
   const categories = [
     { id: "all", name: "All Categories" },
@@ -84,7 +31,7 @@ export default function FindBusinessPage() {
     { id: "fitness", name: "Fitness" },
   ];
 
-  const filteredBusinesses = businesses.filter((business) => {
+  const filteredBusinesses = businesses?.filter((business) => {
     const matchesSearch =
       business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       business.description.toLowerCase().includes(searchTerm.toLowerCase());
