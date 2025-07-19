@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { businessRepository } from "@/server/repositories/business-repository";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { businessId: string } }
+    { params }: { params: Promise<{ businessId: string }> }
 ) {
     try {
-        const { businessId } = params;
+        const { businessId } = await params;
 
         if (!businessId) {
             return NextResponse.json(

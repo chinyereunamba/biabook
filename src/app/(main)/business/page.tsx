@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,15 +12,57 @@ import {
   Star,
   Clock,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
+
+interface Business {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  categoryId: string;
+  location: string;
+  phone: string;
+  email: string;
+  services: string[];
+  serviceCount: number;
+  rating: number;
+  reviews: number;
+  priceRange: string;
+}
 
 export default function FindBusinessPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
- 
-  const businesses = []
+  // Fetch businesses from API
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/businesses");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch businesses");
+        }
+
+        const data = await response.json();
+        setBusinesses(data.businesses);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load businesses",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBusinesses();
+  }, []);
 
   const categories = [
     { id: "all", name: "All Categories" },
@@ -34,16 +76,37 @@ export default function FindBusinessPage() {
   const filteredBusinesses = businesses?.filter((business) => {
     const matchesSearch =
       business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      business.description.toLowerCase().includes(searchTerm.toLowerCase());
+      business.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      business.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
-      selectedCategory === "all" ||
-      business.category.toLowerCase().includes(selectedCategory.toLowerCase());
+      selectedCategory === "all" || business.categoryId === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
+  if (loading) {
+    return (
+      <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin" />
+          <p className="text-gray-600">Loading businesses...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <p className="mb-4 text-red-600">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background min-h-screen">
-
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-purple-600 to-indigo-600 py-16 text-white">
         <div className="container mx-auto px-4 text-center">
@@ -119,14 +182,12 @@ export default function FindBusinessPage() {
             {filteredBusinesses.map((business) => (
               <Card
                 key={business.id}
-                className="overflow-hidden transition-shadow hover:shadow-lg p-0"
+                className="overflow-hidden p-0 transition-shadow hover:shadow-lg"
               >
                 <div className="relative aspect-video bg-gray-200">
-                  <img
-                    src={business.image || "/placeholder.svg"}
-                    alt={business.name}
-                    className="h-full w-full object-cover"
-                  />
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
+                    <Calendar className="h-12 w-12 text-purple-400" />
+                  </div>
                   <Badge className="absolute top-3 left-3 bg-white text-gray-800">
                     {business.category}
                   </Badge>
@@ -145,7 +206,7 @@ export default function FindBusinessPage() {
 
                   <div className="text-muted-foreground mb-3 flex items-center text-sm">
                     <MapPin className="mr-1 h-4 w-4" />
-                    <span>{business.address}</span>
+                    <span>{business.location}</span>
                   </div>
 
                   <p className="text-muted-foreground mb-4 line-clamp-2">
@@ -153,7 +214,7 @@ export default function FindBusinessPage() {
                   </p>
 
                   <div className="mb-4 flex flex-wrap gap-1">
-                    {business.services.slice(0, 3).map((service) => (
+                    {business.services.slice(0, 3).map((service: string) => (
                       <Badge
                         key={service}
                         variant="secondary"
@@ -162,6 +223,11 @@ export default function FindBusinessPage() {
                         {service}
                       </Badge>
                     ))}
+                    {business.serviceCount > 3 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{business.serviceCount - 3} more
+                      </Badge>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between">

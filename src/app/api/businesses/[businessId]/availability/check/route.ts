@@ -10,8 +10,9 @@ export async function GET(
     const { searchParams } = new URL(request.url);
 
     const serviceId = searchParams.get("serviceId");
-    const startDate = searchParams.get("startDate");
-    const days = searchParams.get("days");
+    const date = searchParams.get("date");
+    const startTime = searchParams.get("startTime");
+    const endTime = searchParams.get("endTime");
 
     if (!businessId) {
       return NextResponse.json(
@@ -20,33 +21,31 @@ export async function GET(
       );
     }
 
-    // Only pass startDate if it's provided and valid
-    const options: any = {
-      days: days ? parseInt(days) : 30,
-    };
-
-    // Only add startDate if it's provided
-    if (startDate) {
-      options.startDate = startDate;
+    if (!date || !startTime || !endTime) {
+      return NextResponse.json(
+        { error: "Date, start time, and end time are required" },
+        { status: 400 },
+      );
     }
 
-    const availability =
-      await availabilityCalculationEngine.calculateAvailability(
-        businessId,
-        serviceId || undefined,
-        options,
-      );
+    // Check if the specific time slot is available
+    const available = await availabilityCalculationEngine.isTimeSlotAvailable(
+      businessId,
+      date,
+      startTime,
+      endTime,
+    );
 
-    return NextResponse.json({ availability });
+    return NextResponse.json({ available });
   } catch (error) {
-    console.error("Error fetching availability:", error);
+    console.error("Error checking slot availability:", error);
 
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json(
-      { error: "Failed to fetch availability" },
+      { error: "Failed to check slot availability" },
       { status: 500 },
     );
   }

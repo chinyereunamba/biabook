@@ -40,17 +40,16 @@ export function TimePicker({
   // Parse the initial value
   useEffect(() => {
     if (value && isValidTimeFormat(value)) {
-      const [hourStr, minuteStr] = value.split(":");
-      let hour = parseInt(hourStr, 10);
-      const minute = parseInt(minuteStr, 10);
-      
+      const [hourStr, minuteStr] = value.split(":") || ["0", "0"];
+      let hour = parseInt(hourStr || "0", 10);
+      const minute = parseInt(minuteStr || "0", 10);
       if (hourFormat === 12) {
         const newPeriod = hour >= 12 ? "PM" : "AM";
         hour = hour % 12;
         if (hour === 0) hour = 12;
         setPeriod(newPeriod);
       }
-      
+
       setHours(hour);
       setMinutes(minute);
     }
@@ -86,7 +85,7 @@ export function TimePicker({
   const updateValue = (hour: number, minute: number, newPeriod?: "AM" | "PM") => {
     if (onChange) {
       let adjustedHour = hour;
-      
+
       if (hourFormat === 12) {
         const currentPeriod = newPeriod || period;
         if (currentPeriod === "PM" && hour < 12) {
@@ -95,7 +94,7 @@ export function TimePicker({
           adjustedHour = 0;
         }
       }
-      
+
       const formattedHour = adjustedHour.toString().padStart(2, "0");
       const formattedMinute = minute.toString().padStart(2, "0");
       onChange(`${formattedHour}:${formattedMinute}`);
@@ -115,18 +114,18 @@ export function TimePicker({
     if (!value || !isValidTimeFormat(value)) {
       return placeholder;
     }
-    
-    const [hourStr, minuteStr] = value.split(":");
-    let hour = parseInt(hourStr, 10);
-    const minute = parseInt(minuteStr, 10);
-    
+
+    const [hourStr, minuteStr] = value.split(":") || ["0", "0"];
+    let hour = parseInt(hourStr || "0", 10);
+    const minute = parseInt(minuteStr || "0", 10);
+
     if (hourFormat === 12) {
       const period = hour >= 12 ? "PM" : "AM";
       hour = hour % 12;
       if (hour === 0) hour = 12;
       return `${hour}:${minuteStr} ${period}`;
     }
-    
+
     return `${hourStr}:${minuteStr}`;
   };
 
@@ -183,7 +182,7 @@ export function TimePicker({
               </div>
             </div>
           </div>
-          
+
           {hourFormat === 12 && (
             <div className="flex gap-2">
               <Button
@@ -204,7 +203,7 @@ export function TimePicker({
               </Button>
             </div>
           )}
-          
+
           <div className="flex justify-between">
             {clearable && (
               <Button

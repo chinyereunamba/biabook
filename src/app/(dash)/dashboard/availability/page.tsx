@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { WeeklySchedule, DaySchedule } from "@/components/application/availability/weekly-schedule";
-import { ExceptionDates, ExceptionDate } from "@/components/application/availability/exception-dates";
+import { WeeklySchedule, type DaySchedule } from "@/components/application/availability/weekly-schedule";
+import { ExceptionDates, type ExceptionDate } from "@/components/application/availability/exception-dates";
 import { toast } from "sonner";
 
 // Mock data - in a real app, this would come from an API

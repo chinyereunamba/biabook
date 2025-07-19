@@ -50,7 +50,7 @@ export function Calendar({
 
   const formatDateString = (day: number): string => {
     const date = new Date(year, currentMonth.getMonth(), day);
-    return date.toISOString().split("T")[0];
+    return date.toISOString().split("T")[0] || "";
   };
 
   const isDateAvailable = (dateStr: string): boolean => {
@@ -74,7 +74,7 @@ export function Calendar({
 
   const renderCalendarDays = () => {
     const days = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
       days.push(
@@ -157,7 +157,7 @@ export function Calendar({
             </div>
           ))}
         </div>
-        
+
         {/* Calendar days */}
         <div className="grid grid-cols-7 gap-1">
           {renderCalendarDays()}

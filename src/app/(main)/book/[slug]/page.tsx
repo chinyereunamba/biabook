@@ -3,13 +3,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  User,
-  Mail,
-  Phone,
   CheckCircle,
   ArrowLeft,
   Loader2,
@@ -17,11 +12,13 @@ import {
 import { BusinessProfileComponent, type BusinessProfile } from "@/components/application/booking/business-profile";
 import { Calendar } from "@/components/application/booking/calendar";
 import { TimeSlotGrid, type TimeSlot } from "@/components/application/booking/time-slot-grid";
+import { CustomerForm, type CustomerFormData } from "@/components/application/booking/customer-form";
+import { BookingConfirmation, type BookingConfirmationData } from "@/components/application/booking/booking-confirmation";
 
 export default function BookingPage() {
   const params = useParams();
   const businessId = params.slug as string;
-  
+
   // State management
   const [business, setBusiness] = useState<BusinessProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,21 +27,26 @@ export default function BookingPage() {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [step, setStep] = useState(1);
-  const [customerInfo, setCustomerInfo] = useState({
+  const [customerInfo, setCustomerInfo] = useState<CustomerFormData>({
     name: "",
     email: "",
     phone: "",
+    notes: "",
   });
+  const [bookingResult, setBookingResult] = useState<BookingConfirmationData | null>(null);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
-  // Mock time slots for now - this will be replaced with real availability data
-  const mockTimeSlots: TimeSlot[] = [
-    { date: selectedDate, startTime: "09:00", endTime: "09:45", available: true },
-    { date: selectedDate, startTime: "10:00", endTime: "10:45", available: true },
-    { date: selectedDate, startTime: "11:00", endTime: "11:45", available: true },
-    { date: selectedDate, startTime: "14:00", endTime: "14:45", available: true },
-    { date: selectedDate, startTime: "15:00", endTime: "15:45", available: true },
-    { date: selectedDate, startTime: "16:00", endTime: "16:45", available: true },
-  ];
+  // Availability state
+  const [availabilityData, setAvailabilityData] = useState<{
+    availability: Array<{
+      date: string;
+      dayOfWeek: number;
+      slots: TimeSlot[];
+    }>;
+  } | null>(null);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
 
   // Fetch business data
   useEffect(() => {
@@ -52,11 +54,11 @@ export default function BookingPage() {
       try {
         setLoading(true);
         const response = await fetch(`/api/businesses/${businessId}`);
-        
+
         if (!response.ok) {
           throw new Error("Business not found");
         }
-        
+
         const businessData = await response.json();
         setBusiness(businessData);
       } catch (err) {
@@ -71,29 +73,180 @@ export default function BookingPage() {
     }
   }, [businessId]);
 
+  // Fetch availability data
+  const fetchAvailability = async (serviceId: string) => {
+    try {
+      setAvailabilityLoading(true);
+      setAvailabilityError(null);
+
+      const params = new URLSearchParams({
+        serviceId,
+        days: "30", // Get 30 days of availability
+      });
+
+      const response = await fetch(`/api/businesses/${businessId}/availability?${params}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch availability");
+      }
+
+      const data = await response.json();
+      setAvailabilityData(data);
+    } catch (err) {
+      setAvailabilityError(err instanceof Error ? err.message : "Failed to load availability");
+    } finally {
+      setAvailabilityLoading(false);
+    }
+  };
+
+  // Real-time availability checking
+  const checkSlotAvailability = async (date: string, startTime: string, endTime: string) => {
+    try {
+      const params = new URLSearchParams({
+        serviceId: selectedServiceId,
+        date,
+        startTime,
+        endTime,
+      });
+
+      const response = await fetch(`/api/businesses/${businessId}/availability/check?${params}`);
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = await response.json();
+      return data.available;
+    } catch (err) {
+      console.error("Error checking slot availability:", err);
+      return false;
+    }
+  };
+
   const handleServiceSelect = (serviceId: string) => {
     setSelectedServiceId(serviceId);
+    setSelectedDate(""); // Reset date selection
+    setSelectedTime(""); // Reset time selection
     setStep(2);
+    // Fetch availability for the selected service
+    fetchAvailability(serviceId);
   };
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
+    setSelectedTime(""); // Reset time selection when date changes
   };
 
-  const handleTimeSelect = (startTime: string, endTime: string) => {
-    setSelectedTime(startTime);
-  };
+  const handleTimeSelect = async (startTime: string, endTime: string) => {
+    // Check real-time availability before allowing selection
+    const isAvailable = await checkSlotAvailability(selectedDate, startTime, endTime);
 
-  const handleDateTimeConfirm = () => {
-    if (selectedDate && selectedTime) {
-      setStep(3);
+    if (isAvailable) {
+      setSelectedTime(startTime);
+    } else {
+      // Refresh availability data if slot is no longer available
+      if (selectedServiceId) {
+        fetchAvailability(selectedServiceId);
+      }
+      alert("This time slot is no longer available. Please select another time.");
     }
   };
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStep(4);
-    // Here you would typically send the booking data to your backend
+  const handleDateTimeConfirm = async () => {
+    if (selectedDate && selectedTime) {
+      // Final availability check before proceeding
+      const selectedSlot = availabilityData?.availability
+        .find(day => day.date === selectedDate)?.slots
+        .find(slot => slot.startTime === selectedTime);
+
+      if (selectedSlot) {
+        const isStillAvailable = await checkSlotAvailability(
+          selectedDate,
+          selectedSlot.startTime,
+          selectedSlot.endTime
+        );
+
+        if (isStillAvailable) {
+          setStep(3);
+        } else {
+          // Refresh availability and show error
+          if (selectedServiceId) {
+            fetchAvailability(selectedServiceId);
+          }
+          alert("This time slot is no longer available. Please select another time.");
+          setSelectedTime("");
+        }
+      }
+    }
+  };
+
+  // Auto-refresh availability every 30 seconds when on step 2
+  useEffect(() => {
+    if (step === 2 && selectedServiceId) {
+      const interval = setInterval(() => {
+        fetchAvailability(selectedServiceId);
+      }, 30000); // 30 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [step, selectedServiceId, businessId]);
+
+  const handleBookingSubmit = async (customerData: CustomerFormData) => {
+    if (!selectedService || !selectedDate || !selectedTime) {
+      setBookingError("Missing booking information");
+      return;
+    }
+
+    setBookingLoading(true);
+    setBookingError(null);
+
+    try {
+      // Calculate end time based on service duration
+      const timeParts = selectedTime.split(':');
+      const startHours = parseInt(timeParts[0] || '0', 10);
+      const startMinutes = parseInt(timeParts[1] || '0', 10);
+
+      const startDate = new Date();
+      startDate.setHours(startHours, startMinutes, 0, 0);
+
+      const endDate = new Date(startDate.getTime() + selectedService.duration * 60000);
+      const endTime = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
+
+      const bookingData = {
+        businessId,
+        serviceId: selectedService.id,
+        customerName: customerData.name,
+        customerEmail: customerData.email,
+        customerPhone: customerData.phone,
+        appointmentDate: selectedDate,
+        startTime: selectedTime,
+        endTime,
+        notes: customerData.notes,
+      };
+
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create booking');
+      }
+
+      // Set booking result and move to confirmation step
+      setBookingResult(result.appointment);
+      setStep(4);
+    } catch (error) {
+      console.error('Booking error:', error);
+      setBookingError(error instanceof Error ? error.message : 'Failed to create booking');
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   const selectedService = business?.services.find(s => s.id === selectedServiceId);
@@ -164,11 +317,10 @@ export default function BookingPage() {
                       {business.services.map((service) => (
                         <Card
                           key={service.id}
-                          className={`cursor-pointer transition-all hover:shadow-md ${
-                            selectedServiceId === service.id
-                              ? "ring-2 ring-purple-500 border-purple-500"
-                              : "hover:border-purple-300"
-                          }`}
+                          className={`cursor-pointer transition-all hover:shadow-md ${selectedServiceId === service.id
+                            ? "ring-2 ring-purple-500 border-purple-500"
+                            : "hover:border-purple-300"
+                            }`}
                           onClick={() => handleServiceSelect(service.id)}
                         >
                           <CardContent className="p-6">
@@ -250,27 +402,78 @@ export default function BookingPage() {
               <div className="lg:col-span-2">
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">Select Date & Time</h2>
-                    <Button variant="outline" onClick={() => setStep(1)}>
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Back to Services
-                    </Button>
+                    <div className="flex items-center space-x-3">
+                      <h2 className="text-2xl font-bold">Select Date & Time</h2>
+                      {availabilityLoading && (
+                        <div className="flex items-center space-x-2 text-sm text-gray-500">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Updating availability...</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => selectedServiceId && fetchAvailability(selectedServiceId)}
+                        disabled={availabilityLoading}
+                      >
+                        <Loader2 className={`h-4 w-4 mr-2 ${availabilityLoading ? 'animate-spin' : ''}`} />
+                        Refresh
+                      </Button>
+                      <Button variant="outline" onClick={() => setStep(1)}>
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Services
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid gap-6 md:grid-cols-2">
                     <Calendar
                       selectedDate={selectedDate}
                       onDateSelect={handleDateSelect}
-                      availableDates={[]} // This will be populated with real availability data
+                      availableDates={
+                        availabilityData?.availability
+                          .filter(day => day.slots.length > 0)
+                          .map(day => day.date) || []
+                      }
                     />
 
                     <TimeSlotGrid
                       selectedDate={selectedDate}
                       selectedTime={selectedTime}
-                      timeSlots={mockTimeSlots}
+                      timeSlots={
+                        availabilityData?.availability
+                          .find(day => day.date === selectedDate)?.slots || []
+                      }
                       onTimeSelect={handleTimeSelect}
+                      loading={availabilityLoading}
                     />
                   </div>
+
+                  {availabilityError && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <p className="text-red-800 text-sm">
+                        Error loading availability: {availabilityError}
+                      </p>
+                      <button
+                        onClick={() => selectedServiceId && fetchAvailability(selectedServiceId)}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium mt-2"
+                      >
+                        Try again
+                      </button>
+                    </div>
+                  )}
+
+                  {!availabilityLoading && !availabilityError && availabilityData &&
+                    availabilityData.availability.every(day => day.slots.length === 0) && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <p className="text-yellow-800 text-sm">
+                          No availability found for the selected service in the next 30 days.
+                          Please try selecting a different service or contact the business directly.
+                        </p>
+                      </div>
+                    )}
 
                   {selectedDate && selectedTime && (
                     <div className="text-center">
@@ -329,146 +532,61 @@ export default function BookingPage() {
                     </Button>
                   </div>
 
-                  <Card>
-                    <CardContent className="p-6">
-                      <form onSubmit={handleBookingSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">Full Name</Label>
-                          <div className="relative">
-                            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                            <Input
-                              id="name"
-                              placeholder="Enter your full name"
-                              className="pl-10"
-                              value={customerInfo.name}
-                              onChange={(e) =>
-                                setCustomerInfo({
-                                  ...customerInfo,
-                                  name: e.target.value,
-                                })
-                              }
-                              required
-                            />
-                          </div>
-                        </div>
+                  {bookingError && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <p className="text-red-800 text-sm">{bookingError}</p>
+                    </div>
+                  )}
 
-                        <div className="space-y-2">
-                          <Label htmlFor="email">Email Address</Label>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                            <Input
-                              id="email"
-                              type="email"
-                              placeholder="your@email.com"
-                              className="pl-10"
-                              value={customerInfo.email}
-                              onChange={(e) =>
-                                setCustomerInfo({
-                                  ...customerInfo,
-                                  email: e.target.value,
-                                })
-                              }
-                              required
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="phone">Phone Number</Label>
-                          <div className="relative">
-                            <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                            <Input
-                              id="phone"
-                              type="tel"
-                              placeholder="+1 (555) 123-4567"
-                              className="pl-10"
-                              value={customerInfo.phone}
-                              onChange={(e) =>
-                                setCustomerInfo({
-                                  ...customerInfo,
-                                  phone: e.target.value,
-                                })
-                              }
-                              required
-                            />
-                          </div>
-                        </div>
-
-                        <Button type="submit" size="lg" className="w-full">
-                          Confirm Booking
-                        </Button>
-                      </form>
-                    </CardContent>
-                  </Card>
+                  <CustomerForm
+                    initialData={customerInfo}
+                    onSubmit={handleBookingSubmit}
+                    loading={bookingLoading}
+                  />
                 </div>
               </div>
             </div>
           )}
 
           {/* Step 4: Confirmation */}
-          {step === 4 && (
-            <div className="max-w-2xl mx-auto text-center py-12">
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 mx-auto">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-              <h2 className="text-3xl font-bold mb-4">Booking Confirmed!</h2>
-              <p className="text-lg text-gray-600 mb-6">
-                Your appointment has been successfully booked.
-              </p>
-
-              <Card className="max-w-md mx-auto">
-                <CardContent className="p-6">
-                  <div className="space-y-3 text-left">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Business:</span>
-                      <span className="font-medium">{business.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Service:</span>
-                      <span className="font-medium">{selectedService?.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Date & Time:</span>
-                      <span className="font-medium">{selectedDate} at {selectedTime}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Customer:</span>
-                      <span className="font-medium">{customerInfo.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Phone:</span>
-                      <span className="font-medium">{customerInfo.phone}</span>
-                    </div>
-                    <div className="flex justify-between border-t pt-3">
-                      <span className="text-gray-600">Total:</span>
-                      <span className="text-lg font-bold">
-                        ${selectedService ? (selectedService.price / 100).toFixed(2) : '0.00'}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="mt-8 space-y-4">
-                <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                  <div className="flex items-center justify-center space-x-2 text-green-800">
-                    <CheckCircle className="h-5 w-5" />
-                    <span className="font-medium">
-                      WhatsApp notification sent to business owner
-                    </span>
-                  </div>
-                </div>
-
-                <p className="text-sm text-gray-600">
-                  You will receive a confirmation message shortly.
-                  Please arrive 5 minutes before your appointment time.
-                </p>
-
-                <Button asChild>
-                  <a href="/">Book Another Appointment</a>
-                </Button>
-              </div>
-            </div>
+          {step === 4 && bookingResult && (
+            <BookingConfirmation
+              booking={{
+                id: bookingResult.id,
+                confirmationNumber: bookingResult.confirmationNumber || bookingResult.id,
+                customerName: bookingResult.customerName,
+                customerEmail: bookingResult.customerEmail,
+                customerPhone: bookingResult.customerPhone,
+                appointmentDate: bookingResult.appointmentDate,
+                startTime: bookingResult.startTime,
+                endTime: bookingResult.endTime,
+                notes: bookingResult.notes,
+                status: bookingResult.status,
+                business: {
+                  id: business.id,
+                  name: business.name,
+                  phone: business.phone || undefined,
+                  email: business.email || undefined,
+                  location: business.location || undefined
+                },
+                service: {
+                  id: selectedService!.id,
+                  name: selectedService!.name,
+                  duration: selectedService!.duration,
+                  price: selectedService!.price
+                }
+              }}
+              onNewBooking={() => {
+                // Reset form and go back to step 1
+                setStep(1);
+                setSelectedServiceId("");
+                setSelectedDate("");
+                setSelectedTime("");
+                setCustomerInfo({ name: "", email: "", phone: "", notes: "" });
+                setBookingResult(null);
+                setBookingError(null);
+              }}
+            />
           )}
         </div>
       </div>

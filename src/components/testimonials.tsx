@@ -1,8 +1,8 @@
-'use client'
+"use client";
 import { useState } from "react";
 import { AnimatePresence, type Transition, motion } from "motion/react";
 import { PaginationDot } from "@/components/application/pagination/pagination-dot";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { StarIcon } from "lucide-react";
 
 export const TestimonialSimpleCentered01 = () => {
@@ -80,7 +80,7 @@ export const TestimonialSimpleCentered01 = () => {
                     delay: 0.06,
                   },
                 }}
-                className="text-sm md:text-2xl origin-bottom font-medium text-balance will-change-transform"
+                className="origin-bottom text-sm font-medium text-balance will-change-transform md:text-2xl"
               >
                 {reviews[currentReviewIndex]?.quote}
               </motion.blockquote>
@@ -109,12 +109,15 @@ export const TestimonialSimpleCentered01 = () => {
                 className="flex origin-bottom flex-col items-center gap-4 will-change-transform"
               >
                 <div className="flex flex-col items-center gap-4">
-                  <Avatar
-                    src={reviews[currentReviewIndex]?.author.avatarUrl
-                    }
-                    alt={reviews[currentReviewIndex]?.author.name}
-                    size="2xl"
-                  />
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage
+                      src={reviews[currentReviewIndex]?.author.avatarUrl}
+                      alt={reviews[currentReviewIndex]?.author.name}
+                    />
+                    <AvatarFallback>
+                      {reviews[currentReviewIndex]?.author.name?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex flex-col gap-1">
                     <p className="text-primary text-lg font-semibold">
                       {reviews[currentReviewIndex]?.author.name}

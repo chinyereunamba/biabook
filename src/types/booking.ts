@@ -27,7 +27,7 @@ export interface Appointment {
   appointmentDate: string; // YYYY-MM-DD format
   startTime: string; // HH:MM format
   endTime: string; // HH:MM format
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status: "pending" | "confirmed" | "cancelled" | "completed";
   notes: string | null;
   confirmationNumber: string;
   createdAt: Date;
@@ -125,8 +125,8 @@ export interface CreateAppointmentInput {
 export interface UpdateAppointmentInput {
   appointmentDate?: string;
   startTime?: string;
-  status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  notes?: string;
+  status?: "pending" | "confirmed" | "cancelled" | "completed";
+  notes?: string | null;
 }
 
 export interface CreateWeeklyAvailabilityInput {
