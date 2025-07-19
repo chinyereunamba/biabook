@@ -103,3 +103,199 @@ export const verificationTokens = createTable(
   }),
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );
+
+export const categories = createTable("categories", (d) => ({
+  id: d.text("id").primaryKey(), // e.g. 'salon', 'fitness'
+  name: d.text("name").notNull(),
+}));
+
+export const businesses = createTable("businesses", (d) => ({
+  id: d.text("id").primaryKey(),
+  name: d.text("name").notNull(),
+  description: d.text("description"),
+  location: d.text("location"),
+  phone: d.text("phone"),
+  email: d.text("email"),
+  categoryId: d.text("category_id").notNull(),
+  ownerId: d
+    .text("owner_id")
+    .notNull()
+    .references(() => users.id),
+  createdAt: d
+    .integer("created_at", { mode: "timestamp" })
+    .default(sql`(unixepoch())`)
+    .notNull(),
+  updatedAt: d
+    .integer("updated_at", { mode: "timestamp" })
+    .$onUpdate(() => new Date()),
+}));
+
+export const services = createTable(
+  "services",
+  (d) => ({
+    id: d
+      .text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    businessId: d
+      .text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    name: d.text("name").notNull(),
+    description: d.text("description"),
+    duration: d.integer("duration").notNull(), // minutes
+    price: d.integer("price").notNull(), // cents
+    isActive: d.integer("is_active", { mode: "boolean" }).default(true).notNull(),
+    category: d.text("category"),
+    bufferTime: d.integer("buffer_time").default(0), // minutes between bookings
+    createdAt: d
+      .integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+    updatedAt: d
+      .integer("updated_at", { mode: "timestamp" })
+      .$onUpdate(() => new Date()),
+  }),
+  (t) => [
+    index("services_business_id_idx").on(t.businessId),
+    index("services_active_idx").on(t.isActive),
+  ],
+);
+
+export const weeklyAvailability = createTable(
+  "weekly_availability",
+  (d) => ({
+    id: d
+      .text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    businessId: d
+      .text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    dayOfWeek: d.integer("day_of_week").notNull(), // 0-6 (Sunday-Saturday)
+    startTime: d.text("start_time").notNull(), // HH:MM format
+    endTime: d.text("end_time").notNull(), // HH:MM format
+    isAvailable: d.integer("is_available", { mode: "boolean" }).default(true).notNull(),
+    createdAt: d
+      .integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+    updatedAt: d
+      .integer("updated_at", { mode: "timestamp" })
+      .$onUpdate(() => new Date()),
+  }),
+  (t) => [
+    index("weekly_availability_business_id_idx").on(t.businessId),
+    index("weekly_availability_day_idx").on(t.dayOfWeek),
+  ],
+);
+
+export const availabilityExceptions = createTable(
+  "availability_exceptions",
+  (d) => ({
+    id: d
+      .text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    businessId: d
+      .text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    date: d.text("date").notNull(), // YYYY-MM-DD format
+    startTime: d.text("start_time"), // HH:MM format, null if closed all day
+    endTime: d.text("end_time"), // HH:MM format, null if closed all day
+    isAvailable: d.integer("is_available", { mode: "boolean" }).default(false).notNull(),
+    reason: d.text("reason"),
+    createdAt: d
+      .integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+    updatedAt: d
+      .integer("updated_at", { mode: "timestamp" })
+      .$onUpdate(() => new Date()),
+  }),
+  (t) => [
+    index("availability_exceptions_business_id_idx").on(t.businessId),
+    index("availability_exceptions_date_idx").on(t.date),
+  ],
+);
+
+export const appointments = createTable(
+  "appointments",
+  (d) => ({
+    id: d
+      .text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    businessId: d
+      .text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    serviceId: d
+      .text("service_id")
+      .notNull()
+      .references(() => services.id, { onDelete: "cascade" }),
+    customerName: d.text("customer_name").notNull(),
+    customerEmail: d.text("customer_email").notNull(),
+    customerPhone: d.text("customer_phone").notNull(),
+    appointmentDate: d.text("appointment_date").notNull(), // YYYY-MM-DD format
+    startTime: d.text("start_time").notNull(), // HH:MM format
+    endTime: d.text("end_time").notNull(), // HH:MM format
+    status: d.text("status", { 
+      enum: ["pending", "confirmed", "cancelled", "completed"] 
+    }).default("pending").notNull(),
+    notes: d.text("notes"),
+    confirmationNumber: d
+      .text("confirmation_number")
+      .notNull()
+      .$defaultFn(() => Math.random().toString(36).substring(2, 10).toUpperCase()),
+    createdAt: d
+      .integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+    updatedAt: d
+      .integer("updated_at", { mode: "timestamp" })
+      .$onUpdate(() => new Date()),
+  }),
+  (t) => [
+    index("appointments_business_id_idx").on(t.businessId),
+    index("appointments_service_id_idx").on(t.serviceId),
+    index("appointments_date_idx").on(t.appointmentDate),
+    index("appointments_status_idx").on(t.status),
+    index("appointments_confirmation_idx").on(t.confirmationNumber),
+    // Prevent double booking - unique constraint on business, date, and time
+    index("appointments_unique_slot_idx").on(t.businessId, t.appointmentDate, t.startTime),
+  ],
+);
+
+export const businessesRelations = relations(businesses, ({ one, many }) => ({
+  owner: one(users, { fields: [businesses.ownerId], references: [users.id] }),
+  category: one(categories, { fields: [businesses.categoryId], references: [categories.id] }),
+  services: many(services),
+  weeklyAvailability: many(weeklyAvailability),
+  availabilityExceptions: many(availabilityExceptions),
+  appointments: many(appointments),
+}));
+
+export const servicesRelations = relations(services, ({ one, many }) => ({
+  business: one(businesses, { fields: [services.businessId], references: [businesses.id] }),
+  appointments: many(appointments),
+}));
+
+export const weeklyAvailabilityRelations = relations(weeklyAvailability, ({ one }) => ({
+  business: one(businesses, { fields: [weeklyAvailability.businessId], references: [businesses.id] }),
+}));
+
+export const availabilityExceptionsRelations = relations(availabilityExceptions, ({ one }) => ({
+  business: one(businesses, { fields: [availabilityExceptions.businessId], references: [businesses.id] }),
+}));
+
+export const appointmentsRelations = relations(appointments, ({ one }) => ({
+  business: one(businesses, { fields: [appointments.businessId], references: [businesses.id] }),
+  service: one(services, { fields: [appointments.serviceId], references: [services.id] }),
+}));
+
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  businesses: many(businesses),
+}));

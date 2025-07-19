@@ -17,26 +17,6 @@ export function Header() {
             <Calendar className="text-primary h-8 w-8" />
             <span className="text-2xl font-bold">BookMe</span>
           </Link>
-          <nav className="flex items-center gap-2 ">
-            <Link
-              href="/#features"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Features
-            </Link>
-            <Link
-              href="/booking"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Booking
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Pricing
-            </Link>
-          </nav>
         </div>
 
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
@@ -87,8 +67,23 @@ export function Header() {
         </Sheet>
 
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <nav className="flex items-center">
-            <Button asChild size='lg'>
+          <nav className="flex items-center space-x-3">
+            <div className="flex items-center gap-2">
+              <Link
+                href="/business"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Book a service
+              </Link>
+             
+              <Link
+                href="/#pricing"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Pricing
+              </Link>
+            </div>
+            <Button asChild size="lg">
               <Link href="/login">Sign In</Link>
             </Button>
           </nav>

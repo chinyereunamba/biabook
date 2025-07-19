@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/card";
 import { Users02 } from "@untitledui/icons/Users02";
 import { TestimonialSimpleCentered01 } from "@/components/testimonials";
+import { Badge } from "@/components/ui/badge";
 
 export default function HomePage() {
   return (
@@ -101,7 +102,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-6">
-            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+            <Card className="rounded-xl border-gray-200 p-6 text-center transition-all duration-200 hover:shadow-lg">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-pink-50">
                 <Scissors className="h-6 w-6 text-pink-600" />
               </div>
@@ -109,7 +110,7 @@ export default function HomePage() {
               <p className="text-sm text-gray-500">Cuts, colors, styling</p>
             </Card>
 
-            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+            <Card className="rounded-xl border-gray-200 p-6 text-center transition-all duration-200 hover:shadow-lg">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
                 <GraduationCap className="h-6 w-6 text-blue-600" />
               </div>
@@ -117,7 +118,7 @@ export default function HomePage() {
               <p className="text-sm text-gray-500">Math, science, languages</p>
             </Card>
 
-            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+            <Card className="rounded-xl border-gray-200 p-6 text-center transition-all duration-200 hover:shadow-lg">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-green-50">
                 <Camera className="h-6 w-6 text-green-600" />
               </div>
@@ -129,7 +130,7 @@ export default function HomePage() {
               </p>
             </Card>
 
-            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+            <Card className="rounded-xl border-gray-200 p-6 text-center transition-all duration-200 hover:shadow-lg">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-50">
                 <Stethoscope className="h-6 w-6 text-red-600" />
               </div>
@@ -137,7 +138,7 @@ export default function HomePage() {
               <p className="text-sm text-gray-500">Consultations, checkups</p>
             </Card>
 
-            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+            <Card className="rounded-xl border-gray-200 p-6 text-center transition-all duration-200 hover:shadow-lg">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50">
                 <Dumbbell className="h-6 w-6 text-orange-600" />
               </div>
@@ -145,7 +146,7 @@ export default function HomePage() {
               <p className="text-sm text-gray-500">Personal fitness, yoga</p>
             </Card>
 
-            <Card className="border-gray-200 rounded-xl p-6 text-center transition-all duration-200 hover:shadow-lg">
+            <Card className="rounded-xl border-gray-200 p-6 text-center transition-all duration-200 hover:shadow-lg">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50">
                 <Sparkles className="h-6 w-6 text-purple-600" />
               </div>
@@ -355,6 +356,143 @@ export default function HomePage() {
         </div>
       </section> */}
       <TestimonialSimpleCentered01 />
+
+      {/* Pricing Section */}
+      <section id="pricing" className="bg-white py-20">
+        <div className="container mx-auto px-4">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-4xl font-bold text-gray-900">
+              Simple, transparent pricing
+            </h2>
+            <p className="text-xl text-gray-600">
+              Start free, upgrade when you grow
+            </p>
+          </div>
+
+          <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
+            <Card className="relative border-gray-200 p-8">
+              <div className="text-center">
+                <h3 className="mb-2 text-2xl font-bold text-gray-900">
+                  Starter
+                </h3>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-gray-900">Free</span>
+                  <span className="text-gray-500">/forever</span>
+                </div>
+                <ul className="mb-8 space-y-3 text-left">
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">
+                      Up to 50 bookings/month
+                    </span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">Basic booking page</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">Email notifications</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">Customer management</span>
+                  </li>
+                </ul>
+                <Button className="w-full bg-transparent" variant="outline">
+                  Get started
+                </Button>
+              </div>
+            </Card>
+
+            <Card className="relative border-purple-200 p-8 shadow-lg">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
+                <Badge className="bg-primary px-4 py-1 text-white">
+                  Most popular
+                </Badge>
+              </div>
+              <div className="text-center">
+                <h3 className="mb-2 text-2xl font-bold text-gray-900">Pro</h3>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-gray-900">$19</span>
+                  <span className="text-gray-500">/month</span>
+                </div>
+                <ul className="mb-8 space-y-3 text-left">
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">Unlimited bookings</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">
+                      WhatsApp notifications
+                    </span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">Custom booking page</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">Analytics & reports</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">Priority support</span>
+                  </li>
+                </ul>
+                <Button className="bg-primary w-full hover:bg-primary/90">
+                  Start free trial
+                </Button>
+              </div>
+            </Card>
+
+            <Card className="relative border-gray-200 p-8">
+              <div className="text-center">
+                <h3 className="mb-2 text-2xl font-bold text-gray-900">
+                  Enterprise
+                </h3>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-gray-900">$49</span>
+                  <span className="text-gray-500">/month</span>
+                </div>
+                <ul className="mb-8 space-y-3 text-left">
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">Multiple locations</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">Team management</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">API access</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">White-label options</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-gray-600">Dedicated support</span>
+                  </li>
+                </ul>
+                <Button className="w-full bg-transparent" variant="outline">
+                  Contact sales
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-gray-500">
+              All plans include SSL security, 99.9% uptime, and
+              mobile-responsive booking pages
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="bg-primary py-20 text-white">

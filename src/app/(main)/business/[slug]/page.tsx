@@ -52,9 +52,7 @@ export default function BusinessBookingPage({ params }: { params: { slug: string
             className="h-16 w-16 rounded-full"
           />
           <div>
-            <h1 className="text-2xl font-bold text-blue-900">
-              {params.slug}
-            </h1>
+            <h1 className="text-2xl font-bold text-blue-900">{params.slug}</h1>
             <p className="text-sm text-gray-700">{mockBusiness.description}</p>
           </div>
         </div>
@@ -80,7 +78,7 @@ export default function BusinessBookingPage({ params }: { params: { slug: string
               {timeSlots.map((slot) => (
                 <button
                   key={slot}
-                  className={`rounded border px-2 py-1 text-xs ${selectedTime === slot ? "border-purple-500 bg-purple-200" : "border-gray-200 bg-white hover:bg-purple-50"}`}
+                  className={`rounded border px-2 py-1 text-xs ${selectedTime === slot ? "border-primary bg-purple-200" : "border-gray-200 bg-white hover:bg-purple-50"}`}
                   onClick={() => setSelectedTime(slot)}
                 >
                   {slot}
