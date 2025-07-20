@@ -48,7 +48,7 @@ export default function HomePage() {
             <h1 className="text-5xl leading-tight font-bold lg:text-6xl">
               Let customers book you in{" "}
               <span className="text-primary">60 seconds</span>
-            </h1>
+                </h1>
             <p className="text-muted-foreground text-xl leading-relaxed">
               Get reminded on WhatsApp. For salons, tutors, clinics, and more.
               No complicated setup required.
@@ -59,14 +59,14 @@ export default function HomePage() {
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
-              </Button>
+                </Button>
               <Button
                 size="lg"
                 variant="outline"
                 icon={<Calendar className="mr-2 h-5 w-5" />}
               >
                 Book Demo
-              </Button>
+                </Button>
             </div>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function HomePage() {
             <Card className="rounded-xl border-gray-200 p-6 text-center transition-all duration-200 hover:shadow-lg">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50">
                 <Sparkles className="h-6 w-6 text-purple-600" />
-              </div>
+            </div>
               <h3 className="mb-2 font-semibold text-gray-900">Spas</h3>
               <p className="text-sm text-gray-500">Massage, wellness</p>
             </Card>
@@ -154,8 +154,8 @@ export default function HomePage() {
                   Powerful, self-serve appointment booking and WhatsApp
                   notifications to help you convert, engage, and retain more
                   customers.
-                </p>
-              </div>
+              </p>
+            </div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:col-span-2">
@@ -220,7 +220,7 @@ export default function HomePage() {
                   </div>
                   <h3 className="mb-2 text-xl font-semibold text-white">
                     Smart Scheduling
-                  </h3>
+              </h3>
                   <p className="mb-4 text-slate-300">
                     Set your availability once and let customers book available
                     time slots automatically.
@@ -241,10 +241,10 @@ export default function HomePage() {
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold">
               Trusted by businesses everywhere
-            </h2>
+              </h2>
             <p className="text-muted-foreground text-xl">
               See how BookMe helps different types of businesses
-            </p>
+              </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
@@ -346,7 +346,7 @@ export default function HomePage() {
           <div className="mb-16 text-center">
             <h2 className="mb-4 text-4xl font-bold text-gray-900">
               Simple, transparent pricing
-            </h2>
+              </h2>
             <p className="text-xl text-gray-600">
               Start free, upgrade when you grow
             </p>
@@ -361,27 +361,27 @@ export default function HomePage() {
                 <div className="mb-6">
                   <span className="text-4xl font-bold text-gray-900">Free</span>
                   <span className="text-gray-500">/forever</span>
-                </div>
+            </div>
                 <ul className="mb-8 space-y-3 text-left">
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">
                       Up to 50 bookings/month
                     </span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">Basic booking page</span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">Email notifications</span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">Customer management</span>
-                  </li>
-                </ul>
+                </li>
+              </ul>
                 <Button className="w-full bg-transparent" variant="outline">
                   Get started
                 </Button>
@@ -399,31 +399,31 @@ export default function HomePage() {
                 <div className="mb-6">
                   <span className="text-4xl font-bold text-gray-900">$19</span>
                   <span className="text-gray-500">/month</span>
-                </div>
+            </div>
                 <ul className="mb-8 space-y-3 text-left">
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">Unlimited bookings</span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">
                       WhatsApp notifications
                     </span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">Custom booking page</span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">Analytics & reports</span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">Priority support</span>
-                  </li>
-                </ul>
+                </li>
+              </ul>
                 <Button className="bg-primary hover:bg-primary/90 w-full">
                   Start free trial
                 </Button>
@@ -438,33 +438,33 @@ export default function HomePage() {
                 <div className="mb-6">
                   <span className="text-4xl font-bold text-gray-900">$49</span>
                   <span className="text-gray-500">/month</span>
-                </div>
+            </div>
                 <ul className="mb-8 space-y-3 text-left">
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">Multiple locations</span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">Team management</span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">API access</span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">White-label options</span>
-                  </li>
+                </li>
                   <li className="flex items-center">
                     <CheckCircle className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
                     <span className="text-gray-600">Dedicated support</span>
-                  </li>
-                </ul>
+                </li>
+              </ul>
                 <Button className="w-full bg-transparent" variant="outline">
                   Contact sales
                 </Button>
-              </div>
+            </div>
             </Card>
           </div>
 
@@ -473,8 +473,8 @@ export default function HomePage() {
               All plans include SSL security, 99.9% uptime, and
               mobile-responsive booking pages
             </p>
-          </div>
-        </div>
+              </div>
+            </div>
       </section>
 
       {/* CTA Section */}
@@ -487,9 +487,8 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button size="lg" variant="secondary" asChild>
-              <Link href="/signup">
-                Start Free Trial
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Link href="/signup" className="gap-2 flex items-center">
+                Start Free Trial<ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
             <Button

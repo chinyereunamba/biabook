@@ -35,7 +35,7 @@ const footerSections = [
   },
 ];
 
-export default function Footer({ className }: FooterProps) {
+export function Footer({ className }: FooterProps) {
   return (
     <footer className={cn("bg-neutral-900 text-white", className)}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

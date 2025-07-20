@@ -103,7 +103,7 @@ function Button({
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, fullWidth, className }))}
-        disabled={disabled || loading}
+        disabled={disabled ?? loading}
         {...props}
       >
         {React.cloneElement(
@@ -136,7 +136,7 @@ function Button({
           ) : (
             <>
               {icon && <span className="shrink-0">{icon}</span>}
-              {(children as React.ReactElement).props.children}
+              {children}
             </>
           ),
         )}

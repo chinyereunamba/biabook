@@ -10,7 +10,7 @@ import {
   users,
   verificationTokens,
 } from "@/server/db/schema";
-import { env } from "@/env";
+import { eq } from "drizzle-orm";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -22,6 +22,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
+      isOnboarded?: boolean;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
@@ -39,10 +40,13 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authConfig = {
+  pages: {
+    signIn: "/login",
+    error: "/auth/error",
+  },
+
   providers: [
     Google({
-      clientId: env.AUTH_GOOGLE_ID,
-      clientSecret: env.AUTH_GOOGLE_SECRET,
       authorization: {
         params: {
           prompt: "consent",
@@ -51,7 +55,7 @@ export const authConfig = {
         },
       },
     }),
-    Resend
+    // Resend
     /**
      * ...add more providers here.
      *
@@ -71,16 +75,35 @@ export const authConfig = {
   callbacks: {
     async signIn({ account, profile }) {
       if (account?.provider === "google") {
-        return !!(profile?.email_verified && profile?.email?.endsWith("@gmail.com"));
+        return !!(
+          profile?.email_verified && profile?.email?.endsWith("@gmail.com")
+        );
       }
       return true;
     },
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    async session({ session, user }) {
+      const dbUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, user.id))
+        .then((res) => res[0]);
+
+      if (dbUser) {
+        session.user.id = dbUser.id;
+        session.user.isOnboarded = !!dbUser.isOnboarded;
+      }
+
+      // Set a flag to indicate if the user needs onboarding
+      (session.user as any).needsOnboarding = dbUser && !dbUser.isOnboarded;
+
+      return session;
+    },
+
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      return url.startsWith(baseUrl) ? url : baseUrl;
+    },
+  },
+  session: {
+    strategy: "database",
   },
 } satisfies NextAuthConfig;

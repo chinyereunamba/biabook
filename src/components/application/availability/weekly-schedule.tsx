@@ -12,7 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { isValidTimeFormat, isEndTimeAfterStartTime } from "@/server/repositories/utils/availability-validation";
+import {
+  isValidTimeFormat,
+  isEndTimeAfterStartTime,
+} from "@/server/repositories/utils/availability-validation";
 
 export interface DaySchedule {
   dayOfWeek: number; // 0-6 (Sunday-Saturday)
@@ -22,7 +25,6 @@ export interface DaySchedule {
 }
 
 export interface WeeklyScheduleProps {
-  businessId: string;
   initialSchedule?: DaySchedule[];
   onSave?: (schedule: DaySchedule[]) => Promise<void>;
   isLoading?: boolean;
@@ -41,19 +43,18 @@ const DAYS_OF_WEEK = [
 const DEFAULT_START_TIME = "09:00";
 const DEFAULT_END_TIME = "17:00";
 
-export function WeeklySchedule({ 
-  businessId, 
-  initialSchedule, 
+export function WeeklySchedule({
+  initialSchedule,
   onSave,
-  isLoading = false 
+  isLoading = false,
 }: WeeklyScheduleProps) {
   const [schedule, setSchedule] = useState<DaySchedule[]>(() => {
     if (initialSchedule && initialSchedule.length > 0) {
       return [...initialSchedule];
     }
-    
+
     // Default schedule for all days
-    return DAYS_OF_WEEK.map(day => ({
+    return DAYS_OF_WEEK.map((day) => ({
       dayOfWeek: day.value,
       isAvailable: true,
       startTime: DEFAULT_START_TIME,
@@ -70,15 +71,18 @@ export function WeeklySchedule({
     }
   }, [initialSchedule]);
 
-  const handleAvailabilityChange = (dayOfWeek: number, isAvailable: boolean) => {
-    setSchedule(prev => 
-      prev.map(day => 
-        day.dayOfWeek === dayOfWeek ? { ...day, isAvailable } : day
-      )
+  const handleAvailabilityChange = (
+    dayOfWeek: number,
+    isAvailable: boolean,
+  ) => {
+    setSchedule((prev) =>
+      prev.map((day) =>
+        day.dayOfWeek === dayOfWeek ? { ...day, isAvailable } : day,
+      ),
     );
-    
+
     // Clear errors for this day
-    setErrors(prev => {
+    setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[`${dayOfWeek}-start`];
       delete newErrors[`${dayOfWeek}-end`];
@@ -87,17 +91,23 @@ export function WeeklySchedule({
     });
   };
 
-  const handleTimeChange = (dayOfWeek: number, field: 'startTime' | 'endTime', value: string) => {
-    setSchedule(prev => 
-      prev.map(day => 
-        day.dayOfWeek === dayOfWeek ? { ...day, [field]: value } : day
-      )
+  const handleTimeChange = (
+    dayOfWeek: number,
+    field: "startTime" | "endTime",
+    value: string,
+  ) => {
+    setSchedule((prev) =>
+      prev.map((day) =>
+        day.dayOfWeek === dayOfWeek ? { ...day, [field]: value } : day,
+      ),
     );
-    
+
     // Clear specific error
-    setErrors(prev => {
+    setErrors((prev) => {
       const newErrors = { ...prev };
-      delete newErrors[`${dayOfWeek}-${field === 'startTime' ? 'start' : 'end'}`];
+      delete newErrors[
+        `${dayOfWeek}-${field === "startTime" ? "start" : "end"}`
+      ];
       delete newErrors[`${dayOfWeek}-range`];
       return newErrors;
     });
@@ -107,22 +117,26 @@ export function WeeklySchedule({
     const newErrors: Record<string, string> = {};
     let isValid = true;
 
-    schedule.forEach(day => {
+    schedule.forEach((day) => {
       if (!day.isAvailable) return; // Skip validation for unavailable days
-      
+
       if (!isValidTimeFormat(day.startTime)) {
         newErrors[`${day.dayOfWeek}-start`] = "Invalid start time format";
         isValid = false;
       }
-      
+
       if (!isValidTimeFormat(day.endTime)) {
         newErrors[`${day.dayOfWeek}-end`] = "Invalid end time format";
         isValid = false;
       }
-      
-      if (isValidTimeFormat(day.startTime) && isValidTimeFormat(day.endTime) && 
-          !isEndTimeAfterStartTime(day.startTime, day.endTime)) {
-        newErrors[`${day.dayOfWeek}-range`] = "End time must be after start time";
+
+      if (
+        isValidTimeFormat(day.startTime) &&
+        isValidTimeFormat(day.endTime) &&
+        !isEndTimeAfterStartTime(day.startTime, day.endTime)
+      ) {
+        newErrors[`${day.dayOfWeek}-range`] =
+          "End time must be after start time";
         isValid = false;
       }
     });
@@ -149,7 +163,7 @@ export function WeeklySchedule({
   };
 
   return (
-    <Card>
+    <Card className="border-none shadow-none">
       <CardHeader>
         <CardTitle>Weekly Schedule</CardTitle>
         <CardDescription>
@@ -158,24 +172,26 @@ export function WeeklySchedule({
       </CardHeader>
       <CardContent className="grid gap-4">
         {DAYS_OF_WEEK.map(({ name, value }) => {
-          const day = schedule.find(d => d.dayOfWeek === value) || {
+          const day = schedule.find((d) => d.dayOfWeek === value) || {
             dayOfWeek: value,
             isAvailable: true,
             startTime: DEFAULT_START_TIME,
             endTime: DEFAULT_END_TIME,
           };
-          
+
           return (
             <div key={name} className="flex flex-col gap-2">
               <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="flex items-center gap-4">
-                  <Switch 
-                    id={`switch-${name.toLowerCase()}`} 
+                <div className="flex w-full items-center gap-4">
+                  <Switch
+                    id={`switch-${name.toLowerCase()}`}
                     checked={day.isAvailable}
-                    onCheckedChange={(checked) => handleAvailabilityChange(value, checked)}
+                    onCheckedChange={(checked) =>
+                      handleAvailabilityChange(value, checked)
+                    }
                   />
-                  <Label 
-                    htmlFor={`switch-${name.toLowerCase()}`} 
+                  <Label
+                    htmlFor={`switch-${name.toLowerCase()}`}
                     className="text-lg font-medium"
                   >
                     {name}
@@ -183,34 +199,46 @@ export function WeeklySchedule({
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex flex-col">
-                    <Input 
-                      type="time" 
+                    <Input
+                      type="time"
                       value={day.startTime}
-                      onChange={(e) => handleTimeChange(value, 'startTime', e.target.value)}
+                      onChange={(e) =>
+                        handleTimeChange(value, "startTime", e.target.value)
+                      }
                       disabled={!day.isAvailable}
-                      className={errors[`${value}-start`] ? "border-red-500" : ""}
+                      className={
+                        errors[`${value}-start`] ? "border-red-500" : ""
+                      }
                     />
                     {errors[`${value}-start`] && (
-                      <span className="text-xs text-red-500">{errors[`${value}-start`]}</span>
+                      <span className="text-xs text-red-500">
+                        {errors[`${value}-start`]}
+                      </span>
                     )}
                   </div>
                   <span>-</span>
                   <div className="flex flex-col">
-                    <Input 
-                      type="time" 
+                    <Input
+                      type="time"
                       value={day.endTime}
-                      onChange={(e) => handleTimeChange(value, 'endTime', e.target.value)}
+                      onChange={(e) =>
+                        handleTimeChange(value, "endTime", e.target.value)
+                      }
                       disabled={!day.isAvailable}
                       className={errors[`${value}-end`] ? "border-red-500" : ""}
                     />
                     {errors[`${value}-end`] && (
-                      <span className="text-xs text-red-500">{errors[`${value}-end`]}</span>
+                      <span className="text-xs text-red-500">
+                        {errors[`${value}-end`]}
+                      </span>
                     )}
                   </div>
                 </div>
               </div>
               {errors[`${value}-range`] && (
-                <span className="text-xs text-red-500 ml-4">{errors[`${value}-range`]}</span>
+                <span className="ml-4 text-xs text-red-500">
+                  {errors[`${value}-range`]}
+                </span>
               )}
             </div>
           );

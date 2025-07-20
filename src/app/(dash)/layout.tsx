@@ -1,3 +1,4 @@
+import Sidebar from "@/components/sidebar";
 import React from "react";
 
 export default function DashboardLayout({
@@ -6,9 +7,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="bg-background min-h-screen">
-     
-      {children}
+    <main className="bg-background flex min-h-screen">
+      <div className="max-w-xs w-full min-h-screen">
+        <Sidebar />
+      </div>
+      <div className="w-full">{children}</div>
     </main>
   );
 }

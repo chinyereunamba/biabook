@@ -1,29 +1,113 @@
-# Create T3 App
+# BookMe - Simple Appointment Booking
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+BookMe is an appointment booking platform designed for service businesses like salons, tutors, clinics, photographers, trainers, and spas. The platform allows customers to book appointments in 60 seconds without creating accounts and provides WhatsApp notifications for business owners.
 
-## What's next? How do I make an app with this?
+## Features
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **60-second booking**: Customers can book appointments quickly without creating accounts
+- **WhatsApp notifications**: Instant notifications for business owners when bookings are made
+- **Simple setup**: No complicated configuration required
+- **Admin dashboard**: Manage bookings, services, and availability
+- **Smart scheduling**: Automatic availability management
+- **Customer management**: Track customer information and booking history
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Tech Stack
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- **Framework**: Next.js 15 with App Router (React 19)
+- **Language**: TypeScript
+- **Database**: SQLite with Drizzle ORM
+- **Authentication**: NextAuth.js v5 with Google OAuth
+- **Styling**: Tailwind CSS v4 with shadcn/ui components
+- **Package Manager**: Bun
 
-## Learn More
+## Project Structure
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+The project follows a modern Next.js App Router structure:
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+- **Public Routes** (`src/app/(main)/`): Landing page, business listings, booking flow
+- **Protected Routes** (`src/app/(dash)/`): Dashboard, admin, settings
+- **API Routes** (`src/app/api/`): Server-side API endpoints
+- **Components** (`src/components/`): Reusable UI components
+- **Server** (`src/server/`): Authentication, database schema, repositories
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+## Getting Started
 
-## How do I deploy this?
+### Prerequisites
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- Node.js 18+ or Bun
+- Git
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/bookme.git
+   cd bookme
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   bun install
+   ```
+
+3. Set up environment variables:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Update the `.env` file with your credentials.
+
+4. Run database migrations:
+
+   ```bash
+   bun db:migrate
+   ```
+
+5. Start the development server:
+   ```bash
+   bun dev
+   ```
+
+## Development Commands
+
+### Development
+
+```bash
+bun dev          # Start development server with Turbo
+bun build        # Build for production
+bun start        # Start production server
+bun preview      # Build and start production server
+```
+
+### Database
+
+```bash
+bun db:generate  # Generate database migrations
+bun db:migrate   # Run database migrations
+bun db:push      # Push schema changes directly
+bun db:studio    # Open Drizzle Studio
+```
+
+### Code Quality
+
+```bash
+bun check        # Run linting and type checking
+bun lint         # Run ESLint
+bun lint:fix     # Fix ESLint issues
+bun typecheck    # Run TypeScript compiler check
+bun format:check # Check code formatting
+bun format:write # Format code with Prettier
+```
+
+## Pricing Tiers
+
+- **Starter**: Free (up to 50 bookings/month)
+- **Pro**: $19/month (unlimited bookings, WhatsApp notifications)
+- **Enterprise**: $49/month (multiple locations, team management, API access)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

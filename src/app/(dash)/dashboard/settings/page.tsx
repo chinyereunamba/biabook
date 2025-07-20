@@ -21,7 +21,7 @@ export default function SettingsPage() {
         <TabsTrigger value="notifications">Notifications</TabsTrigger>
       </TabsList>
       <TabsContent value="profile">
-        <Card>
+        <Card className="border-none shadow-none">
           <CardHeader>
             <CardTitle>Profile</CardTitle>
             <CardDescription>
@@ -44,7 +44,7 @@ export default function SettingsPage() {
         </Card>
       </TabsContent>
       <TabsContent value="password">
-        <Card>
+        <Card className="border-none shadow-none">
           <CardHeader>
             <CardTitle>Password</CardTitle>
             <CardDescription>
@@ -67,7 +67,7 @@ export default function SettingsPage() {
         </Card>
       </TabsContent>
       <TabsContent value="notifications">
-        <Card>
+        <Card className="border-none shadow-none">
           <CardHeader>
             <CardTitle>Notifications</CardTitle>
             <CardDescription>

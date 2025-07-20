@@ -22,7 +22,7 @@ export const PaginationDot = ({
 }: PaginationDotProps) => {
   const sizes = {
     md: {
-      root: cx("gap-3", framed && "p-2"),
+      root: cx("gap-3", framed && "p-0.5"),
       button: "h-2 w-2 after:-inset-x-1.5 after:-inset-y-2",
     },
     lg: {

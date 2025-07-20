@@ -26,15 +26,26 @@ export function Calendar({
     return new Date(today.getFullYear(), today.getMonth(), 1);
   });
 
-  const { monthName, year, daysInMonth, firstDayOfMonth, today } = useMemo(() => {
-    const monthName = currentMonth.toLocaleDateString("en-US", { month: "long" });
-    const year = currentMonth.getFullYear();
-    const daysInMonth = new Date(year, currentMonth.getMonth() + 1, 0).getDate();
-    const firstDayOfMonth = new Date(year, currentMonth.getMonth(), 1).getDay();
-    const today = new Date().toISOString().split("T")[0];
+  const { monthName, year, daysInMonth, firstDayOfMonth, today } =
+    useMemo(() => {
+      const monthName = currentMonth.toLocaleDateString("en-US", {
+        month: "long",
+      });
+      const year = currentMonth.getFullYear();
+      const daysInMonth = new Date(
+        year,
+        currentMonth.getMonth() + 1,
+        0,
+      ).getDate();
+      const firstDayOfMonth = new Date(
+        year,
+        currentMonth.getMonth(),
+        1,
+      ).getDay();
+      const today = new Date().toISOString().split("T")[0];
 
-    return { monthName, year, daysInMonth, firstDayOfMonth, today };
-  }, [currentMonth]);
+      return { monthName, year, daysInMonth, firstDayOfMonth, today };
+    }, [currentMonth]);
 
   const navigateMonth = (direction: "prev" | "next") => {
     setCurrentMonth((prev) => {
@@ -77,9 +88,7 @@ export function Calendar({
 
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push(
-        <div key={`empty-${i}`} className="p-2" />
-      );
+      days.push(<div key={`empty-${i}`} className="p-2" />);
     }
 
     // Add days of the month
@@ -95,23 +104,26 @@ export function Calendar({
           key={day}
           onClick={() => !isDisabled && onDateSelect(dateStr)}
           disabled={isDisabled}
+          aria-label={`Select ${new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`}
+          aria-pressed={isSelected}
           className={cn(
-            "relative p-2 text-sm transition-colors rounded-md",
-            "hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500",
+            "relative min-h-[44px] min-w-[44px] touch-manipulation rounded-md p-2 text-sm transition-colors",
+            "hover:bg-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none",
             {
               "bg-purple-600 text-white hover:bg-purple-700": isSelected,
-              "text-gray-400 cursor-not-allowed": isDisabled,
+              "cursor-not-allowed text-gray-400": isDisabled,
               "font-semibold ring-2 ring-purple-200": isToday && !isSelected,
-              "text-green-600 font-medium": isAvailable && !isSelected && !isDisabled,
+              "font-medium text-green-600":
+                isAvailable && !isSelected && !isDisabled,
               "text-gray-500": !isAvailable && !isSelected && !isDisabled,
-            }
+            },
           )}
         >
           {day}
           {isAvailable && !isSelected && (
-            <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full" />
+            <div className="absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 transform rounded-full bg-green-500" />
           )}
-        </button>
+        </button>,
       );
     }
 
@@ -130,47 +142,48 @@ export function Calendar({
               variant="outline"
               size="sm"
               onClick={() => navigateMonth("prev")}
-              className="h-8 w-8 p-0"
+              className="h-10 w-10 touch-manipulation p-0" // Increased touch target
+              aria-label="Previous month"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5" />
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigateMonth("next")}
-              className="h-8 w-8 p-0"
+              className="h-10 w-10 touch-manipulation p-0" // Increased touch target
+              aria-label="Next month"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {/* Day headers */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
+        <div className="mb-2 grid grid-cols-7 gap-1">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
             <div
               key={day}
               className="p-2 text-center text-sm font-medium text-gray-500"
             >
-              {day}
+              {day.substring(0, 1)}
+              <span className="hidden sm:inline">{day.substring(1)}</span>
             </div>
           ))}
         </div>
 
         {/* Calendar days */}
-        <div className="grid grid-cols-7 gap-1">
-          {renderCalendarDays()}
-        </div>
+        <div className="grid grid-cols-7 gap-1">{renderCalendarDays()}</div>
 
         {/* Legend */}
         <div className="mt-4 flex items-center justify-center space-x-4 text-xs text-gray-500">
           <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-green-500 rounded-full" />
+            <div className="h-2 w-2 rounded-full bg-green-500" />
             <span>Available</span>
           </div>
           <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-gray-400 rounded-full" />
+            <div className="h-2 w-2 rounded-full bg-gray-400" />
             <span>Unavailable</span>
           </div>
         </div>

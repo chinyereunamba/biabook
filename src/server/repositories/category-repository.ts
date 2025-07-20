@@ -20,7 +20,7 @@ export class CategoryRepository {
       .where(eq(categories.id, id))
       .limit(1);
 
-    return result[0] || null;
+    return result[0] ?? null;
   }
 
   async create(category: Category): Promise<Category> {
@@ -42,7 +42,7 @@ export class CategoryRepository {
       .where(eq(categories.id, id))
       .returning();
 
-    return result[0] || null;
+    return result[0] ?? null;
   }
 
   async delete(id: string): Promise<boolean> {

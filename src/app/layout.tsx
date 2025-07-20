@@ -1,27 +1,32 @@
-import React from "react";
 import "@/styles/globals.css";
 
-import { type Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Inter } from "next/font/google";
+import { Providers } from "./providers";
 
-export const metadata: Metadata = {
-  title: "BookMe - Effortless Appointment Scheduling",
-  description: "The easiest way for clients to book your services online.",
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+export const metadata = {
+  title: "BookMe - Simple Appointment Booking",
+  description: "Book appointments in 60 seconds with WhatsApp notifications",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-});
-
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
-      <body className="bg-background min-h-screen font-sans antialiased">
-        {children}
+    <html lang="en">
+      <body className={`font-sans ${inter.variable}`}>
+        <Providers>
+          {/* <TRPCReactProvider cookies={cookies().toString()}> */}
+          {children}
+          {/* </TRPCReactProvider> */}
+        </Providers>
       </body>
     </html>
   );

@@ -15,7 +15,9 @@ export type CreateServiceInput = {
   isActive?: boolean;
 };
 
-export type UpdateServiceInput = Partial<Omit<CreateServiceInput, 'businessId'>> & {
+export type UpdateServiceInput = Partial<
+  Omit<CreateServiceInput, "businessId">
+> & {
   id: string;
   businessId: string; // Required for authorization
 };
@@ -42,16 +44,16 @@ export class ServiceRepository {
     const serviceData = {
       businessId: input.businessId,
       name: input.name.trim(),
-      description: input.description?.trim() || null,
+      description: input.description?.trim() ?? null,
       duration: input.duration,
       price: input.price,
-      category: input.category?.trim() || null,
-      bufferTime: input.bufferTime || 0,
+      category: input.category?.trim() ?? null,
+      bufferTime: input.bufferTime ?? 0,
       isActive: input.isActive ?? true,
     };
 
     const [service] = await db.insert(services).values(serviceData).returning();
-    
+
     if (!service) {
       throw new Error("Failed to create service");
     }
@@ -73,13 +75,16 @@ export class ServiceRepository {
       .where(eq(services.id, id))
       .limit(1);
 
-    return service || null;
+    return service ?? null;
   }
 
   /**
    * Get a service by ID for a specific business (for authorization)
    */
-  async findByIdAndBusinessId(id: string, businessId: string): Promise<Service | null> {
+  async findByIdAndBusinessId(
+    id: string,
+    businessId: string,
+  ): Promise<Service | null> {
     if (!id?.trim() || !businessId?.trim()) {
       return null;
     }
@@ -90,19 +95,22 @@ export class ServiceRepository {
       .where(and(eq(services.id, id), eq(services.businessId, businessId)))
       .limit(1);
 
-    return service || null;
+    return service ?? null;
   }
 
   /**
    * Get all services for a business
    */
-  async findByBusinessId(businessId: string, includeInactive = false): Promise<Service[]> {
+  async findByBusinessId(
+    businessId: string,
+    includeInactive = false,
+  ): Promise<Service[]> {
     if (!businessId?.trim()) {
       return [];
     }
 
     const conditions = [eq(services.businessId, businessId)];
-    
+
     if (!includeInactive) {
       conditions.push(eq(services.isActive, true));
     }
@@ -126,7 +134,10 @@ export class ServiceRepository {
     }
 
     // Check if service exists and belongs to the business
-    const existingService = await this.findByIdAndBusinessId(input.id, input.businessId);
+    const existingService = await this.findByIdAndBusinessId(
+      input.id,
+      input.businessId,
+    );
     if (!existingService) {
       throw new Error("Service not found or access denied");
     }
@@ -144,13 +155,16 @@ export class ServiceRepository {
 
     // Build update data (only include defined fields)
     const updateData: Partial<typeof services.$inferInsert> = {};
-    
+
     if (input.name !== undefined) updateData.name = input.name.trim();
-    if (input.description !== undefined) updateData.description = input.description?.trim() || null;
+    if (input.description !== undefined)
+      updateData.description = input.description?.trim() ?? null;
     if (input.duration !== undefined) updateData.duration = input.duration;
     if (input.price !== undefined) updateData.price = input.price;
-    if (input.category !== undefined) updateData.category = input.category?.trim() || null;
-    if (input.bufferTime !== undefined) updateData.bufferTime = input.bufferTime;
+    if (input.category !== undefined)
+      updateData.category = input.category?.trim() ?? null;
+    if (input.bufferTime !== undefined)
+      updateData.bufferTime = input.bufferTime;
     if (input.isActive !== undefined) updateData.isActive = input.isActive;
 
     // Only update if there are changes
@@ -161,7 +175,12 @@ export class ServiceRepository {
     const [updatedService] = await db
       .update(services)
       .set(updateData)
-      .where(and(eq(services.id, input.id), eq(services.businessId, input.businessId)))
+      .where(
+        and(
+          eq(services.id, input.id),
+          eq(services.businessId, input.businessId),
+        ),
+      )
       .returning();
 
     if (!updatedService) {
@@ -227,9 +246,11 @@ export class ServiceRepository {
     const result = await db
       .select({ count: sql<number>`count(*)` })
       .from(services)
-      .where(and(eq(services.businessId, businessId), eq(services.isActive, true)));
+      .where(
+        and(eq(services.businessId, businessId), eq(services.isActive, true)),
+      );
 
-    return result[0]?.count || 0;
+    return result[0]?.count ?? 0;
   }
 }
 

@@ -16,17 +16,17 @@ export async function GET() {
     const businessesWithServices = await Promise.all(
       businesses.map(async (business) => {
         const services = await serviceRepository.findByBusinessId(business.id);
-        const category = categoryMap.get(business.categoryId) || "Unknown";
+        const category = categoryMap.get(business.categoryId) ?? "Unknown";
 
         return {
           id: business.id,
           name: business.name,
-          description: business.description || "",
+          description: business.description ?? "",
           category: category,
           categoryId: business.categoryId,
-          location: business.location || "",
-          phone: business.phone || "",
-          email: business.email || "",
+          location: business.location ?? "",
+          phone: business.phone ?? "",
+          email: business.email ?? "",
           services: services.map((service) => service.name),
           serviceCount: services.length,
           // Mock data for UI (these would come from actual business data)

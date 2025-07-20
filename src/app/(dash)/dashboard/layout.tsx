@@ -1,17 +1,20 @@
-import React from 'react'
+import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell, Calendar, Settings } from "lucide-react";
+import { Bell, Settings } from "lucide-react";
 
-export default function ClientLayout({children}:{children:React.ReactNode}) {
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
       <header className="border-b bg-white">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
+        <div className="container mx-auto flex items-center justify-between px-4 py-2">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <Calendar className="h-6 w-6 text-purple-600" />
-              <span className="text-xl font-bold">BookMe</span>
+              <span className="text-xl font-bold">Welcome</span>
             </div>
             <Badge variant="secondary">Bella Hair Salon</Badge>
           </div>

@@ -1,6 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {
+  Activity,
+  ArrowUpRight,
+  CreditCard,
+  DollarSign,
+  Users,
+  Loader2,
+} from "lucide-react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,370 +20,334 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Calendar,
-  Clock,
-  Users,
-  MessageSquare,
-  Plus,
-  Settings,
-  Bell,
-  TrendingUp,
-  CheckCircle,
-} from "lucide-react";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import Link from "next/link";
 
+import { toast } from "sonner";
+
 export default function DashboardPage() {
-  const [notifications, setNotifications] = useState(true);
+  const [businessId, setBusinessId] = useState<string | null>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [recentBookings, setRecentBookings] = useState<[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data
-  const upcomingBookings = [
-    {
-      id: 1,
-      customerName: "Sarah Johnson",
-      service: "Hair Cut & Style",
-      time: "10:00 AM",
-      date: "Today",
-      phone: "+1 234-567-8900",
-      status: "confirmed",
-    },
-    {
-      id: 2,
-      customerName: "Mike Chen",
-      service: "Beard Trim",
-      time: "2:30 PM",
-      date: "Today",
-      phone: "+1 234-567-8901",
-      status: "confirmed",
-    },
-    {
-      id: 3,
-      customerName: "Emma Davis",
-      service: "Hair Color",
-      time: "9:00 AM",
-      date: "Tomorrow",
-      phone: "+1 234-567-8902",
-      status: "pending",
-    },
-  ];
+  // Load the current user's business
+  useEffect(() => {
+    const loadBusiness = async () => {
+      try {
+        const response = await fetch("/api/me/business");
+        if (!response.ok) {
+          throw new Error("Failed to fetch business");
+        }
 
-  const services = [
-    { id: 1, name: "Hair Cut & Style", duration: "45 min", price: "$50" },
-    { id: 2, name: "Hair Color", duration: "120 min", price: "$120" },
-    { id: 3, name: "Beard Trim", duration: "30 min", price: "$25" },
-  ];
+        const data = await response.json();
+        if (data.business) {
+          setBusinessId(data.business.id);
+        } else {
+          // If no business is found, use a default one for demo purposes
+          setBusinessId("business-1");
+        }
+      } catch (error) {
+        console.error("Failed to load business:", error);
+        // Use a default business ID for demo purposes
+        setBusinessId("business-1");
+      }
+    };
+
+    loadBusiness();
+  }, []);
+
+  // Load dashboard data when businessId is available
+  useEffect(() => {
+    if (!businessId) return;
+
+    const loadDashboardData = async () => {
+      setLoading(true);
+      try {
+        // Load stats
+        const statsResponse = await fetch(
+          `/api/businesses/${businessId}/stats`,
+        );
+        if (!statsResponse.ok) {
+          throw new Error("Failed to fetch business stats");
+        }
+        const statsData = await statsResponse.json();
+        setStats(statsData);
+
+        // Load recent bookings
+        const bookingsResponse = await fetch(
+          `/api/businesses/${businessId}/appointments?limit=5`,
+        );
+        if (!bookingsResponse.ok) {
+          throw new Error("Failed to fetch recent bookings");
+        }
+        const bookingsData = await bookingsResponse.json();
+        setRecentBookings(bookingsData.appointments || []);
+      } catch (error) {
+        console.error("Failed to load dashboard data:", error);
+        toast.error("Failed to load dashboard data");
+
+        // Set default data for demo purposes if API fails
+        setStats({
+          revenue: {
+            total: 4523189,
+            currentMonth: 1250000,
+            percentChange: 20.1,
+          },
+          bookings: {
+            total: 2350,
+            currentMonth: 350,
+            percentChange: 180.1,
+            today: 573,
+          },
+        });
+
+        setRecentBookings([
+          {
+            id: "booking-1",
+            customerName: "Liam Johnson",
+            customerEmail: "liam@example.com",
+            appointmentDate: "2023-06-23",
+            status: "confirmed",
+            servicePrice: 25000,
+          },
+          {
+            id: "booking-2",
+            customerName: "Olivia Smith",
+            customerEmail: "olivia@example.com",
+            appointmentDate: "2023-06-24",
+            status: "cancelled",
+            servicePrice: 15000,
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, [businessId]);
+
+  // Format price from cents to dollars
+  const formatPrice = (priceInCents: number) => {
+    return (priceInCents / 100).toFixed(2);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <p className="mt-2 text-sm text-gray-600">Loading dashboard data...</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      {/* Header */}
-      
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Stats Cards */}
-        <div className="mb-8 grid gap-6 md:grid-cols-4">
+    <div className="flex min-h-screen w-full flex-col bg-gray-50">
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Revenue
+              </CardTitle>
+              <DollarSign className="text-muted-foreground h-4 w-4" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                ${stats?.revenue ? formatPrice(stats.revenue.total) : "0.00"}
+              </div>
+              <p className="text-muted-foreground text-xs">
+                {stats?.revenue?.percentChange > 0 ? "+" : ""}
+                {stats?.revenue?.percentChange?.toFixed(1) || "0"}% from last
+                month
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Bookings</CardTitle>
+              <Users className="text-muted-foreground h-4 w-4" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                +{stats?.bookings?.total || "0"}
+              </div>
+              <p className="text-muted-foreground text-xs">
+                {stats?.bookings?.percentChange > 0 ? "+" : ""}
+                {stats?.bookings?.percentChange?.toFixed(1) || "0"}% from last
+                month
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Monthly Revenue
+              </CardTitle>
+              <CreditCard className="text-muted-foreground h-4 w-4" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                $
+                {stats?.revenue
+                  ? formatPrice(stats.revenue.currentMonth)
+                  : "0.00"}
+              </div>
+              <p className="text-muted-foreground text-xs">
+                This month's earnings
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Today's Bookings
+              </CardTitle>
+              <Activity className="text-muted-foreground h-4 w-4" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                +{stats?.bookings?.today || "0"}
+              </div>
+              <p className="text-muted-foreground text-xs">
+                Appointments scheduled for today
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+          <Card className="xl:col-span-2">
+            <CardHeader className="flex flex-row items-center">
+              <div className="grid gap-2">
+                <CardTitle>Recent Bookings</CardTitle>
+                <CardDescription>
+                  Recent bookings from your customers.
+                </CardDescription>
+              </div>
+              <Button asChild size="sm" className="ml-auto gap-1">
+                <Link href="/dashboard/bookings">
+                  View All
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead className="hidden xl:table-column">
+                      Service
+                    </TableHead>
+                    <TableHead className="hidden xl:table-column">
+                      Status
+                    </TableHead>
+                    <TableHead className="hidden xl:table-column">
+                      Date
+                    </TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentBookings.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="text-muted-foreground py-4 text-center"
+                      >
+                        No recent bookings found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    recentBookings.map((booking) => (
+                      <TableRow key={booking.id}>
+                        <TableCell>
+                          <div className="font-medium">
+                            {booking.customerName}
+                          </div>
+                          <div className="text-muted-foreground hidden text-sm md:inline">
+                            {booking.customerEmail}
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden xl:table-column">
+                          {booking.serviceName || "Service"}
+                        </TableCell>
+                        <TableCell className="hidden xl:table-column">
+                          <Badge
+                            className="text-xs"
+                            variant={
+                              booking.status === "confirmed"
+                                ? "default"
+                                : booking.status === "cancelled"
+                                  ? "destructive"
+                                  : "outline"
+                            }
+                          >
+                            {booking.status.charAt(0).toUpperCase() +
+                              booking.status.slice(1)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
+                          {booking.appointmentDate}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          ${formatPrice(booking.servicePrice)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Monthly Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-8">
+              <div className="flex items-center gap-4">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100">
+                  <DollarSign className="h-5 w-5 text-purple-600" />
+                </div>
+                <div className="grid gap-1">
+                  <p className="text-sm leading-none font-medium">Revenue</p>
                   <p className="text-muted-foreground text-sm">
-                    Today's Bookings
+                    This month's earnings
                   </p>
-                  <p className="text-3xl font-bold">8</p>
                 </div>
-                <Calendar className="h-8 w-8 text-purple-600" />
+                <div className="ml-auto font-medium">
+                  $
+                  {stats?.revenue
+                    ? formatPrice(stats.revenue.currentMonth)
+                    : "0.00"}
+                </div>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">This Week</p>
-                  <p className="text-3xl font-bold">32</p>
+              <div className="flex items-center gap-4">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100">
+                  <Users className="h-5 w-5 text-blue-600" />
                 </div>
-                <TrendingUp className="h-8 w-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">Revenue</p>
-                  <p className="text-3xl font-bold">$1,240</p>
+                <div className="grid gap-1">
+                  <p className="text-sm leading-none font-medium">Bookings</p>
+                  <p className="text-muted-foreground text-sm">
+                    This month's appointments
+                  </p>
                 </div>
-                <Users className="h-8 w-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">WhatsApp</p>
-                  <div className="flex items-center space-x-2">
-                    <div
-                      className={`h-2 w-2 rounded-full ${notifications ? "bg-green-500" : "bg-red-500"}`}
-                    />
-                    <span className="text-sm">
-                      {notifications ? "Active" : "Inactive"}
-                    </span>
-                  </div>
+                <div className="ml-auto font-medium">
+                  {stats?.bookings?.currentMonth || "0"}
                 </div>
-                <MessageSquare className="h-8 w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
         </div>
-
-        <Tabs defaultValue="bookings" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="bookings">Bookings</TabsTrigger>
-            <TabsTrigger value="services">Services</TabsTrigger>
-            <TabsTrigger value="availability">Availability</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="bookings" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Upcoming Bookings</h2>
-              <Button asChild>
-                <Link href="/dashboard/bookings/new">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Booking
-                </Link>
-              </Button>
-            </div>
-
-            <div className="space-y-4">
-              {upcomingBookings.map((booking) => (
-                <Card key={booking.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
-                          <Users className="h-6 w-6 text-purple-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">
-                            {booking.customerName}
-                          </h3>
-                          <p className="text-muted-foreground text-sm">
-                            {booking.phone}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="text-center">
-                        <p className="font-medium">{booking.service}</p>
-                        <p className="text-muted-foreground text-sm">
-                          {booking.date} at {booking.time}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Badge
-                          variant={
-                            booking.status === "confirmed"
-                              ? "default"
-                              : "secondary"
-                          }
-                          className={
-                            booking.status === "confirmed"
-                              ? "bg-green-100 text-green-800"
-                              : ""
-                          }
-                        >
-                          {booking.status === "confirmed" ? (
-                            <CheckCircle className="mr-1 h-3 w-3" />
-                          ) : (
-                            <Clock className="mr-1 h-3 w-3" />
-                          )}
-                          {booking.status}
-                        </Badge>
-                        <Button variant="outline" size="sm">
-                          <MessageSquare className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="services" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Your Services</h2>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Service
-              </Button>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {services.map((service) => (
-                <Card key={service.id}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{service.name}</CardTitle>
-                    <CardDescription>
-                      <div className="flex items-center justify-between">
-                        <span className="flex items-center">
-                          <Clock className="mr-1 h-4 w-4" />
-                          {service.duration}
-                        </span>
-                        <span className="text-foreground font-semibold">
-                          {service.price}
-                        </span>
-                      </div>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 bg-transparent"
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 bg-transparent"
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="availability" className="space-y-6">
-            <h2 className="text-2xl font-bold">Set Your Availability</h2>
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-6">
-                  {[
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                    "Sunday",
-                  ].map((day) => (
-                    <div
-                      key={day}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <input
-                          type="checkbox"
-                          defaultChecked={day !== "Sunday"}
-                          className="rounded"
-                        />
-                        <span className="w-20 font-medium">{day}</span>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <select className="rounded border px-3 py-1">
-                          <option>9:00 AM</option>
-                          <option>10:00 AM</option>
-                          <option>11:00 AM</option>
-                        </select>
-                        <span>to</span>
-                        <select className="rounded border px-3 py-1">
-                          <option>5:00 PM</option>
-                          <option>6:00 PM</option>
-                          <option>7:00 PM</option>
-                        </select>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Button className="mt-6">Save Availability</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
-            <h2 className="text-2xl font-bold">Settings</h2>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>WhatsApp Notifications</CardTitle>
-                <CardDescription>
-                  Get notified on WhatsApp when customers book appointments
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Enable WhatsApp notifications</p>
-                    <p className="text-muted-foreground text-sm">
-                      You'll receive a message for each new booking
-                    </p>
-                  </div>
-                  <Button
-                    variant={notifications ? "default" : "outline"}
-                    onClick={() => setNotifications(!notifications)}
-                  >
-                    {notifications ? "Enabled" : "Disabled"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Business Profile</CardTitle>
-                <CardDescription>
-                  Update your business information
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    Business Name
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue="Bella Hair Salon"
-                    className="w-full rounded-md border px-3 py-2"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    defaultValue="+1 234-567-8900"
-                    className="w-full rounded-md border px-3 py-2"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    Description
-                  </label>
-                  <textarea
-                    defaultValue="Professional hair salon offering cuts, colors, and styling services."
-                    className="min-h-[80px] w-full rounded-md border px-3 py-2"
-                  />
-                </div>
-                <Button>Save Changes</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+      </main>
     </div>
   );
 }

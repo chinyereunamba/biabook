@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, DollarSign, CheckCircle } from "lucide-react";
+import { DollarSign, Clock, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BusinessService } from "./business-profile";
+import { ServiceGrid } from "./service-grid";
+import { ServiceDetails } from "./service-details";
 
 interface ServiceSelectionProps {
   services: BusinessService[];
@@ -24,8 +26,10 @@ export function ServiceSelection({
   showContinueButton = false,
   className,
 }: ServiceSelectionProps) {
+  const [detailsService, setDetailsService] = useState<BusinessService | null>(null);
+  
   const formatPrice = (cents: number): string => {
-    return `$${(cents / 100).toFixed(2)}`;
+    return `${(cents / 100).toFixed(2)}`;
   };
 
   const formatDuration = (minutes: number): string => {
@@ -38,12 +42,23 @@ export function ServiceSelection({
   };
 
   const selectedService = services.find(s => s.id === selectedServiceId);
+  
+  const handleServiceClick = (serviceId: string) => {
+    // If it's already selected and clicked again, show details
+    if (selectedServiceId === serviceId) {
+      const service = services.find(s => s.id === serviceId);
+      if (service) setDetailsService(service);
+    } else {
+      // Otherwise just select it
+      onServiceSelect(serviceId);
+    }
+  };
 
   return (
     <div className={cn("space-y-6", className)}>
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center space-x-2 text-xl">
             <DollarSign className="h-5 w-5" />
             <span>Choose a Service</span>
           </CardTitle>
@@ -51,7 +66,7 @@ export function ServiceSelection({
             Select the service you'd like to book
           </p>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="pt-0">
           {services.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-gray-400 mb-2">
@@ -63,121 +78,58 @@ export function ServiceSelection({
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {services.map((service) => {
-                const isSelected = selectedServiceId === service.id;
-                
-                return (
-                  <Card
-                    key={service.id}
-                    className={cn(
-                      "cursor-pointer transition-all hover:shadow-md",
-                      {
-                        "ring-2 ring-purple-500 border-purple-500": isSelected,
-                        "hover:border-purple-300": !isSelected,
-                      }
-                    )}
-                    onClick={() => onServiceSelect(service.id)}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="text-lg font-semibold text-gray-900">
-                                {service.name}
-                              </h3>
-                              {service.category && (
-                                <Badge 
-                                  variant="secondary" 
-                                  className="mt-1"
-                                >
-                                  {service.category}
-                                </Badge>
-                              )}
-                            </div>
-                            {isSelected && (
-                              <CheckCircle className="h-6 w-6 text-purple-600" />
-                            )}
-                          </div>
-                          
-                          {service.description && (
-                            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                              {service.description}
-                            </p>
-                          )}
-                          
-                          <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500">
-                            <div className="flex items-center">
-                              <Clock className="mr-1 h-4 w-4" />
-                              <span>{formatDuration(service.duration)}</span>
-                            </div>
-                            <span>•</span>
-                            <div className="flex items-center">
-                              <DollarSign className="mr-1 h-4 w-4" />
-                              <span>{formatPrice(service.price)}</span>
-                            </div>
-                          </div>
-                          
-                          {service.bufferTime && service.bufferTime > 0 && (
-                            <p className="mt-2 text-xs text-gray-500">
-                              +{service.bufferTime}m buffer time
-                            </p>
-                          )}
-                        </div>
-                        
-                        <div className="ml-6 text-right">
-                          <p className="text-2xl font-bold text-gray-900">
-                            {formatPrice(service.price)}
-                          </p>
-                          <Button
-                            variant={isSelected ? "default" : "outline"}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onServiceSelect(service.id);
-                            }}
-                          >
-                            {isSelected ? "Selected" : "Select"}
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+            <ServiceGrid
+              services={services}
+              selectedServiceId={selectedServiceId}
+              onServiceSelect={handleServiceClick}
+            />
           )}
         </CardContent>
       </Card>
 
-      {/* Selected Service Summary */}
+      {/* Selected Service Summary - Fixed to bottom on mobile */}
       {selectedService && (
-        <Card className="border-purple-200 bg-purple-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-semibold text-purple-900">
-                  Selected Service
-                </h4>
-                <p className="text-purple-800">{selectedService.name}</p>
-                <div className="mt-1 flex items-center space-x-3 text-sm text-purple-700">
-                  <span>{formatDuration(selectedService.duration)}</span>
-                  <span>•</span>
-                  <span className="font-semibold">
-                    {formatPrice(selectedService.price)}
-                  </span>
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-lg sm:relative sm:p-0 sm:bg-transparent sm:border-0 sm:shadow-none">
+          <Card className="border-purple-200 bg-purple-50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-purple-900 truncate">
+                    Selected: {selectedService.name}
+                  </h4>
+                  <div className="mt-1 flex items-center space-x-3 text-sm text-purple-700">
+                    <span>{formatDuration(selectedService.duration)}</span>
+                    <span>•</span>
+                    <span className="font-semibold">
+                      ${formatPrice(selectedService.price)}
+                    </span>
+                  </div>
                 </div>
+                
+                {showContinueButton && onContinue && (
+                  <Button 
+                    onClick={onContinue}
+                    className="whitespace-nowrap ml-4"
+                    size="sm"
+                  >
+                    <span className="hidden sm:inline">Continue to Date & Time</span>
+                    <span className="sm:hidden">Continue</span>
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                )}
               </div>
-              
-              {showContinueButton && onContinue && (
-                <Button onClick={onContinue}>
-                  Continue to Date & Time
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       )}
+      
+      {/* Service Details Modal */}
+      <ServiceDetails
+        service={detailsService}
+        isOpen={!!detailsService}
+        onClose={() => setDetailsService(null)}
+        onSelect={onServiceSelect}
+      />
     </div>
   );
 }

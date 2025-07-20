@@ -1,6 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import { index, primaryKey, sqliteTableCreator } from "drizzle-orm/sqlite-core";
-import { type AdapterAccount } from "next-auth/adapters";
+// import { type AdapterAccount } from "next-auth/adapters";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -41,6 +41,12 @@ export const users = createTable("user", (d) => ({
   email: d.text({ length: 255 }).notNull(),
   emailVerified: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   image: d.text({ length: 255 }),
+
+  isOnboarded: d
+    .integer("is_onboarded", { mode: "boolean" })
+    .default(false)
+    .notNull(),
+  onboardedAt: d.integer("onboarded_at", { mode: "timestamp" }),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -54,7 +60,7 @@ export const accounts = createTable(
       .text({ length: 255 })
       .notNull()
       .references(() => users.id),
-    type: d.text({ length: 255 }).$type<AdapterAccount["type"]>().notNull(),
+    type: d.text({ length: 255 }).$type<string>().notNull(),
     provider: d.text({ length: 255 }).notNull(),
     providerAccountId: d.text({ length: 255 }).notNull(),
     refresh_token: d.text(),
@@ -145,7 +151,10 @@ export const services = createTable(
     description: d.text("description"),
     duration: d.integer("duration").notNull(), // minutes
     price: d.integer("price").notNull(), // cents
-    isActive: d.integer("is_active", { mode: "boolean" }).default(true).notNull(),
+    isActive: d
+      .integer("is_active", { mode: "boolean" })
+      .default(true)
+      .notNull(),
     category: d.text("category"),
     bufferTime: d.integer("buffer_time").default(0), // minutes between bookings
     createdAt: d
@@ -176,7 +185,10 @@ export const weeklyAvailability = createTable(
     dayOfWeek: d.integer("day_of_week").notNull(), // 0-6 (Sunday-Saturday)
     startTime: d.text("start_time").notNull(), // HH:MM format
     endTime: d.text("end_time").notNull(), // HH:MM format
-    isAvailable: d.integer("is_available", { mode: "boolean" }).default(true).notNull(),
+    isAvailable: d
+      .integer("is_available", { mode: "boolean" })
+      .default(true)
+      .notNull(),
     createdAt: d
       .integer("created_at", { mode: "timestamp" })
       .default(sql`(unixepoch())`)
@@ -205,7 +217,10 @@ export const availabilityExceptions = createTable(
     date: d.text("date").notNull(), // YYYY-MM-DD format
     startTime: d.text("start_time"), // HH:MM format, null if closed all day
     endTime: d.text("end_time"), // HH:MM format, null if closed all day
-    isAvailable: d.integer("is_available", { mode: "boolean" }).default(false).notNull(),
+    isAvailable: d
+      .integer("is_available", { mode: "boolean" })
+      .default(false)
+      .notNull(),
     reason: d.text("reason"),
     createdAt: d
       .integer("created_at", { mode: "timestamp" })
@@ -236,20 +251,26 @@ export const appointments = createTable(
       .text("service_id")
       .notNull()
       .references(() => services.id, { onDelete: "cascade" }),
+    servicePrice: d.integer("service_price").notNull(),
     customerName: d.text("customer_name").notNull(),
     customerEmail: d.text("customer_email").notNull(),
     customerPhone: d.text("customer_phone").notNull(),
     appointmentDate: d.text("appointment_date").notNull(), // YYYY-MM-DD format
     startTime: d.text("start_time").notNull(), // HH:MM format
     endTime: d.text("end_time").notNull(), // HH:MM format
-    status: d.text("status", { 
-      enum: ["pending", "confirmed", "cancelled", "completed"] 
-    }).default("pending").notNull(),
+    status: d
+      .text("status", {
+        enum: ["pending", "confirmed", "cancelled", "completed"],
+      })
+      .default("pending")
+      .notNull(),
     notes: d.text("notes"),
     confirmationNumber: d
       .text("confirmation_number")
       .notNull()
-      .$defaultFn(() => Math.random().toString(36).substring(2, 10).toUpperCase()),
+      .$defaultFn(() =>
+        Math.random().toString(36).substring(2, 10).toUpperCase(),
+      ),
     createdAt: d
       .integer("created_at", { mode: "timestamp" })
       .default(sql`(unixepoch())`)
@@ -265,13 +286,20 @@ export const appointments = createTable(
     index("appointments_status_idx").on(t.status),
     index("appointments_confirmation_idx").on(t.confirmationNumber),
     // Prevent double booking - unique constraint on business, date, and time
-    index("appointments_unique_slot_idx").on(t.businessId, t.appointmentDate, t.startTime),
+    index("appointments_unique_slot_idx").on(
+      t.businessId,
+      t.appointmentDate,
+      t.startTime,
+    ),
   ],
 );
 
 export const businessesRelations = relations(businesses, ({ one, many }) => ({
   owner: one(users, { fields: [businesses.ownerId], references: [users.id] }),
-  category: one(categories, { fields: [businesses.categoryId], references: [categories.id] }),
+  category: one(categories, {
+    fields: [businesses.categoryId],
+    references: [categories.id],
+  }),
   services: many(services),
   weeklyAvailability: many(weeklyAvailability),
   availabilityExceptions: many(availabilityExceptions),
@@ -279,21 +307,42 @@ export const businessesRelations = relations(businesses, ({ one, many }) => ({
 }));
 
 export const servicesRelations = relations(services, ({ one, many }) => ({
-  business: one(businesses, { fields: [services.businessId], references: [businesses.id] }),
+  business: one(businesses, {
+    fields: [services.businessId],
+    references: [businesses.id],
+  }),
   appointments: many(appointments),
 }));
 
-export const weeklyAvailabilityRelations = relations(weeklyAvailability, ({ one }) => ({
-  business: one(businesses, { fields: [weeklyAvailability.businessId], references: [businesses.id] }),
-}));
+export const weeklyAvailabilityRelations = relations(
+  weeklyAvailability,
+  ({ one }) => ({
+    business: one(businesses, {
+      fields: [weeklyAvailability.businessId],
+      references: [businesses.id],
+    }),
+  }),
+);
 
-export const availabilityExceptionsRelations = relations(availabilityExceptions, ({ one }) => ({
-  business: one(businesses, { fields: [availabilityExceptions.businessId], references: [businesses.id] }),
-}));
+export const availabilityExceptionsRelations = relations(
+  availabilityExceptions,
+  ({ one }) => ({
+    business: one(businesses, {
+      fields: [availabilityExceptions.businessId],
+      references: [businesses.id],
+    }),
+  }),
+);
 
 export const appointmentsRelations = relations(appointments, ({ one }) => ({
-  business: one(businesses, { fields: [appointments.businessId], references: [businesses.id] }),
-  service: one(services, { fields: [appointments.serviceId], references: [services.id] }),
+  business: one(businesses, {
+    fields: [appointments.businessId],
+    references: [businesses.id],
+  }),
+  service: one(services, {
+    fields: [appointments.serviceId],
+    references: [services.id],
+  }),
 }));
 
 export const categoriesRelations = relations(categories, ({ many }) => ({

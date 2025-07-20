@@ -126,14 +126,9 @@ export function Header({
                     </div>
 
                     <div className="mt-8 border-t border-neutral-200 pt-6">
-                      <Button asChild fullWidth size="lg">
-                        <Link
-                          href="/login"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          Sign In
-                        </Link>
-                      </Button>
+                      <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                        Sign In
+                      </Link>
                     </div>
                   </nav>
                 </SheetContent>
@@ -144,7 +139,7 @@ export function Header({
             <Link href="/" className="flex items-center gap-2">
               <Calendar className="text-primary size-6" />
               <span className="text-lg font-semibold">
-                {businessName || "BookMe"}
+                {businessName ??"BookMe"}
               </span>
             </Link>
           </div>
@@ -173,8 +168,12 @@ export function Header({
 
             {/* Right side actions */}
             <div className="flex items-center gap-3">
-              <Button asChild size="sm" className="hidden md:flex">
-                <Link href="/login">Sign In</Link>
+              <Button
+                size="sm"
+                className="hidden md:flex"
+                onClick={() => (window.location.href = "/login")}
+              >
+                Sign In
               </Button>
             </div>
           </div>

@@ -68,7 +68,7 @@ export default function Sidebar({
   const pathname = usePathname();
 
   const sidebarContent = (
-    <div className="flex h-full flex-col bg-white">
+    <div className="fixed flex h-full max-w-xs flex-col bg-white">
       {/* Header */}
       <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-6">
         <Link href="/" className="flex items-center gap-2">

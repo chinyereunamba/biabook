@@ -34,7 +34,7 @@ export class BusinessRepository {
       .where(eq(businesses.id, id))
       .limit(1);
 
-    return business || null;
+    return business ?? null;
   }
 
   /**
@@ -74,7 +74,7 @@ export class BusinessRepository {
 
     return {
       ...business,
-      category: business.category || { id: "", name: "Uncategorized" },
+      category: business.category ?? { id: "", name: "Uncategorized" },
     };
   }
 
@@ -137,7 +137,7 @@ export class BusinessRepository {
 
     return result.map((business) => ({
       ...business,
-      category: business.category || { id: "", name: "Uncategorized" },
+      category: business.category ?? { id: "", name: "Uncategorized" },
     }));
   }
 
@@ -168,7 +168,7 @@ export class BusinessRepository {
 
     return result.map((business) => ({
       ...business,
-      category: business.category || { id: "", name: "Uncategorized" },
+      category: business.category ?? { id: "", name: "Uncategorized" },
     }));
   }
 
@@ -204,7 +204,7 @@ export class BusinessRepository {
 
     return result.map((business) => ({
       ...business,
-      category: business.category || { id: "", name: "Uncategorized" },
+      category: business.category ?? { id: "", name: "Uncategorized" },
     }));
   }
 }
