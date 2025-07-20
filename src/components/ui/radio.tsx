@@ -1,15 +1,15 @@
 "use client";
 
 import * as React from "react";
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import { CheckIcon } from "lucide-react";
+import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+// Import the utility function for class name merging
+import { cn } from "../../lib/utils";
 
-const checkboxVariants = cva(
-  // Base mobile-first checkbox styles with touch-friendly targets
-  "peer shrink-0 rounded-md border border-neutral-300 bg-white shadow-sm transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50",
+const radioVariants = cva(
+  // Base mobile-first radio styles with touch-friendly targets
+  "peer aspect-square shrink-0 rounded-full border border-neutral-300 bg-white shadow-sm transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       size: {
@@ -32,44 +32,54 @@ const checkboxVariants = cva(
   },
 );
 
-export interface CheckboxProps
-  extends React.ComponentProps<typeof CheckboxPrimitive.Root>,
-    VariantProps<typeof checkboxVariants> {
+const RadioGroup = React.forwardRef<
+  React.ElementRef<typeof RadioGroupPrimitive.Root>,
+  React.ComponentProps<typeof RadioGroupPrimitive.Root>
+>(({ className, ...props }, ref) => {
+  return (
+    <RadioGroupPrimitive.Root
+      className={cn("grid gap-3", className)}
+      {...props}
+      ref={ref}
+    />
+  );
+});
+RadioGroup.displayName = RadioGroupPrimitive.Root.displayName;
+
+export interface RadioGroupItemProps
+  extends React.ComponentProps<typeof RadioGroupPrimitive.Item>,
+    VariantProps<typeof radioVariants> {
   label?: string;
   description?: string;
 }
 
-const Checkbox = React.forwardRef<
-  React.ElementRef<typeof CheckboxPrimitive.Root>,
-  CheckboxProps
+const RadioGroupItem = React.forwardRef<
+  React.ElementRef<typeof RadioGroupPrimitive.Item>,
+  RadioGroupItemProps
 >(({ className, size, variant, label, description, ...props }, ref) => {
-  const checkboxId = React.useId();
+  const radioId = React.useId();
 
   if (label || description) {
     return (
       <div className="flex items-start gap-3">
         {/* Touch-friendly wrapper for minimum 44px touch target */}
         <div className="-m-2 flex min-h-[44px] min-w-[44px] items-center justify-center p-2">
-          <CheckboxPrimitive.Root
+          <RadioGroupPrimitive.Item
             ref={ref}
-            id={checkboxId}
-            data-slot="checkbox"
-            className={cn(checkboxVariants({ size, variant }), className)}
+            id={radioId}
+            className={cn(radioVariants({ size, variant }), className)}
             {...props}
           >
-            <CheckboxPrimitive.Indicator
-              data-slot="checkbox-indicator"
-              className="flex items-center justify-center text-current"
-            >
-              <CheckIcon className="size-4" />
-            </CheckboxPrimitive.Indicator>
-          </CheckboxPrimitive.Root>
+            <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+              <div className="size-2 rounded-full bg-current" />
+            </RadioGroupPrimitive.Indicator>
+          </RadioGroupPrimitive.Item>
         </div>
 
         <div className="flex-1 pt-1">
           {label && (
             <label
-              htmlFor={checkboxId}
+              htmlFor={radioId}
               className="cursor-pointer text-sm leading-tight font-medium text-neutral-900"
             >
               {label}
@@ -87,23 +97,18 @@ const Checkbox = React.forwardRef<
 
   return (
     <div className="-m-2 flex min-h-[44px] min-w-[44px] items-center justify-center p-2">
-      <CheckboxPrimitive.Root
+      <RadioGroupPrimitive.Item
         ref={ref}
-        data-slot="checkbox"
-        className={cn(checkboxVariants({ size, variant }), className)}
+        className={cn(radioVariants({ size, variant }), className)}
         {...props}
       >
-        <CheckboxPrimitive.Indicator
-          data-slot="checkbox-indicator"
-          className="flex items-center justify-center text-current"
-        >
-          <CheckIcon className="size-4" />
-        </CheckboxPrimitive.Indicator>
-      </CheckboxPrimitive.Root>
+        <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+          <div className="size-2 rounded-full bg-current" />
+        </RadioGroupPrimitive.Indicator>
+      </RadioGroupPrimitive.Item>
     </div>
   );
 });
+RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
-Checkbox.displayName = CheckboxPrimitive.Root.displayName;
-
-export { Checkbox, checkboxVariants };
+export { RadioGroup, RadioGroupItem, radioVariants };

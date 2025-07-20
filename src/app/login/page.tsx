@@ -43,7 +43,7 @@ export default function LoginPage() {
         </div>
 
         <Card className="border-gray-200 shadow-lg">
-          <CardContent className="p-8">
+          <CardContent className="">
             {!showMagicLink ? (
               <div className="space-y-6">
                 {/* Google Sign-in */}

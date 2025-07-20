@@ -308,7 +308,7 @@ export function CustomerForm({
                     {/* Submit Button */}
                     <Button
                         type="submit"
-                        size="lg"
+                        size="md"
                         className="w-full"
                         disabled={loading || !isFormValid}
                     >

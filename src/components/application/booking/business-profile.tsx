@@ -67,7 +67,7 @@ export function BusinessProfileComponent({
     <div className={cn("space-y-6", className)}>
       {/* Business Header */}
       <Card>
-        <CardContent className="p-6">
+        <CardContent>
           <div className="flex items-start space-x-4">
             {/* Business Logo/Avatar */}
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 flex-shrink-0">
@@ -136,7 +136,7 @@ export function BusinessProfileComponent({
             Choose a service to book your appointment
           </p>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent>
           {business.services.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-gray-400 mb-2">

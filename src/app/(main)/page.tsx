@@ -54,38 +54,21 @@ export default function HomePage() {
               No complicated setup required.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row">
-              <Button
-                size="lg"
-                className="bg-primary hover:bg-primary/90"
-                asChild
-              >
-                <Link href="/signup">
+              <Button size="lg" asChild>
+                <Link href="/signup" className="flex items-center">
                   Get Started Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline">
-                <Calendar className="mr-2 h-5 w-5" />
+              <Button
+                size="lg"
+                variant="outline"
+                icon={<Calendar className="mr-2 h-5 w-5" />}
+              >
                 Book Demo
               </Button>
             </div>
           </div>
-          {/* Right: Image */}
-          {/* <div className="flex w-full items-center justify-center py-8 md:w-1/2">
-            <div className="border-primary relative overflow-hidden rounded-2xl shadow-2xl">
-              <Image
-                src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="Business owner at work"
-                fill
-                className="object-cover"
-                priority
-              />
-              <div
-                className="from-primary/30 to-primary/10 pointer-events-none absolute inset-0 bg-gradient-to-tr"
-                style={{ clipPath: "polygon(0 0, 100% 0, 100% 80%, 0% 100%)" }}
-              />
-            </div>
-          </div> */}
         </div>
       </section>
 
@@ -177,7 +160,7 @@ export default function HomePage() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:col-span-2">
               <Card className="border-slate-700 bg-slate-800">
-                <CardContent className="p-6">
+                <CardContent className="">
                   <div className="bg-primary mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
                     <MessageSquare className="h-6 w-6 text-white" />
                   </div>
@@ -195,7 +178,7 @@ export default function HomePage() {
               </Card>
 
               <Card className="border-slate-700 bg-slate-800">
-                <CardContent className="p-6">
+                <CardContent className="">
                   <div className="bg-primary mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
                     <Zap className="h-6 w-6 text-white" />
                   </div>
@@ -213,7 +196,7 @@ export default function HomePage() {
               </Card>
 
               <Card className="border-slate-700 bg-slate-800">
-                <CardContent className="p-6">
+                <CardContent className="">
                   <div className="bg-primary mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
                     <Users02 className="h-6 w-6 text-white" />
                   </div>
@@ -231,7 +214,7 @@ export default function HomePage() {
               </Card>
 
               <Card className="border-slate-700 bg-slate-800">
-                <CardContent className="p-6">
+                <CardContent className="">
                   <div className="bg-primary mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
                     <Clock className="h-6 w-6 text-white" />
                   </div>
@@ -441,7 +424,7 @@ export default function HomePage() {
                     <span className="text-gray-600">Priority support</span>
                   </li>
                 </ul>
-                <Button className="bg-primary w-full hover:bg-primary/90">
+                <Button className="bg-primary hover:bg-primary/90 w-full">
                   Start free trial
                 </Button>
               </div>

@@ -27,6 +27,19 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+const BUSINESS_CATEGORIES = [
+  "Hair Salon",
+  "Barbershop",
+  "Spa & Wellness",
+  "Fitness",
+  "Healthcare",
+  "Education",
+  "Photography",
+  "Consulting",
+  "Home Services",
+  "Other",
+];
+
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -54,18 +67,7 @@ export default function OnboardingPage() {
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
 
-  const categories = [
-    "Hair Salon",
-    "Medical Clinic",
-    "Tutoring",
-    "Fitness",
-    "Spa & Wellness",
-    "Photography",
-    "Consulting",
-    "Legal Services",
-    "Automotive",
-    "Other",
-  ];
+  const categories = BUSINESS_CATEGORIES;
 
   const addService = () => {
     setServices([...services, { name: "", duration: "", price: "" }]);

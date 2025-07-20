@@ -341,7 +341,8 @@ export default function BookingPage() {
                                 </div>
                               </div>
                               <Button
-                                variant={selectedServiceId === service.id ? "default" : "outline"}
+                                size={'sm'}
+                                variant={selectedServiceId === service.id ? "primary" : "outline"}
                               >
                                 {selectedServiceId === service.id ? "Selected" : "Select"}
                               </Button>
@@ -421,7 +422,7 @@ export default function BookingPage() {
                         <Loader2 className={`h-4 w-4 mr-2 ${availabilityLoading ? 'animate-spin' : ''}`} />
                         Refresh
                       </Button>
-                      <Button variant="outline" onClick={() => setStep(1)}>
+                      <Button variant="outline" size={'sm'} onClick={() => setStep(1)}>
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Services
                       </Button>
@@ -477,7 +478,7 @@ export default function BookingPage() {
 
                   {selectedDate && selectedTime && (
                     <div className="text-center">
-                      <Button size="lg" onClick={handleDateTimeConfirm}>
+                      <Button size="md" onClick={handleDateTimeConfirm}>
                         Continue to Booking Details
                       </Button>
                     </div>
@@ -526,7 +527,7 @@ export default function BookingPage() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold">Your Information</h2>
-                    <Button variant="outline" onClick={() => setStep(2)}>
+                    <Button variant="outline" size={'sm'} onClick={() => setStep(2)}>
                       <ArrowLeft className="h-4 w-4 mr-2" />
                       Back to Date & Time
                     </Button>
