@@ -1,12 +1,11 @@
 import {type NextRequest, NextResponse } from "next/server";
 import { weeklyAvailabilityRepository } from "@/server/repositories/weekly-availability-repository";
 import { auth } from "@/server/auth";
-import { getCurrentUserBusiness } from "@/server/auth/helpers";
 
 // GET /api/businesses/:businessId/availability/weekly
 export async function GET(
   req: NextRequest,
-  { params }: { params: { businessId: string } },
+  { params }: { params: Promise<{ businessId: string }> },
 ) {
   try {
     const session = await auth();
@@ -19,7 +18,7 @@ export async function GET(
     // In a real app, you would check if the user has access to this business
     // For now, we'll assume they do
 
-    const businessId = params.businessId;
+    const {businessId} = await params;
     const weeklySchedule =
       await weeklyAvailabilityRepository.findByBusinessId(businessId);
 
@@ -36,7 +35,7 @@ export async function GET(
 // POST /api/businesses/:businessId/availability/weekly
 export async function POST(
   req: NextRequest,
-  { params }: { params: { businessId: string } },
+  { params }: { params: Promise<{ businessId: string }> },
 ) {
   try {
     const session = await auth();
@@ -46,7 +45,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const businessId = params.businessId;
+    const { businessId } = await params;
     const data = await req.json();
 
     if (!Array.isArray(data.schedule)) {

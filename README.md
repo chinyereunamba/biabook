@@ -10,6 +10,7 @@ BookMe is an appointment booking platform designed for service businesses like s
 - **Admin dashboard**: Manage bookings, services, and availability
 - **Smart scheduling**: Automatic availability management
 - **Customer management**: Track customer information and booking history
+- **Business management**: Each user can manage their own business profile
 
 ## Tech Stack
 
@@ -29,6 +30,8 @@ The project follows a modern Next.js App Router structure:
 - **API Routes** (`src/app/api/`): Server-side API endpoints
 - **Components** (`src/components/`): Reusable UI components
 - **Server** (`src/server/`): Authentication, database schema, repositories
+- **Library** (`src/lib/`): Utility functions and shared logic
+  - `get-business.ts`: Helper to fetch the current user's business
 
 ## Getting Started
 
@@ -58,7 +61,7 @@ The project follows a modern Next.js App Router structure:
    cp .env.example .env
    ```
 
-   Update the `.env` file with your credentials.
+   Update the `.env` file with your credentials. Make sure to keep sensitive information like API keys and tokens secure and never commit them to version control.
 
 4. Run database migrations:
 

@@ -55,8 +55,14 @@ export default function LoginPage() {
                     variant="outline"
                     className="w-full border-gray-300"
                     onClick={() => {
-                      signIn("google");
-                      router.replace("/dashboard");
+                      setIsLoading(true);
+                      void signIn("google", {
+                        callbackUrl: "/dashboard",
+                        redirect: true,
+                      }).catch((error) => {
+                        console.error("Sign in error:", error);
+                        setIsLoading(false);
+                      });
                     }}
                     disabled={isLoading}
                   >

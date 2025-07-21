@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,8 +24,10 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const BUSINESS_CATEGORIES = [
   "Hair Salon",
@@ -42,7 +44,32 @@ const BUSINESS_CATEGORIES = [
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [step, setStep] = useState(1);
+
+  // Redirect if user is not logged in
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/login");
+    }
+
+    // If user is already onboarded, redirect to dashboard
+    if (session?.user?.isOnboarded) {
+      router.replace("/dashboard");
+    }
+  }, [session, status, router]);
+
+  // Show loading state while checking authentication
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
+          <p className="text-lg text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
   const [businessData, setBusinessData] = useState({
     name: "",
     category: "",
@@ -84,12 +111,78 @@ export default function OnboardingPage() {
     setServices(updated);
   };
 
-  const handleNext = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleNext = async () => {
     if (step < totalSteps) {
       setStep(step + 1);
     } else {
       // Complete onboarding and redirect to dashboard
-      router.push("/dashboard");
+      try {
+        setIsSubmitting(true);
+        setError("");
+
+        // Validate required fields
+        if (!businessData.name || !businessData.category) {
+          setError("Business name and category are required");
+          setStep(1);
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (!services.some((s) => s.name && s.duration && s.price)) {
+          setError(
+            "At least one service with name, duration and price is required",
+          );
+          setStep(2);
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Submit data to API
+        const response = await fetch("/api/onboarding", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            businessData,
+            services,
+            availability,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error ?? "Failed to complete onboarding");
+        }
+
+        // Get the response data
+        const data = await response.json();
+
+        // Store the business slug in localStorage for the success page
+        if (data.slug) {
+          try {
+            localStorage.setItem("businessSlug", data.slug);
+          } catch (error) {
+            console.error(
+              "Error storing business slug in localStorage:",
+              error,
+            );
+            // Continue without storing in localStorage
+          }
+        }
+
+        // Redirect to success page
+        router.push(data.redirectUrl || "/dashboard");
+      } catch (err) {
+        console.error("Onboarding error:", err);
+        setError(
+          err instanceof Error ? err.message : "An unexpected error occurred",
+        );
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -523,15 +616,49 @@ export default function OnboardingPage() {
             Back
           </Button>
 
+          {error && (
+            <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
+              {error}
+            </div>
+          )}
           <Button
             onClick={handleNext}
             className="bg-primary hover:bg-purple-700"
             disabled={
-              step === 1 && (!businessData.name || !businessData.category)
+              isSubmitting ||
+              (step === 1 && (!businessData.name || !businessData.category))
             }
           >
-            {step === totalSteps ? "Go to Dashboard" : "Continue"}
-            <ArrowRight className="ml-2 h-4 w-4" />
+            {isSubmitting ? (
+              <>
+                <svg
+                  className="mr-2 h-4 w-4 animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Processing...
+              </>
+            ) : (
+              <>
+                {step === totalSteps ? "Go to Dashboard" : "Continue"}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </>
+            )}
           </Button>
         </div>
       </div>

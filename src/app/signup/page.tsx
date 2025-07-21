@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, Mail, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -28,7 +29,7 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mb-6 flex items-center justify-center space-x-2">
-            <Calendar className="h-8 w-8 text-primary" />
+            <Calendar className="text-primary h-8 w-8" />
             <span className="text-2xl font-bold text-gray-900">BookMe</span>
           </div>
           <h1 className="mb-2 text-3xl font-bold text-gray-900">
@@ -42,7 +43,12 @@ export default function SignupPage() {
             {!showMagicLink ? (
               <div className="space-y-6">
                 {/* Google Sign-in - Primary CTA */}
-                <Button className="h-12 w-full border border-gray-300 bg-white text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-50">
+                <Button
+                  className="h-12 w-full border border-gray-300 bg-white text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-50"
+                  onClick={() =>
+                    signIn("google", { callbackUrl: "/onboarding" })
+                  }
+                >
                   <svg className="mr-3 h-5 w-5" viewBox="0 0 24 24">
                     <path
                       fill="currentColor"
@@ -95,7 +101,7 @@ export default function SignupPage() {
 
                   <Button
                     type="submit"
-                    className="h-12 w-full bg-primary hover:bg-purple-700"
+                    className="bg-primary h-12 w-full hover:bg-purple-700"
                   >
                     Send magic link
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -117,7 +123,7 @@ export default function SignupPage() {
             ) : (
               <div className="space-y-4 text-center">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
-                  <Mail className="h-8 w-8 text-primary" />
+                  <Mail className="text-primary h-8 w-8" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900">
                   Check your email
@@ -143,7 +149,7 @@ export default function SignupPage() {
               Already have an account?{" "}
               <Link
                 href="/login"
-                className="font-medium text-primary hover:text-purple-700"
+                className="text-primary font-medium hover:text-purple-700"
               >
                 Sign in
               </Link>

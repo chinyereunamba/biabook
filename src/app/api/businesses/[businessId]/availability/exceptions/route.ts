@@ -1,12 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { availabilityExceptionRepository } from "@/server/repositories/availability-exception-repository";
 import { auth } from "@/server/auth";
-import { getCurrentUserBusiness } from "@/server/auth/helpers";
 
 // GET /api/businesses/:businessId/availability/exceptions
 export async function GET(
   req: NextRequest,
-  { params }: { params: { businessId: string } },
+  { params }: { params: Promise<{ businessId: string }> },
 ) {
   try {
     const session = await auth();
@@ -19,7 +18,7 @@ export async function GET(
     // In a real app, you would check if the user has access to this business
     // For now, we'll assume they do
 
-    const businessId = params.businessId;
+    const { businessId } = await params;
     const exceptions =
       await availabilityExceptionRepository.findByBusinessId(businessId);
 

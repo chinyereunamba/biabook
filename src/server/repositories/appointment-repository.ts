@@ -7,6 +7,8 @@ import type {
   CreateAppointmentInput,
   UpdateAppointmentInput,
 } from "@/types/booking";
+import { notificationService } from "@/server/notifications/notification-service";
+import { notificationScheduler } from "@/server/notifications/notification-scheduler";
 
 /**
  * Repository for appointment CRUD operations
@@ -31,7 +33,7 @@ export class AppointmentRepository {
     // Calculate end time based on service duration
     const [hours, minutes] = data.startTime.split(":").map(Number);
     const startDate = new Date();
-    startDate.setHours(hours || 0, minutes || 0, 0, 0);
+    startDate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
 
     const endDate = new Date(startDate);
     endDate.setMinutes(endDate.getMinutes() + service.duration);
@@ -62,7 +64,7 @@ export class AppointmentRepository {
         appointmentDate: data.appointmentDate,
         startTime: data.startTime,
         endTime: endTime,
-        notes: data.notes || null,
+        notes: data.notes ?? null,
         status: "pending",
       })
       .returning();
@@ -216,7 +218,7 @@ export class AppointmentRepository {
   async getTodayAppointments(
     businessId: string,
   ): Promise<AppointmentWithDetails[]> {
-    const today = new Date().toISOString().split("T")[0] || ""; // YYYY-MM-DD format
+    const today = new Date().toISOString().split("T")[0] ?? ""; // YYYY-MM-DD format
 
     const results = await db.query.appointments.findMany({
       where: and(
@@ -241,18 +243,20 @@ export class AppointmentRepository {
    * @returns The updated appointment
    */
   async update(id: string, data: UpdateAppointmentInput): Promise<Appointment> {
-    const appointment = await db.query.appointments.findFirst({
-      where: eq(appointments.id, id),
-    });
+    // Get the appointment with details before updating
+    const appointmentWithDetails = await this.getById(id);
 
-    if (!appointment) {
+    if (!appointmentWithDetails) {
       throw new Error(`Appointment with ID ${id} not found`);
     }
 
+    const appointment = appointmentWithDetails;
     let endTime = appointment.endTime;
+    let isRescheduled = false;
 
     // If changing date or time, recalculate end time and check for conflicts
-    if (data.appointmentDate || data.startTime) {
+    if (data.appointmentDate ?? data.startTime) {
+      isRescheduled = true;
       const service = await db.query.services.findFirst({
         where: eq(services.id, appointment.serviceId),
       });
@@ -261,10 +265,10 @@ export class AppointmentRepository {
         throw new Error(`Service with ID ${appointment.serviceId} not found`);
       }
 
-      const newStartTime = data.startTime || appointment.startTime;
+      const newStartTime = data.startTime ?? appointment.startTime;
       const [hours, minutes] = newStartTime.split(":").map(Number);
       const startDate = new Date();
-      startDate.setHours(hours || 0, minutes || 0, 0, 0);
+      startDate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
 
       const endDate = new Date(startDate);
       endDate.setMinutes(endDate.getMinutes() + service.duration);
@@ -274,7 +278,7 @@ export class AppointmentRepository {
       // Check for booking conflicts (excluding this appointment)
       const conflicts = await this.checkForConflicts(
         appointment.businessId,
-        data.appointmentDate || appointment.appointmentDate,
+        data.appointmentDate ?? appointment.appointmentDate,
         newStartTime,
         endTime,
         id,
@@ -289,10 +293,10 @@ export class AppointmentRepository {
     const [updatedAppointment] = await db
       .update(appointments)
       .set({
-        appointmentDate: data.appointmentDate || appointment.appointmentDate,
-        startTime: data.startTime || appointment.startTime,
+        appointmentDate: data.appointmentDate ?? appointment.appointmentDate,
+        startTime: data.startTime ?? appointment.startTime,
         endTime: endTime,
-        status: data.status || appointment.status,
+        status: data.status ?? appointment.status,
         notes: data.notes !== undefined ? data.notes : appointment.notes,
         updatedAt: new Date(),
       })
@@ -301,6 +305,40 @@ export class AppointmentRepository {
 
     if (!updatedAppointment) {
       throw new Error("Failed to update appointment");
+    }
+
+    // Schedule notifications based on the update
+    try {
+      // If the appointment was rescheduled, schedule notifications
+      if (isRescheduled) {
+        await notificationScheduler.scheduleBookingRescheduled(
+          updatedAppointment,
+          appointmentWithDetails.service,
+          appointmentWithDetails.business,
+        );
+
+        // Also schedule new reminders for the rescheduled appointment
+        await notificationScheduler.scheduleBookingReminders(
+          updatedAppointment,
+          appointmentWithDetails.service,
+          appointmentWithDetails.business,
+        );
+      }
+
+      // If status changed to cancelled, schedule cancellation notifications
+      if (data.status === "cancelled" && appointment.status !== "cancelled") {
+        await notificationScheduler.scheduleBookingCancellation(
+          updatedAppointment,
+          appointmentWithDetails.service,
+          appointmentWithDetails.business,
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Failed to schedule notifications for appointment update:",
+        error,
+      );
+      // Don't fail the update if notification scheduling fails
     }
 
     return updatedAppointment;
@@ -316,6 +354,13 @@ export class AppointmentRepository {
     id: string,
     status: Appointment["status"],
   ): Promise<Appointment> {
+    // Get the appointment with details before updating
+    const appointmentWithDetails = await this.getById(id);
+
+    if (!appointmentWithDetails) {
+      throw new Error(`Appointment with ID ${id} not found`);
+    }
+
     const [updatedAppointment] = await db
       .update(appointments)
       .set({
@@ -326,7 +371,44 @@ export class AppointmentRepository {
       .returning();
 
     if (!updatedAppointment) {
-      throw new Error(`Appointment with ID ${id} not found`);
+      throw new Error(`Failed to update appointment status`);
+    }
+
+    // Schedule notifications based on the status change
+    try {
+      if (
+        status === "cancelled" &&
+        appointmentWithDetails.status !== "cancelled"
+      ) {
+        // Schedule cancellation notifications
+        await notificationScheduler.scheduleBookingCancellation(
+          updatedAppointment,
+          appointmentWithDetails.service,
+          appointmentWithDetails.business,
+        );
+      } else if (
+        status === "confirmed" &&
+        appointmentWithDetails.status === "pending"
+      ) {
+        // Schedule confirmation and reminder notifications
+        await notificationScheduler.scheduleBookingConfirmation(
+          updatedAppointment,
+          appointmentWithDetails.service,
+          appointmentWithDetails.business,
+        );
+
+        await notificationScheduler.scheduleBookingReminders(
+          updatedAppointment,
+          appointmentWithDetails.service,
+          appointmentWithDetails.business,
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Failed to schedule notifications for status update:",
+        error,
+      );
+      // Don't fail the status update if notification scheduling fails
     }
 
     return updatedAppointment;
@@ -392,7 +474,7 @@ export class AppointmentRepository {
   async getUpcomingByCustomerEmail(
     email: string,
   ): Promise<AppointmentWithDetails[]> {
-    const today = new Date().toISOString().split("T")[0] || ""; // YYYY-MM-DD format
+    const today = new Date().toISOString().split("T")[0] ?? ""; // YYYY-MM-DD format
 
     const results = await db.query.appointments.findMany({
       where: and(
@@ -426,7 +508,7 @@ export class AppointmentRepository {
     pending: number;
     confirmed: number;
   }> {
-    const today = new Date().toISOString().split("T")[0] || ""; // YYYY-MM-DD format
+    const today = new Date().toISOString().split("T")[0] ?? ""; // YYYY-MM-DD format
 
     let dateFilter;
     if (period === "today") {
@@ -434,12 +516,12 @@ export class AppointmentRepository {
     } else if (period === "week") {
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
-      const weekAgoStr = weekAgo.toISOString().split("T")[0] || "";
+      const weekAgoStr = weekAgo.toISOString().split("T")[0] ?? "";
       dateFilter = gte(appointments.appointmentDate, weekAgoStr);
     } else if (period === "month") {
       const monthAgo = new Date();
       monthAgo.setMonth(monthAgo.getMonth() - 1);
-      const monthAgoStr = monthAgo.toISOString().split("T")[0] || "";
+      const monthAgoStr = monthAgo.toISOString().split("T")[0] ?? "";
       dateFilter = gte(appointments.appointmentDate, monthAgoStr);
     }
 

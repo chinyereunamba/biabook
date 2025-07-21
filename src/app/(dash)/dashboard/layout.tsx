@@ -2,12 +2,14 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bell, Settings } from "lucide-react";
+import { getBusiness } from "@/lib/get-business";
 
-export default function ClientLayout({
+export default async function ClientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const business = await getBusiness();
   return (
     <>
       <header className="border-b bg-white">
@@ -16,7 +18,7 @@ export default function ClientLayout({
             <div className="flex items-center space-x-2">
               <span className="text-xl font-bold">Welcome</span>
             </div>
-            <Badge variant="secondary">Bella Hair Salon</Badge>
+            {business && <Badge variant="secondary">{business.name}</Badge>}
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="ghost" size="icon">

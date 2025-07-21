@@ -1,6 +1,5 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
-import Resend from "next-auth/providers/resend";
 import Google from "next-auth/providers/google";
 
 import { db } from "@/server/db";
@@ -23,15 +22,18 @@ declare module "next-auth" {
     user: {
       id: string;
       isOnboarded?: boolean;
+      needsOnboarding?: boolean;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    isOnboarded?: boolean;
+    onboardedAt?: Date;
+    // ...other properties
+    // role: UserRole;
+  }
 }
 
 /**
@@ -44,6 +46,18 @@ export const authConfig = {
     signIn: "/login",
     error: "/auth/error",
   },
+  debug: process.env.NODE_ENV === "development",
+  logger: {
+    error: (code, ...message) => {
+      console.error(code, ...message);
+    },
+    warn: (code, ...message) => {
+      console.warn(code, ...message);
+    },
+    debug: (code, ...message) => {
+      console.debug(code, ...message);
+    },
+  },
 
   providers: [
     Google({
@@ -55,7 +69,6 @@ export const authConfig = {
         },
       },
     }),
-    // Resend
     /**
      * ...add more providers here.
      *
@@ -74,11 +87,13 @@ export const authConfig = {
   }),
   callbacks: {
     async signIn({ account, profile }) {
+      // Allow all Google accounts to sign in
       if (account?.provider === "google") {
         return !!(
           profile?.email_verified && profile?.email?.endsWith("@gmail.com")
         );
       }
+
       return true;
     },
     async session({ session, user }) {
@@ -91,16 +106,10 @@ export const authConfig = {
       if (dbUser) {
         session.user.id = dbUser.id;
         session.user.isOnboarded = !!dbUser.isOnboarded;
+        session.user.needsOnboarding = !dbUser.isOnboarded;
       }
 
-      // Set a flag to indicate if the user needs onboarding
-      (session.user as any).needsOnboarding = dbUser && !dbUser.isOnboarded;
-
       return session;
-    },
-
-    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
-      return url.startsWith(baseUrl) ? url : baseUrl;
     },
   },
   session: {

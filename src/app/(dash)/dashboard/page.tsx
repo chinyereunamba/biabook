@@ -31,13 +31,20 @@ import {
 import Link from "next/link";
 
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const [businessId, setBusinessId] = useState<string | null>(null);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<unknown>(null);
   const [recentBookings, setRecentBookings] = useState<[]>([]);
   const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
+  const router = useRouter();
 
+  if (session?.user && session?.user.needsOnboarding) {
+    router.replace("/onboarding/welcome");
+  }
   // Load the current user's business
   useEffect(() => {
     const loadBusiness = async () => {
@@ -150,8 +157,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-gray-50">
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+    <div className="w-full">
+      <main className="flex flex-col gap-4 md:gap-8">
         <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -209,7 +216,7 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Today's Bookings
+                Today&apos;s Bookings
               </CardTitle>
               <Activity className="text-muted-foreground h-4 w-4" />
             </CardHeader>
@@ -233,7 +240,7 @@ export default function DashboardPage() {
                 </CardDescription>
               </div>
               <Button asChild size="sm" className="ml-auto gap-1">
-                <Link href="/dashboard/bookings">
+                <Link href="/dashboard/bookings" className="flex gap-2">
                   View All
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>

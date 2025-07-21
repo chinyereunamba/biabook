@@ -22,6 +22,7 @@ import {
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
+import UserProfile from "./user-profile";
 
 export interface SidebarProps {
   businessName?: string;
@@ -68,7 +69,7 @@ export default function Sidebar({
   const pathname = usePathname();
 
   const sidebarContent = (
-    <div className="fixed flex h-full max-w-xs flex-col bg-white">
+    <div className="flex h-screen w-full flex-col overflow-y-auto bg-white">
       {/* Header */}
       <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-6">
         <Link href="/" className="flex items-center gap-2">
@@ -129,19 +130,23 @@ export default function Sidebar({
 
       {/* Upgrade card */}
       <div className="border-t border-neutral-200 p-6">
-        <Card variant="outlined" padding="sm">
-          <CardHeader>
+        <Card className="border">
+          <CardHeader className="pb-3">
             <CardTitle className="text-base">Upgrade to Pro</CardTitle>
             <CardDescription className="text-sm">
               Unlock all features and get unlimited access to our support team.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button size="sm" fullWidth>
+            <Button size="sm" className="w-full">
               Upgrade
             </Button>
           </CardContent>
         </Card>
+      </div>
+      {/* User profile */}
+      <div className="border-t border-neutral-200 p-6">
+        <UserProfile />
       </div>
     </div>
   );
@@ -151,7 +156,7 @@ export default function Sidebar({
     return (
       <div
         className={cn(
-          "hidden w-64 border-r border-neutral-200 md:block",
+          "sticky top-0 left-0 h-screen w-full border-r border-neutral-200",
           className,
         )}
       >

@@ -3,6 +3,7 @@ import { db } from "@/server/db";
 import { appointments, businesses, services } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
+import { notificationScheduler } from "@/server/notifications/notification-scheduler";
 
 // Validation schema for booking creation
 const createBookingSchema = z.object({
@@ -151,8 +152,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Send WhatsApp notification to business owner
-    // TODO: Send email confirmation to customer
+    // Schedule notifications for the new booking
+    try {
+      // Schedule confirmation notifications
+      await notificationScheduler.scheduleBookingConfirmation(
+        newAppointment,
+        service,
+        business,
+      );
+
+      // Schedule reminder notifications
+      await notificationScheduler.scheduleBookingReminders(
+        newAppointment,
+        service,
+        business,
+      );
+    } catch (error) {
+      console.error("Failed to schedule booking notifications:", error);
+      // Don't fail the booking creation if notification scheduling fails
+    }
 
     // Return the created appointment with business and service details
     const appointmentWithDetails = {
