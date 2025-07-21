@@ -141,7 +141,8 @@ export async function POST(request: NextRequest) {
         startTime,
         endTime,
         status: "confirmed",
-        notes: notes?.trim() || null,
+        notes: notes?.trim(),
+        servicePrice: service.price,
       })
       .returning();
 
@@ -152,18 +153,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const appointmentForScheduler = {
+      ...newAppointment,
+      appointmentDate: new Date(newAppointment.appointmentDate),
+    };
+
     // Schedule notifications for the new booking
     try {
       // Schedule confirmation notifications
       await notificationScheduler.scheduleBookingConfirmation(
-        newAppointment,
+        appointmentForScheduler,
         service,
         business,
       );
 
       // Schedule reminder notifications
       await notificationScheduler.scheduleBookingReminders(
-        newAppointment,
+        appointmentForScheduler,
         service,
         business,
       );

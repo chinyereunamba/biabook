@@ -38,7 +38,6 @@ export function FormField({
 
       <div className="relative">
         {React.cloneElement(children as React.ReactElement, {
-          id: fieldId,
           "aria-invalid": !!error,
           "aria-describedby": error
             ? `${fieldId}-error`

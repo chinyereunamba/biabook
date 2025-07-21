@@ -47,7 +47,7 @@ export function BookingReschedule({
   onClose,
   isOpen = true,
 }: BookingRescheduleProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | null>();
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(false);
@@ -175,10 +175,10 @@ export function BookingReschedule({
   const getNewEndTime = (startTime: string) => {
     const [hours, minutes] = startTime.split(":").map(Number);
     const startDate = new Date();
-    startDate.setHours(hours, minutes, 0, 0);
+    startDate.setHours(hours || 0, minutes || 0, 0, 0);
 
     const endDate = new Date(startDate);
-    endDate.setMinutes(endDate.getMinutes() + booking.service.duration);
+    endDate.setMinutes(endDate.getMinutes() + (booking.service?.duration || 0));
 
     return `${endDate.getHours().toString().padStart(2, "0")}:${endDate.getMinutes().toString().padStart(2, "0")}`;
   };
@@ -233,9 +233,9 @@ export function BookingReschedule({
 
                   <div>
                     <p className="text-sm text-gray-600">Service</p>
-                    <p className="font-medium">{booking.service.name}</p>
+                    <p className="font-medium">{booking.service?.name}</p>
                     <p className="text-xs text-gray-500">
-                      {booking.service.duration} minutes
+                      {booking.service?.duration} minutes
                     </p>
                   </div>
 
@@ -258,7 +258,7 @@ export function BookingReschedule({
                     <div className="flex items-center space-x-2">
                       <CalendarIcon className="h-4 w-4 text-green-600" />
                       <span className="font-medium">
-                        {formatDate(formatDateForAPI(selectedDate!))}
+                        {selectedDate && formatDate(formatDateForAPI(selectedDate))}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -364,7 +364,7 @@ export function BookingReschedule({
                               key={slot.time}
                               variant={
                                 selectedTime === slot.time
-                                  ? "default"
+                                  ? "primary"
                                   : "outline"
                               }
                               size="sm"
@@ -432,7 +432,7 @@ export function BookingReschedule({
               <p className="text-sm text-blue-800">
                 <strong>Customer:</strong> {booking.customerName}
                 <br />
-                <strong>Service:</strong> {booking.service.name}
+                <strong>Service:</strong> {booking.service?.name}
                 <br />
                 {notifyCustomer && (
                   <span>The customer will be notified via email.</span>

@@ -28,7 +28,7 @@ export default function DashboardHeader() {
         </Link>
       </div>
 
-      <div className="md:hidden flex items-center gap-4">
+      <div className="flex items-center gap-4 md:hidden">
         <UserProfile />
       </div>
 

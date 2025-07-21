@@ -61,7 +61,7 @@ const navigationItems = [
 ];
 
 export default function Sidebar({
-  businessName = "BookMe",
+  businessName = "BiaBook",
   isOpen = false,
   onClose,
   className,

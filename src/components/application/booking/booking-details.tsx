@@ -30,7 +30,7 @@ import {
   Hash,
   Building,
 } from "lucide-react";
-import { AppointmentWithDetails } from "@/types/booking";
+import type { AppointmentWithDetails } from "@/types/booking";
 
 interface BookingDetailsProps {
   booking: AppointmentWithDetails;
@@ -429,8 +429,8 @@ export function BookingDetails({
                     <p className="font-medium">Last Updated</p>
                     <p className="text-sm text-gray-600">
                       {formatDateTime(
-                        booking?.updatedAt.toISOString().split('T')[0],
-                        booking?.updatedAt.toTimeString().split(' ')[0].substring(0, 5)
+                        booking.updatedAt?.toISOString().split('T')[0] || '',
+                        booking.updatedAt?.toTimeString().split(' ')[0].substring(0, 5) || ''
                       )}
                     </p>
                   </div>

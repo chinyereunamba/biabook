@@ -145,7 +145,7 @@ describe("NotificationScheduler", () => {
     vi.clearAllMocks();
 
     // Mock the getBusinessNotificationPreferences method
-    NotificationScheduler.prototype.getBusinessNotificationPreferences = vi
+    (notificationScheduler as any).getBusinessNotificationPreferences = vi
       .fn()
       .mockResolvedValue({
         businessId: "biz-123",
@@ -158,17 +158,15 @@ describe("NotificationScheduler", () => {
       });
 
     // Mock the database methods
-    NotificationScheduler.prototype.getAppointmentById = vi
+    (notificationScheduler as any).getAppointmentById = vi
       .fn()
       .mockResolvedValue(appointment);
-    NotificationScheduler.prototype.getServiceById = vi
+    (notificationScheduler as any).getServiceById = vi
       .fn()
       .mockResolvedValue(service);
-    NotificationScheduler.prototype.getBusinessById = vi
+    (notificationScheduler as any).getBusinessById = vi
       .fn()
       .mockResolvedValue(business);
-
-    notificationScheduler = new NotificationScheduler();
   });
 
   it("should schedule booking confirmation notifications", async () => {

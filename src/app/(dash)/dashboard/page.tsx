@@ -33,11 +33,12 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import type { RecentBooking, Stats } from "@/types/dashboard";
 
 export default function DashboardPage() {
   const [businessId, setBusinessId] = useState<string | null>(null);
-  const [stats, setStats] = useState<unknown>(null);
-  const [recentBookings, setRecentBookings] = useState<[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [recentBookings, setRecentBookings] = useState<RecentBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
   const router = useRouter();
@@ -169,10 +170,10 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${stats?.revenue ? formatPrice(stats.revenue.total) : "0.00"}
+                ${stats?.revenue ? formatPrice(stats?.revenue?.total) : "0.00"}
               </div>
               <p className="text-muted-foreground text-xs">
-                {stats?.revenue?.percentChange > 0 ? "+" : ""}
+                {stats?.revenue?.percentChange && stats.revenue.percentChange > 0 ? "+" : ""}
                 {stats?.revenue?.percentChange?.toFixed(1) || "0"}% from last
                 month
               </p>
@@ -188,7 +189,7 @@ export default function DashboardPage() {
                 +{stats?.bookings?.total || "0"}
               </div>
               <p className="text-muted-foreground text-xs">
-                {stats?.bookings?.percentChange > 0 ? "+" : ""}
+                {stats?.bookings?.percentChange && stats.bookings.percentChange > 0 ? "+" : ""}
                 {stats?.bookings?.percentChange?.toFixed(1) || "0"}% from last
                 month
               </p>

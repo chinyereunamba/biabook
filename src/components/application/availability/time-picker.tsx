@@ -155,7 +155,7 @@ export function TimePicker({
                 {hoursArray.map((hour) => (
                   <Button
                     key={hour}
-                    variant={hours === hour ? "default" : "outline"}
+                    variant={hours === hour ? "primary" : "outline"}
                     size="sm"
                     onClick={() => handleHourChange(hour)}
                     className="w-10 h-10"
@@ -171,7 +171,7 @@ export function TimePicker({
                 {minutesArray.map((minute) => (
                   <Button
                     key={minute}
-                    variant={minutes === minute ? "default" : "outline"}
+                    variant={minutes === minute ? "primary" : "outline"}
                     size="sm"
                     onClick={() => handleMinuteChange(minute)}
                     className="w-10 h-10"
@@ -186,7 +186,7 @@ export function TimePicker({
           {hourFormat === 12 && (
             <div className="flex gap-2">
               <Button
-                variant={period === "AM" ? "default" : "outline"}
+                variant={period === "AM" ? "primary" : "outline"}
                 size="sm"
                 onClick={() => handlePeriodChange("AM")}
                 className="flex-1"
@@ -194,7 +194,7 @@ export function TimePicker({
                 AM
               </Button>
               <Button
-                variant={period === "PM" ? "default" : "outline"}
+                variant={period === "PM" ? "primary" : "outline"}
                 size="sm"
                 onClick={() => handlePeriodChange("PM")}
                 className="flex-1"

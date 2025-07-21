@@ -8,7 +8,7 @@ import { index, primaryKey, sqliteTableCreator } from "drizzle-orm/sqlite-core";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = sqliteTableCreator((name) => `bookme_${name}`);
+export const createTable = sqliteTableCreator((name) => `biabook_${name}`);
 
 export const posts = createTable(
   "post",

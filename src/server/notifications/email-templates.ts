@@ -1,6 +1,6 @@
-import {type Appointment } from "@/types/appointment";
-import {type Service } from "@/types/service";
-import {type Business } from "@/types/business";
+import { type Appointment } from "@/types/appointment";
+import { type Service } from "@/types/service";
+import { type Business } from "@/types/business";
 import { formatDate, formatTime, formatCurrency } from "@/utils/format";
 
 // Base template for all emails
@@ -10,7 +10,7 @@ const baseTemplate = (content: string) => `
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BookMe</title>
+  <title>BiaBook</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -68,14 +68,14 @@ const baseTemplate = (content: string) => `
 <body>
   <div class="container">
     <div class="header">
-      <h1>BookMe</h1>
+      <h1>BiaBook</h1>
     </div>
     <div class="content">
       ${content}
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} BookMe. All rights reserved.</p>
-      <p>This email was sent to you because you made a booking on BookMe.</p>
+      <p>© ${new Date().getFullYear()} BiaBook. All rights reserved.</p>
+      <p>This email was sent to you because you made a booking on BiaBook.</p>
     </div>
   </div>
 </body>
@@ -135,7 +135,7 @@ export const bookingCancellationEmail = (
     
     <p>If you would like to make a new booking, please visit our website.</p>
     
-    <p>Thank you for using BookMe!</p>
+    <p>Thank you for using BiaBook!</p>
   `;
 
   return baseTemplate(content);

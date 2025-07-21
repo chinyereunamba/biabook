@@ -29,7 +29,10 @@ export async function GET(
     const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
 
     // Format dates as YYYY-MM-DD
-    const formatDate = (date: Date) => date.toISOString().split("T")[0];
+    const formatDate = (date: Date | undefined) => {
+      if (!date) return "";
+      return date.toISOString().split("T")[0];
+    };
     const todayStr = formatDate(today);
     const currentMonthStr = formatDate(currentMonth);
     const lastMonthStr = formatDate(lastMonth);

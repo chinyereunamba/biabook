@@ -115,7 +115,7 @@ export function TimeSlotGrid({
                 return (
                   <Button
                     key={timeKey}
-                    variant={isSelected ? "default" : "outline"}
+                    variant={isSelected ? "primary" : "outline"}
                     size="sm"
                     onClick={() => onTimeSelect(slot.startTime, slot.endTime)}
                     className={cn(

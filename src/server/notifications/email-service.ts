@@ -49,7 +49,7 @@ export class EmailService {
         return false;
       }
 
-      const from = env.EMAIL_FROM ?? "noreply@bookme.example.com";
+      const from = env.EMAIL_FROM ?? "noreply@biabook.example.com";
 
       await this.transporter.sendMail({
         from,

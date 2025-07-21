@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { appointmentRepository } from "@/server/repositories/appointment-repository";
 import { auth } from "@/server/auth";
@@ -23,15 +23,16 @@ const updateAppointmentSchema = z.object({
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const appointment = await appointmentRepository.getById(params.id);
+    const appointment = await appointmentRepository.getById(id);
 
     if (!appointment) {
       return NextResponse.json(

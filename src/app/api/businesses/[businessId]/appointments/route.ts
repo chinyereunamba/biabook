@@ -34,7 +34,7 @@ export async function GET(
     const conditions = [eq(appointments.businessId, businessId)];
 
     if (status) {
-      conditions.push(eq(appointments.status, status));
+      conditions.push(eq(appointments.status, status as "pending" | "confirmed" | "cancelled" | "completed"));
     }
 
     if (startDate) {
@@ -67,10 +67,14 @@ export async function GET(
       .offset(offset);
 
     // Count total appointments for pagination
-    const [{ count: totalCount }] = await db
+    const totalCountResult = await db
       .select({ count: count() }) // ✅ use the imported `count()`
       .from(appointments)
       .where(and(...conditions));
+
+    const totalCount = totalCountResult[0]?.count ?? 0;
+
+    const totalCount = totalCountResult[0]?.count ?? 0;
 
     return NextResponse.json({
       appointments: appointmentsData,

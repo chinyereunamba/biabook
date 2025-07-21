@@ -215,7 +215,7 @@ export function BusinessProfileComponent({
                       
                       <Button
                         size="sm"
-                        variant={isSelected ? "default" : "outline"}
+                        variant={isSelected ? "primary" : "outline"}
                         onClick={(e) => {
                           e.stopPropagation();
                           onServiceSelect(service.id);

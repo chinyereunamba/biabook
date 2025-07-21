@@ -29,13 +29,13 @@ import {
   MessageSquare,
   Save,
 } from "lucide-react";
-import { AppointmentWithDetails } from "@/types/booking";
+import type { AppointmentWithDetails } from "@/types/booking";
 
 interface BookingStatusUpdateProps {
   booking: AppointmentWithDetails;
   onStatusUpdate: (
     bookingId: string,
-    status: string,
+    status: "pending" | "confirmed" | "cancelled" | "completed",
     notes?: string,
   ) => Promise<void>;
   onClose?: () => void;
@@ -92,7 +92,7 @@ export function BookingStatusUpdate({
     return statusOptions.find((option) => option.value === selectedStatus);
   };
 
-  const handleStatusChange = (newStatus: string) => {
+  const handleStatusChange = (newStatus: "pending" | "confirmed" | "cancelled" | "completed") => {
     setSelectedStatus(newStatus);
 
     // Show confirmation dialog for destructive actions
@@ -171,7 +171,7 @@ export function BookingStatusUpdate({
                   <div>
                     <h3 className="font-semibold">{booking.customerName}</h3>
                     <p className="text-sm text-gray-600">
-                      {booking.service.name}
+                      {booking.service?.name}
                     </p>
                   </div>
                   <div className="text-right">
@@ -209,7 +209,7 @@ export function BookingStatusUpdate({
             {/* Status Selection */}
             <div className="space-y-3">
               <Label htmlFor="status">New Status</Label>
-              <Select value={selectedStatus} onValueChange={handleStatusChange}>
+              <Select value={selectedStatus} onValueChange={(value) => handleStatusChange(value as "pending" | "confirmed" | "cancelled" | "completed")}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -352,7 +352,7 @@ export function BookingStatusUpdate({
             </Button>
             <Button
               variant={
-                selectedStatus === "cancelled" ? "destructive" : "default"
+                selectedStatus === "cancelled" ? "destructive" : "primary"
               }
               onClick={handleConfirmStatusChange}
               disabled={loading}

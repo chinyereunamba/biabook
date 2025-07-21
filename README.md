@@ -21,14 +21,31 @@ BookMe is an appointment booking platform designed for service businesses like s
 - **Styling**: Tailwind CSS v4 with shadcn/ui components
 - **Package Manager**: Bun
 
+## Authentication
+
+BookMe uses NextAuth.js v5 for authentication with the following features:
+
+- Google OAuth provider for sign-in
+- Session data includes user onboarding status
+- Protected routes for dashboard and admin areas
+- Database adapter for persistent sessions
+- Custom login page with Google sign-in button
+
 ## Project Structure
 
 The project follows a modern Next.js App Router structure:
 
 - **Public Routes** (`src/app/(main)/`): Landing page, business listings, booking flow
 - **Protected Routes** (`src/app/(dash)/`): Dashboard, admin, settings
+  - Dashboard layout with sidebar navigation and header
+  - Business-specific views and data
 - **API Routes** (`src/app/api/`): Server-side API endpoints
+  - Business data endpoints
+  - Authentication endpoints
+  - Booking and service management
 - **Components** (`src/components/`): Reusable UI components
+  - Sidebar with navigation links
+  - Dashboard header with user profile
 - **Server** (`src/server/`): Authentication, database schema, repositories
 - **Library** (`src/lib/`): Utility functions and shared logic
   - `get-business.ts`: Helper to fetch the current user's business
