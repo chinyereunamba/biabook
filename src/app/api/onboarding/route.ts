@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
         .values({
           id: crypto.randomUUID(),
           name: businessData.name,
+          slug: slug,
           description: businessData.description ?? null,
           location: businessData.address ?? null,
           phone: businessData.phone ?? null,

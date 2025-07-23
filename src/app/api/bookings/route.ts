@@ -1,9 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import {type NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { appointments, businesses, services } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { notificationScheduler } from "@/server/notifications/notification-scheduler";
+import { bookingConflictService } from "@/server/services/booking-conflict-service";
+
+import { bookingLogger } from "@/server/logging/booking-logger";
+import { withErrorHandler } from "@/app/api/_middleware/error-handler";
+import { BookingErrors, toBookingError } from "@/server/errors/booking-errors";
 
 // Validation schema for booking creation
 const createBookingSchema = z.object({
@@ -89,32 +94,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for existing appointment at the same time slot
-    const existingAppointment = await db.query.appointments.findFirst({
-      where: and(
-        eq(appointments.businessId, businessId),
-        eq(appointments.appointmentDate, appointmentDate),
-        eq(appointments.startTime, startTime),
-        eq(appointments.status, "confirmed"),
-      ),
-    });
+    // Use the booking conflict service for comprehensive validation
+    const conflictValidationResult =
+      await bookingConflictService.validateBookingRequest({
+        businessId,
+        serviceId,
+        appointmentDate,
+        startTime,
+      });
 
-    if (existingAppointment) {
-      return NextResponse.json(
-        { error: "Time slot is no longer available" },
-        { status: 409 },
-      );
-    }
+    if (!conflictValidationResult.isAvailable) {
+      const errorMessage = conflictValidationResult.conflicts.join("; ");
+      const response: any = { error: errorMessage };
 
-    // Validate appointment date is not in the past
-    const appointmentDateTime = new Date(`${appointmentDate}T${startTime}:00`);
-    const now = new Date();
+      // Include suggestions if available
+      if (conflictValidationResult.suggestions?.nextAvailableSlot) {
+        response.suggestion = {
+          message: "Next available slot",
+          slot: conflictValidationResult.suggestions.nextAvailableSlot,
+        };
+      }
 
-    if (appointmentDateTime <= now) {
-      return NextResponse.json(
-        { error: "Cannot book appointments in the past" },
-        { status: 400 },
-      );
+      return NextResponse.json(response, { status: 409 });
     }
 
     // Normalize phone number (basic formatting)
@@ -158,20 +159,28 @@ export async function POST(request: NextRequest) {
       appointmentDate: new Date(newAppointment.appointmentDate),
     };
 
+    const businessForScheduler = {
+      ...business,
+      slug: business.name.toLowerCase().replace(/ /g, "-"),
+      ownerId: business.ownerId,
+      description: business.description,
+      phone: business.phone,
+    };
+
     // Schedule notifications for the new booking
     try {
       // Schedule confirmation notifications
       await notificationScheduler.scheduleBookingConfirmation(
         appointmentForScheduler,
         service,
-        business,
+        businessForScheduler,
       );
 
       // Schedule reminder notifications
       await notificationScheduler.scheduleBookingReminders(
         appointmentForScheduler,
         service,
-        business,
+        businessForScheduler,
       );
     } catch (error) {
       console.error("Failed to schedule booking notifications:", error);
@@ -205,7 +214,14 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
-    console.error("Error creating booking:", error);
+    bookingLogger.error(
+      "Error creating booking",
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        path: "/api/bookings",
+        method: "POST",
+      },
+    );
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

@@ -83,14 +83,19 @@ export function BookingList({
       if (dateFrom) params.append("from", dateFrom);
       if (dateTo) params.append("to", dateTo);
 
-      const response = await fetch(`/api/appointments?${params}`);
+      const response = await fetch(`/api/businesses/${businessId}/appointments?${params}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch bookings");
       }
 
       const data = await response.json();
-      setBookings(data.appointments);
+      const bookingsWithDates = data.appointments.map((booking: any) => ({
+        ...booking,
+        createdAt: new Date(booking.createdAt),
+        updatedAt: booking.updatedAt ? new Date(booking.updatedAt) : null,
+      }));
+      setBookings(bookingsWithDates);
       setTotal(data.total);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch bookings");

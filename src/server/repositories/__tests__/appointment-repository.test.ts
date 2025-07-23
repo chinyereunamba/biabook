@@ -86,6 +86,8 @@ describe("AppointmentRepository", () => {
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
+        category: "default",
+        bufferTime: 0,
       });
 
       // Mock insert returning

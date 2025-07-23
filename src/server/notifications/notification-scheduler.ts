@@ -215,7 +215,7 @@ export class NotificationScheduler {
     // Send notification to business owner if enabled
     if (preferences.email || preferences.whatsapp) {
       await this.scheduleNotification({
-        type: "business_booking_rescheduled",
+        type: "booking_rescheduled",
         recipientId: business.id,
         recipientType: "business",
         recipientEmail: business.email,
@@ -391,6 +391,13 @@ export class NotificationScheduler {
           business,
         );
 
+      case "booking_rescheduled":
+        return notificationService.sendBookingRescheduledToCustomer(
+          appointment,
+          service,
+          business,
+        );
+
       default:
         console.error(`Unknown business notification type: ${type}`);
         return false;
@@ -416,14 +423,14 @@ export class NotificationScheduler {
    * Get business notification preferences
    */
   protected async getBusinessNotificationPreferences(businessId: string) {
-    const preferences = await db
+    const [preferences] = await db
       .select()
       .from(businessNotificationPreferences)
       .where(eq(businessNotificationPreferences.businessId, businessId))
       .limit(1);
 
-    if (preferences.length > 0) {
-      return preferences[0];
+    if (preferences) {
+      return preferences;
     }
 
     // Return default preferences if none are set
@@ -442,39 +449,39 @@ export class NotificationScheduler {
    * Get appointment by ID
    */
   protected async getAppointmentById(id: string): Promise<Appointment | null> {
-    const result = await db
+    const [result] = await db
       .select()
       .from(appointments)
       .where(eq(appointments.id, id))
       .limit(1);
 
-    return result.length > 0 ? (result[0] as Appointment) : null;
+    return result ? { ...result, appointmentDate: new Date(result.appointmentDate) } as Appointment : null;
   }
 
   /**
    * Get service by ID
    */
   protected async getServiceById(id: string): Promise<Service | null> {
-    const result = await db
+    const [result] = await db
       .select()
       .from(services)
       .where(eq(services.id, id))
       .limit(1);
 
-    return result.length > 0 ? (result[0] as Service) : null;
+    return result ? result as Service : null;
   }
 
   /**
    * Get business by ID
    */
   protected async getBusinessById(id: string): Promise<Business | null> {
-    const result = await db
+    const [result] = await db
       .select()
       .from(businesses)
       .where(eq(businesses.id, id))
       .limit(1);
 
-    return result.length > 0 ? (result[0] as Business) : null;
+    return result ? ({ ...result, slug: result.name.toLowerCase().replace(/ /g, "-"), userId: result.ownerId }) as Business : null;
   }
 }
 

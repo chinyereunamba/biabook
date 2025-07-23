@@ -74,8 +74,6 @@ export async function GET(
 
     const totalCount = totalCountResult[0]?.count ?? 0;
 
-    const totalCount = totalCountResult[0]?.count ?? 0;
-
     return NextResponse.json({
       appointments: appointmentsData,
       pagination: {

@@ -78,7 +78,7 @@ export function BookingReschedule({
   };
 
   const formatDateForAPI = (date: Date) => {
-    return date.toISOString().split("T")[0]; // YYYY-MM-DD format
+    return date.toISOString().split("T")[0]!; // YYYY-MM-DD format
   };
 
   // Fetch available time slots for the selected date
@@ -154,7 +154,7 @@ export function BookingReschedule({
 
       await onReschedule(
         booking.id,
-        newDate!,
+        newDate,
         selectedTime,
         notes.trim() || undefined,
         notifyCustomer,
@@ -187,7 +187,7 @@ export function BookingReschedule({
   const isNewTimeSlot =
     selectedDate &&
     selectedTime &&
-    (formatDateForAPI(selectedDate) !== booking.appointmentDate ||
+    (formatDateForAPI(selectedDate) !== booking.appointmentDate.toString() ||
       selectedTime !== booking.startTime);
 
   return (
@@ -220,7 +220,7 @@ export function BookingReschedule({
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <CalendarIcon className="h-4 w-4 text-gray-400" />
-                      <span>{formatDate(booking.appointmentDate)}</span>
+                      <span>{formatDate(booking.appointmentDate.toString())}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Clock className="h-4 w-4 text-gray-400" />
@@ -410,7 +410,7 @@ export function BookingReschedule({
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="font-medium text-gray-600">From:</p>
-                <p>{formatDate(booking.appointmentDate)}</p>
+                <p>{formatDate(booking.appointmentDate.toString())}</p>
                 <p>
                   {formatTime(booking.startTime)} -{" "}
                   {formatTime(booking.endTime)}

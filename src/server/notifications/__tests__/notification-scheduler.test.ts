@@ -142,6 +142,7 @@ describe("NotificationScheduler", () => {
   } as const;
 
   beforeEach(() => {
+    notificationScheduler = new NotificationScheduler();
     vi.clearAllMocks();
 
     // Mock the getBusinessNotificationPreferences method

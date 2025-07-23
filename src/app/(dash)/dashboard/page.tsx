@@ -223,7 +223,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                +{stats?.bookings?.today || "0"}
+                +{stats?.bookings?.today ??"0"}
               </div>
               <p className="text-muted-foreground text-xs">
                 Appointments scheduled for today

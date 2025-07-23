@@ -60,6 +60,7 @@ export interface AvailabilityException {
 export interface Business {
   id: string;
   name: string;
+  slug: string;
   description: string | null;
   location: string | null;
   phone: string | null;
@@ -83,6 +84,10 @@ export interface ServiceWithBusiness extends Service {
 export interface AppointmentWithDetails extends Appointment {
   business: Business;
   service: Service;
+}
+
+export interface AppointmentDetailWithDate extends Appointment {
+  business: Business;
 }
 
 export interface BusinessWithServices extends Business {

@@ -1,14 +1,48 @@
-import { and, asc, desc, eq, gte, inArray, like, lt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lt, sql } from "drizzle-orm";
 import { db } from "@/server/db";
-import { appointments, services, businesses } from "@/server/db/schema";
+import {
+  appointments,
+  services,
+  availabilityExceptions,
+  weeklyAvailability,
+} from "@/server/db/schema";
 import type {
   Appointment,
+  AppointmentDetailWithDate,
   AppointmentWithDetails,
   CreateAppointmentInput,
   UpdateAppointmentInput,
 } from "@/types/booking";
-import { notificationService } from "@/server/notifications/notification-service";
+// import { notificationService } from "@/server/notifications/notification-service";
 import { notificationScheduler } from "@/server/notifications/notification-scheduler";
+import {
+  getDayOfWeekFromDate,
+  timeStringToMinutes,
+  // isValidDateFormat,
+} from "./utils/availability-validation";
+// import { bookingConflictService } from "@/server/services/booking-conflict-service";
+import { BookingErrors, toBookingError } from "@/server/errors/booking-errors";
+import { bookingLogger, logExecution } from "@/server/logging/booking-logger";
+
+function toAppointmentWithDetails(
+  result: AppointmentDetailWithDate,
+): AppointmentDetailWithDate | null {
+  if (!result) {
+    return null;
+  }
+
+  const { business, ...appointment } = result;
+
+  return {
+    ...appointment,
+    appointmentDate: new Date(appointment.appointmentDate),
+    business: {
+      ...business,
+      slug: business.name.toLowerCase().replace(/ /g, "-"),
+      userId: business.ownerId,
+    },
+  };
+}
 
 /**
  * Repository for appointment CRUD operations
@@ -20,60 +54,168 @@ export class AppointmentRepository {
    * @param data Appointment data
    * @returns The created appointment
    */
+  @logExecution("create_appointment")
   async create(data: CreateAppointmentInput): Promise<Appointment> {
-    // Get the service to calculate end time
-    const service = await db.query.services.findFirst({
-      where: eq(services.id, data.serviceId),
+    // Use a transaction to ensure atomicity and prevent race conditions
+    const result = await db.transaction(async (tx) => {
+      // Get the service to calculate end time
+      const service = await tx.query.services.findFirst({
+        where: eq(services.id, data.serviceId),
+      });
+
+      if (!service) {
+        bookingLogger.error(`Service not found`, null, {
+          serviceId: data.serviceId,
+        });
+        throw BookingErrors.serviceNotFound(data.serviceId);
+      }
+
+      // Calculate end time based on service duration
+      const [hours, minutes] = data.startTime.split(":").map(Number);
+      const startDate = new Date();
+      startDate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
+
+      const endDate = new Date(startDate);
+      endDate.setMinutes(endDate.getMinutes() + service.duration);
+
+      const endTime = `${endDate.getHours().toString().padStart(2, "0")}:${endDate.getMinutes().toString().padStart(2, "0")}`;
+
+      // Check for booking conflicts using Drizzle ORM
+      const conflicts = await tx
+        .select({ id: appointments.id })
+        .from(appointments)
+        .where(
+          and(
+            eq(appointments.businessId, data.businessId),
+            eq(appointments.appointmentDate, data.appointmentDate),
+            inArray(appointments.status, ["pending", "confirmed"]),
+            sql`(
+              (${appointments.startTime} < ${endTime} AND ${appointments.endTime} > ${data.startTime}) OR
+              (${appointments.startTime} = ${data.startTime} AND ${appointments.endTime} = ${endTime})
+            )`,
+          ),
+        );
+
+      if (conflicts.length > 0) {
+        bookingLogger.logConflictDetection("time_slot_conflict", false, {
+          businessId: data.businessId,
+          appointmentDate: data.appointmentDate,
+          startTime: data.startTime,
+        });
+        throw BookingErrors.conflict("This time slot is no longer available");
+      }
+
+      // Verify the time slot is within business availability
+      const dayOfWeek = getDayOfWeekFromDate(data.appointmentDate);
+      if (dayOfWeek === -1) {
+        bookingLogger.logValidationError(
+          "appointmentDate",
+          data.appointmentDate,
+          "Invalid date format",
+        );
+        throw BookingErrors.validation(
+          "Invalid appointment date",
+          "appointmentDate",
+        );
+      }
+
+      // Check for availability exception
+      const exception = await tx.query.availabilityExceptions.findFirst({
+        where: and(
+          eq(availabilityExceptions.businessId, data.businessId),
+          eq(availabilityExceptions.date, data.appointmentDate),
+        ),
+      });
+
+      // If there's an exception and it's marked as unavailable, reject the booking
+      if (exception && !exception.isAvailable) {
+        bookingLogger.logConflictDetection("business_unavailable_date", false, {
+          businessId: data.businessId,
+          appointmentDate: data.appointmentDate,
+          reason: exception.reason || "Business closed",
+        });
+        throw BookingErrors.businessUnavailable(
+          exception.reason || "Business is not available on this date",
+        );
+      }
+
+      // Check weekly availability if no exception or exception is available
+      if (!exception || exception.isAvailable) {
+        const weeklyAvail = await tx.query.weeklyAvailability.findFirst({
+          where: and(
+            eq(weeklyAvailability.businessId, data.businessId),
+            eq(weeklyAvailability.dayOfWeek, dayOfWeek),
+            eq(weeklyAvailability.isAvailable, true),
+          ),
+        });
+
+        if (!weeklyAvail) {
+          bookingLogger.logConflictDetection(
+            "business_unavailable_day",
+            false,
+            {
+              businessId: data.businessId,
+              appointmentDate: data.appointmentDate,
+              dayOfWeek,
+            },
+          );
+          throw BookingErrors.businessUnavailable(
+            `Business is not available on ${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dayOfWeek]}`,
+          );
+        }
+
+        // Check if appointment time is within business hours
+        const startTimeMinutes = timeStringToMinutes(data.startTime);
+        const endTimeMinutes = timeStringToMinutes(endTime);
+        const businessStartMinutes = timeStringToMinutes(weeklyAvail.startTime);
+        const businessEndMinutes = timeStringToMinutes(weeklyAvail.endTime);
+
+        if (
+          startTimeMinutes < businessStartMinutes ||
+          endTimeMinutes > businessEndMinutes
+        ) {
+          const businessHours = `${weeklyAvail.startTime} - ${weeklyAvail.endTime}`;
+          bookingLogger.logConflictDetection("outside_business_hours", false, {
+            businessId: data.businessId,
+            appointmentDate: data.appointmentDate,
+            startTime: data.startTime,
+            endTime,
+            businessHours,
+          });
+          throw BookingErrors.outsideBusinessHours(businessHours);
+        }
+      }
+
+      // Create the appointment
+      const [appointment] = await tx
+        .insert(appointments)
+        .values({
+          businessId: data.businessId,
+          serviceId: data.serviceId,
+          servicePrice: service.price,
+          customerName: data.customerName,
+          customerEmail: data.customerEmail,
+          customerPhone: data.customerPhone,
+          appointmentDate: data.appointmentDate,
+          startTime: data.startTime,
+          endTime: endTime,
+          notes: data.notes ?? null,
+          status: "pending",
+          version: 1, // Initialize version for optimistic locking
+        })
+        .returning();
+
+      if (!appointment) {
+        bookingLogger.error("Failed to create appointment", null, { data });
+        throw BookingErrors.database("Failed to create appointment");
+      }
+
+      return {
+        ...appointment,
+        appointmentDate: new Date(appointment.appointmentDate),
+      };
     });
-
-    if (!service) {
-      throw new Error(`Service with ID ${data.serviceId} not found`);
-    }
-
-    // Calculate end time based on service duration
-    const [hours, minutes] = data.startTime.split(":").map(Number);
-    const startDate = new Date();
-    startDate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
-
-    const endDate = new Date(startDate);
-    endDate.setMinutes(endDate.getMinutes() + service.duration);
-
-    const endTime = `${endDate.getHours().toString().padStart(2, "0")}:${endDate.getMinutes().toString().padStart(2, "0")}`;
-
-    // Check for booking conflicts
-    const conflicts = await this.checkForConflicts(
-      data.businessId,
-      data.appointmentDate,
-      data.startTime,
-      endTime,
-    );
-
-    if (conflicts.length > 0) {
-      throw new Error("This time slot is no longer available");
-    }
-
-    // Create the appointment
-    const [appointment] = await db
-      .insert(appointments)
-      .values({
-        businessId: data.businessId,
-        serviceId: data.serviceId,
-        customerName: data.customerName,
-        customerEmail: data.customerEmail,
-        customerPhone: data.customerPhone,
-        appointmentDate: data.appointmentDate,
-        startTime: data.startTime,
-        endTime: endTime,
-        notes: data.notes ?? null,
-        status: "pending",
-      })
-      .returning();
-
-    if (!appointment) {
-      throw new Error("Failed to create appointment");
-    }
-
-    return appointment;
+    return result;
   }
 
   /**
@@ -81,7 +223,7 @@ export class AppointmentRepository {
    * @param id Appointment ID
    * @returns The appointment with business and service details
    */
-  async getById(id: string): Promise<AppointmentWithDetails | null> {
+  async getById(id: string): Promise<AppointmentDetailWithDate | null> {
     const result = await db.query.appointments.findFirst({
       where: eq(appointments.id, id),
       with: {
@@ -90,7 +232,7 @@ export class AppointmentRepository {
       },
     });
 
-    return result as AppointmentWithDetails | null;
+    return toAppointmentWithDetails(result);
   }
 
   /**
@@ -109,7 +251,7 @@ export class AppointmentRepository {
       },
     });
 
-    return result as AppointmentWithDetails | null;
+    return toAppointmentWithDetails(result);
   }
 
   /**
@@ -205,7 +347,9 @@ export class AppointmentRepository {
     });
 
     return {
-      appointments: results as AppointmentWithDetails[],
+      appointments: results
+        .map(toAppointmentWithDetails)
+        .filter(Boolean) as AppointmentWithDetails[],
       total: Number(count),
     };
   }
@@ -233,16 +377,23 @@ export class AppointmentRepository {
       orderBy: [asc(appointments.startTime)],
     });
 
-    return results as AppointmentWithDetails[];
+    return results
+      .map(toAppointmentWithDetails)
+      .filter(Boolean) as AppointmentWithDetails[];
   }
 
   /**
    * Update an appointment
    * @param id Appointment ID
    * @param data Update data
+   * @param expectedVersion Optional version for optimistic locking
    * @returns The updated appointment
    */
-  async update(id: string, data: UpdateAppointmentInput): Promise<Appointment> {
+  async update(
+    id: string,
+    data: UpdateAppointmentInput,
+    expectedVersion?: number,
+  ): Promise<Appointment> {
     // Get the appointment with details before updating
     const appointmentWithDetails = await this.getById(id);
 
@@ -251,6 +402,20 @@ export class AppointmentRepository {
     }
 
     const appointment = appointmentWithDetails;
+
+    // Implement optimistic locking
+    if (
+      expectedVersion !== undefined &&
+      appointment.version !== expectedVersion
+    ) {
+      bookingLogger.logConflictDetection("optimistic_lock", false, {
+        appointmentId: id,
+        expectedVersion,
+        actualVersion: appointment.version,
+      });
+      throw BookingErrors.optimisticLock();
+    }
+
     let endTime = appointment.endTime;
     let isRescheduled = false;
 
@@ -289,7 +454,7 @@ export class AppointmentRepository {
       }
     }
 
-    // Update the appointment
+    // Update the appointment with version increment
     const [updatedAppointment] = await db
       .update(appointments)
       .set({
@@ -298,28 +463,41 @@ export class AppointmentRepository {
         endTime: endTime,
         status: data.status ?? appointment.status,
         notes: data.notes !== undefined ? data.notes : appointment.notes,
+        version: appointment.version + 1, // Increment version for optimistic locking
         updatedAt: new Date(),
       })
-      .where(eq(appointments.id, id))
+      .where(
+        expectedVersion !== undefined
+          ? and(
+              eq(appointments.id, id),
+              eq(appointments.version, expectedVersion),
+            )
+          : eq(appointments.id, id),
+      )
       .returning();
 
     if (!updatedAppointment) {
       throw new Error("Failed to update appointment");
     }
 
+    const appointmentForScheduler = {
+      ...updatedAppointment,
+      appointmentDate: new Date(updatedAppointment.appointmentDate),
+    };
+
     // Schedule notifications based on the update
     try {
       // If the appointment was rescheduled, schedule notifications
       if (isRescheduled) {
         await notificationScheduler.scheduleBookingRescheduled(
-          updatedAppointment,
+          appointmentForScheduler,
           appointmentWithDetails.service,
           appointmentWithDetails.business,
         );
 
         // Also schedule new reminders for the rescheduled appointment
         await notificationScheduler.scheduleBookingReminders(
-          updatedAppointment,
+          appointmentForScheduler,
           appointmentWithDetails.service,
           appointmentWithDetails.business,
         );
@@ -328,7 +506,7 @@ export class AppointmentRepository {
       // If status changed to cancelled, schedule cancellation notifications
       if (data.status === "cancelled" && appointment.status !== "cancelled") {
         await notificationScheduler.scheduleBookingCancellation(
-          updatedAppointment,
+          appointmentForScheduler,
           appointmentWithDetails.service,
           appointmentWithDetails.business,
         );
@@ -341,7 +519,10 @@ export class AppointmentRepository {
       // Don't fail the update if notification scheduling fails
     }
 
-    return updatedAppointment;
+    return {
+      ...updatedAppointment,
+      appointmentDate: new Date(updatedAppointment.appointmentDate),
+    };
   }
 
   /**
@@ -374,6 +555,11 @@ export class AppointmentRepository {
       throw new Error(`Failed to update appointment status`);
     }
 
+    const appointmentForScheduler = {
+      ...updatedAppointment,
+      appointmentDate: new Date(updatedAppointment.appointmentDate),
+    };
+
     // Schedule notifications based on the status change
     try {
       if (
@@ -382,7 +568,7 @@ export class AppointmentRepository {
       ) {
         // Schedule cancellation notifications
         await notificationScheduler.scheduleBookingCancellation(
-          updatedAppointment,
+          appointmentForScheduler,
           appointmentWithDetails.service,
           appointmentWithDetails.business,
         );
@@ -392,13 +578,13 @@ export class AppointmentRepository {
       ) {
         // Schedule confirmation and reminder notifications
         await notificationScheduler.scheduleBookingConfirmation(
-          updatedAppointment,
+          appointmentForScheduler,
           appointmentWithDetails.service,
           appointmentWithDetails.business,
         );
 
         await notificationScheduler.scheduleBookingReminders(
-          updatedAppointment,
+          appointmentForScheduler,
           appointmentWithDetails.service,
           appointmentWithDetails.business,
         );
@@ -411,7 +597,10 @@ export class AppointmentRepository {
       // Don't fail the status update if notification scheduling fails
     }
 
-    return updatedAppointment;
+    return {
+      ...updatedAppointment,
+      appointmentDate: new Date(updatedAppointment.appointmentDate),
+    };
   }
 
   /**
@@ -433,6 +622,7 @@ export class AppointmentRepository {
    * @param businessId Business ID
    * @param date Appointment date
    * @param startTime Start time
+   *.
    * @param endTime End time
    * @param excludeAppointmentId Optional appointment ID to exclude from conflict check
    * @returns List of conflicting appointments
@@ -489,7 +679,9 @@ export class AppointmentRepository {
       orderBy: [asc(appointments.appointmentDate), asc(appointments.startTime)],
     });
 
-    return results as AppointmentWithDetails[];
+    return results
+      .map(toAppointmentWithDetails)
+      .filter(Boolean) as AppointmentWithDetails[];
   }
 
   /**

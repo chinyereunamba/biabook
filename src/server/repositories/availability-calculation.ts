@@ -272,22 +272,36 @@ export class AvailabilityCalculationEngine {
 
   /**
    * Check if a specific time slot is available
-   * This would be extended to check against existing appointments
+   * Performs comprehensive validation including business hours and existing appointments
    */
   async isTimeSlotAvailable(
     businessId: string,
     date: string,
     startTime: string,
     endTime: string,
-  ): Promise<boolean> {
+    serviceId?: string,
+    excludeAppointmentId?: string,
+  ): Promise<{ available: boolean; reason?: string }> {
     // Validate inputs
     if (!businessId?.trim() || !isValidDateFormat(date)) {
-      return false;
+      return { available: false, reason: "Invalid input parameters" };
     }
 
     // Get day of week
     const dayOfWeek = getDayOfWeekFromDate(date);
-    if (dayOfWeek === -1) return false;
+    if (dayOfWeek === -1) {
+      return { available: false, reason: "Invalid date format" };
+    }
+
+    // Check if date is in the past
+    const appointmentDate = new Date(`${date}T${startTime}:00`);
+    const now = new Date();
+    if (appointmentDate <= now) {
+      return {
+        available: false,
+        reason: "Cannot book appointments in the past",
+      };
+    }
 
     // Check for exception
     const exception =
@@ -295,34 +309,48 @@ export class AvailabilityCalculationEngine {
         businessId,
         date,
       );
+
     if (exception) {
       // If day is marked as unavailable, slot is not available
       if (!exception.isAvailable) {
-        return false;
+        return {
+          available: false,
+          reason: "Business is not available on this date",
+        };
       }
 
       // If day has special hours, check if slot is within those hours
       if (exception.startTime && exception.endTime) {
-        return (
-          timeStringToMinutes(startTime) >=
-            timeStringToMinutes(exception.startTime) &&
-          timeStringToMinutes(endTime) <= timeStringToMinutes(exception.endTime)
-        );
+        if (
+          timeStringToMinutes(startTime) <
+            timeStringToMinutes(exception.startTime) ||
+          timeStringToMinutes(endTime) > timeStringToMinutes(exception.endTime)
+        ) {
+          return {
+            available: false,
+            reason: "Appointment time is outside business hours for this date",
+          };
+        }
       }
     }
 
     // Check weekly availability
-    const weeklyAvailability =
+    const weeklyAvailabilityList =
       await weeklyAvailabilityRepository.findByBusinessIdAndDay(
         businessId,
         dayOfWeek,
       );
-    if (weeklyAvailability.length === 0) {
-      return false; // No availability set for this day
+
+    if (weeklyAvailabilityList.length === 0) {
+      return {
+        available: false,
+        reason: "Business is not available on this day of week",
+      };
     }
 
     // Check if slot is within any of the available time ranges for this day
-    for (const availability of weeklyAvailability) {
+    let withinBusinessHours = false;
+    for (const availability of weeklyAvailabilityList) {
       if (
         availability.isAvailable &&
         timeStringToMinutes(startTime) >=
@@ -330,11 +358,68 @@ export class AvailabilityCalculationEngine {
         timeStringToMinutes(endTime) <=
           timeStringToMinutes(availability.endTime)
       ) {
-        return true;
+        withinBusinessHours = true;
+        break;
       }
     }
 
-    return false;
+    if (!withinBusinessHours) {
+      return {
+        available: false,
+        reason: "Appointment time is outside regular business hours",
+      };
+    }
+
+    // Check for existing appointments that would conflict
+    const { db } = await import("@/server/db");
+    const { appointments } = await import("@/server/db/schema");
+    const { and, eq, inArray, sql } = await import("drizzle-orm");
+
+    const whereConditions = [
+      eq(appointments.businessId, businessId),
+      eq(appointments.appointmentDate, date),
+      inArray(appointments.status, ["pending", "confirmed"]),
+      sql`(
+        (${appointments.startTime} < ${endTime} AND ${appointments.endTime} > ${startTime}) OR
+        (${appointments.startTime} = ${startTime} AND ${appointments.endTime} = ${endTime})
+      )`,
+    ];
+
+    if (excludeAppointmentId) {
+      whereConditions.push(sql`${appointments.id} != ${excludeAppointmentId}`);
+    }
+
+    const conflicts = await db
+      .select()
+      .from(appointments)
+      .where(and(...whereConditions));
+
+    if (conflicts.length > 0) {
+      return {
+        available: false,
+        reason: "Time slot is already booked",
+      };
+    }
+
+    // If we have a service ID, check if the service is active
+    if (serviceId) {
+      const { services } = await import("@/server/db/schema");
+
+      const service = await db.query.services.findFirst({
+        where: and(
+          eq(services.id, serviceId),
+          eq(services.businessId, businessId),
+          eq(services.isActive, true),
+        ),
+      });
+
+      if (!service) {
+        return { available: false, reason: "Service is not available" };
+      }
+    }
+
+    // All checks passed, the slot is available
+    return { available: true };
   }
 
   /**

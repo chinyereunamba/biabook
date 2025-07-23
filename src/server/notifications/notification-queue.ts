@@ -15,14 +15,14 @@ export interface NotificationQueueItem {
   recipientId: string;
   recipientType: "business" | "customer";
   recipientEmail: string;
-  recipientPhone?: string;
+  recipientPhone?: string | null;
   payload: Record<string, any>;
   scheduledFor: Date;
   status: NotificationStatus;
   attempts: number;
-  lastAttemptAt?: Date;
+  lastAttemptAt?: Date | null;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
 }
 
 /**
@@ -85,6 +85,7 @@ export class NotificationQueueService {
         typeof item.payload === "string"
           ? JSON.parse(item.payload)
           : item.payload,
+      type: item.type as NotificationType,
     }));
   }
 
@@ -105,17 +106,17 @@ export class NotificationQueueService {
    * Mark a notification as failed and increment attempt count
    */
   async markAsFailed(id: string, error?: string): Promise<void> {
-    const notification = await db
+    const [notification] = await db
       .select()
       .from(notificationQueue)
       .where(sql`${notificationQueue.id} = ${id}`)
       .limit(1);
 
-    if (!notification.length) {
+    if (!notification) {
       throw new Error(`Notification with ID ${id} not found`);
     }
 
-    const attempts = notification[0].attempts + 1;
+    const attempts = notification.attempts + 1;
     const status = attempts >= 3 ? "failed" : "pending";
 
     await db

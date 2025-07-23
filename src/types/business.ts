@@ -2,13 +2,13 @@ export interface Business {
   id: string;
   name: string;
   slug: string;
-  description?: string;
+  description: string | null;
   address?: string;
-  phone?: string;
-  email: string;
+  phone: string | null;
+  email: string | null;
   website?: string;
   logo?: string;
-  userId: string;
+  ownerId: string;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
 }

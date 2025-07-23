@@ -10,6 +10,7 @@ import {
   verificationTokens,
 } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
+import { env } from "@/env";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -61,6 +62,8 @@ export const authConfig = {
 
   providers: [
     Google({
+      clientId: env.AUTH_GOOGLE_ID,
+      clientSecret: env.AUTH_GOOGLE_SECRET,
       authorization: {
         params: {
           prompt: "consent",
@@ -89,9 +92,7 @@ export const authConfig = {
     async signIn({ account, profile }) {
       // Allow all Google accounts to sign in
       if (account?.provider === "google") {
-        return !!(
-          profile?.email_verified && profile?.email?.endsWith("@gmail.com")
-        );
+        return !!(profile?.email_verified && profile?.email);
       }
 
       return true;

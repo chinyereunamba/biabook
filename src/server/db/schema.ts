@@ -8,7 +8,7 @@ import { index, primaryKey, sqliteTableCreator } from "drizzle-orm/sqlite-core";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = sqliteTableCreator((name) => `biabook_${name}`);
+export const createTable = sqliteTableCreator((name) => `bookme_${name}`);
 
 export const posts = createTable(
   "post",
@@ -118,6 +118,7 @@ export const categories = createTable("categories", (d) => ({
 export const businesses = createTable("businesses", (d) => ({
   id: d.text("id").primaryKey(),
   name: d.text("name").notNull(),
+  slug: d.text("slug").notNull().unique(),
   description: d.text("description"),
   location: d.text("location"),
   phone: d.text("phone"),
@@ -271,6 +272,7 @@ export const appointments = createTable(
       .$defaultFn(() =>
         Math.random().toString(36).substring(2, 10).toUpperCase(),
       ),
+    version: d.integer("version").default(1).notNull(), // For optimistic locking
     createdAt: d
       .integer("created_at", { mode: "timestamp" })
       .default(sql`(unixepoch())`)
@@ -285,11 +287,13 @@ export const appointments = createTable(
     index("appointments_date_idx").on(t.appointmentDate),
     index("appointments_status_idx").on(t.status),
     index("appointments_confirmation_idx").on(t.confirmationNumber),
-    // Prevent double booking - unique constraint on business, date, and time
-    index("appointments_unique_slot_idx").on(
+    // Prevent double booking - unique constraint on business, date, start time, and active status
+    // Only active appointments (not cancelled) should prevent double booking
+    index("appointments_unique_active_slot_idx").on(
       t.businessId,
       t.appointmentDate,
       t.startTime,
+      t.status,
     ),
   ],
 );

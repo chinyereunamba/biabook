@@ -22,14 +22,14 @@ export async function getBusiness(): Promise<Business | null> {
   return {
     id: business.id,
     name: business.name,
-    slug: business.id, // Using ID as slug if not available
-    description: business.description || undefined,
-    address: business.location || undefined,
-    phone: business.phone || undefined,
-    email: business.email || "",
-    website: undefined,
-    logo: undefined,
-    userId: business.ownerId,
+    slug: business.slug, // Using ID as slug if not available
+    description: business.description || null,
+    address: business.location || null,
+    phone: business.phone || null,
+    email: business.email || null,
+    website: business.website || null,
+    logo: business.logo || null,
+    ownerId: business.ownerId,
     createdAt: business.createdAt,
     updatedAt: business.updatedAt || new Date(),
   };

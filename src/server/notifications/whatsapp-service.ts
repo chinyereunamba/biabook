@@ -1,7 +1,7 @@
 import { env } from "@/env";
-import { Appointment } from "@/types/appointment";
-import { Service } from "@/types/service";
-import { Business } from "@/types/business";
+import type { Appointment } from "@/types/appointment";
+import type { Service } from "@/types/service";
+import type { Business } from "@/types/business";
 import { formatDate, formatTime, formatCurrency } from "@/utils/format";
 
 // Types for WhatsApp API

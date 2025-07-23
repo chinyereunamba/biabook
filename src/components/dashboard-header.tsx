@@ -7,7 +7,13 @@ import UserProfile from "./user-profile";
 import Sidebar from "./sidebar";
 import Link from "next/link";
 
-export default function DashboardHeader() {
+export default function DashboardHeader({
+  heading,
+  subheading,
+}: {
+  heading?: string;
+  subheading?: string;
+}) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -26,6 +32,10 @@ export default function DashboardHeader() {
           <Package2 className="text-primary h-6 w-6" />
           <span className="text-lg font-semibold">BookMe</span>
         </Link>
+        <div>
+          <h1 className="text-lg font-semibold">{heading}</h1>
+          <p className="text-sm text-muted-foreground">{subheading}</p>
+        </div>
       </div>
 
       <div className="flex items-center gap-4 md:hidden">

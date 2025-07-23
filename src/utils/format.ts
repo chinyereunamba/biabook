@@ -20,8 +20,8 @@ export function formatTime(time: string): string {
 
   // Create a date object to use the built-in time formatting
   const date = new Date();
-  date.setHours(hours);
-  date.setMinutes(minutes);
+  date.setHours(hours ?? 0);
+  date.setMinutes(minutes ?? 0);
 
   return date.toLocaleTimeString("en-US", {
     hour: "numeric",

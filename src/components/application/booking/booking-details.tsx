@@ -65,7 +65,7 @@ export function BookingDetails({
   const formatTime = (timeString: string) => {
     const [hours, minutes] = timeString.split(':');
     const date = new Date();
-    date.setHours(parseInt(hours || '0'), parseInt(minutes || '0'));
+    date.setHours(parseInt(hours ?? '0'), parseInt(minutes ?? '0'));
     return date.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
@@ -154,12 +154,16 @@ export function BookingDetails({
 
   return (
     <>
-      <div className={`max-w-4xl mx-auto space-y-6 ${className}`}>
+      <div className={`mx-auto max-w-4xl space-y-6 ${className}`}>
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Booking Details</h1>
-            <p className="text-gray-600">View and manage appointment information</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Booking Details
+            </h1>
+            <p className="text-gray-600">
+              View and manage appointment information
+            </p>
           </div>
           {onClose && (
             <Button variant="outline" onClick={onClose}>
@@ -171,23 +175,30 @@ export function BookingDetails({
         {/* Status and Confirmation */}
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <Badge className={`${getStatusColor(booking.status)} flex items-center`}>
+                <Badge
+                  className={`${getStatusColor(booking.status)} flex items-center`}
+                >
                   {getStatusIcon(booking.status)}
                   <span className="ml-1 capitalize">{booking.status}</span>
                 </Badge>
-                {isUpcoming() && booking.status === 'confirmed' && (
-                  <Badge variant="outline" className="text-blue-600 border-blue-200">
+                {isUpcoming() && booking.status === "confirmed" && (
+                  <Badge
+                    variant="outline"
+                    className="border-blue-200 text-blue-600"
+                  >
                     Upcoming
                   </Badge>
                 )}
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Confirmation Number</p>
-                  <p className="font-mono font-bold">{booking.confirmationNumber}</p>
+                  <p className="font-mono font-bold">
+                    {booking.confirmationNumber}
+                  </p>
                 </div>
                 <Button
                   variant="outline"
@@ -196,12 +207,12 @@ export function BookingDetails({
                 >
                   {copied ? (
                     <>
-                      <CheckCircle className="h-4 w-4 mr-1" />
+                      <CheckCircle className="mr-1 h-4 w-4" />
                       Copied
                     </>
                   ) : (
                     <>
-                      <Copy className="h-4 w-4 mr-1" />
+                      <Copy className="mr-1 h-4 w-4" />
                       Copy
                     </>
                   )}
@@ -212,44 +223,45 @@ export function BookingDetails({
             {/* Quick Actions */}
             {canModify() && (
               <div className="flex flex-wrap gap-2">
-                {booking.status === 'pending' && onUpdateStatus && (
+                {booking.status === "pending" && onUpdateStatus && (
                   <Button
                     size="sm"
                     className="bg-green-600 hover:bg-green-700"
-                    onClick={() => handleStatusUpdate('confirmed')}
+                    onClick={() => handleStatusUpdate("confirmed")}
                   >
-                    <CheckCircle className="h-4 w-4 mr-1" />
+                    <CheckCircle className="mr-1 h-4 w-4" />
                     Confirm
                   </Button>
                 )}
-                
-                {booking.status === 'confirmed' && onUpdateStatus && (
+
+                {booking.status === "confirmed" && onUpdateStatus && (
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                    onClick={() => handleStatusUpdate('completed')}
+                    className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                    onClick={() => handleStatusUpdate("completed")}
                   >
-                    <CheckCircle className="h-4 w-4 mr-1" />
+                    <CheckCircle className="mr-1 h-4 w-4" />
                     Mark Complete
                   </Button>
                 )}
 
                 {onEdit && (
                   <Button size="sm" variant="outline" onClick={onEdit}>
-                    <Edit className="h-4 w-4 mr-1" />
+                    <Edit className="mr-1 h-4 w-4" />
                     Edit
                   </Button>
                 )}
 
-                {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                {(booking.status === "pending" ||
+                  booking.status === "confirmed") && (
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-red-600 border-red-200 hover:bg-red-50"
+                    className="border-red-200 text-red-600 hover:bg-red-50"
                     onClick={() => setShowCancelDialog(true)}
                   >
-                    <XCircle className="h-4 w-4 mr-1" />
+                    <XCircle className="mr-1 h-4 w-4" />
                     Cancel
                   </Button>
                 )}
@@ -263,7 +275,7 @@ export function BookingDetails({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Calendar className="h-5 w-5 mr-2" />
+                <Calendar className="mr-2 h-5 w-5" />
                 Appointment Details
               </CardTitle>
             </CardHeader>
@@ -272,7 +284,9 @@ export function BookingDetails({
                 <Calendar className="h-5 w-5 text-gray-400" />
                 <div>
                   <p className="text-sm text-gray-600">Date</p>
-                  <p className="font-semibold">{formatDate(booking.appointmentDate)}</p>
+                  <p className="font-semibold">
+                    {formatDate(booking.appointmentDate)}
+                  </p>
                 </div>
               </div>
 
@@ -281,7 +295,8 @@ export function BookingDetails({
                 <div>
                   <p className="text-sm text-gray-600">Time</p>
                   <p className="font-semibold">
-                    {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
+                    {formatTime(booking.startTime)} -{" "}
+                    {formatTime(booking.endTime)}
                   </p>
                   <p className="text-xs text-gray-500">
                     ({booking.service.duration} minutes)
@@ -296,7 +311,9 @@ export function BookingDetails({
                   <p className="text-sm text-gray-600">Service</p>
                   <p className="font-semibold">{booking.service.name}</p>
                   {booking.service.description && (
-                    <p className="text-sm text-gray-500">{booking.service.description}</p>
+                    <p className="text-sm text-gray-500">
+                      {booking.service.description}
+                    </p>
                   )}
                 </div>
 
@@ -315,10 +332,12 @@ export function BookingDetails({
                 <>
                   <Separator />
                   <div className="flex items-start space-x-3">
-                    <MessageSquare className="h-5 w-5 text-gray-400 mt-1" />
+                    <MessageSquare className="mt-1 h-5 w-5 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-600">Notes</p>
-                      <p className="text-sm bg-gray-50 p-3 rounded-md">{booking.notes}</p>
+                      <p className="rounded-md bg-gray-50 p-3 text-sm">
+                        {booking.notes}
+                      </p>
                     </div>
                   </div>
                 </>
@@ -330,7 +349,7 @@ export function BookingDetails({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <User className="h-5 w-5 mr-2" />
+                <User className="mr-2 h-5 w-5" />
                 Customer Information
               </CardTitle>
             </CardHeader>
@@ -409,39 +428,54 @@ export function BookingDetails({
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                <div>
-                  <p className="font-medium">Booking Created</p>
-                  <p className="text-sm text-gray-600">
-                    {formatDateTime(
-                      booking.createdAt.toISOString().split('T')[0],
-                      booking.createdAt.toTimeString().split(' ')[0].substring(0, 5)
-                    )}
-                  </p>
+              {booking.createdAt && (
+                <div className="flex items-center space-x-3">
+                  <div className="h-2 w-2 rounded-full bg-blue-600"></div>
+                  <div>
+                    <p className="font-medium">Booking Created</p>
+                    <p className="text-sm text-gray-600">
+                      {booking.createdAt &&
+                        formatDateTime(
+                          booking.createdAt.toISOString().split("T")[0]!,
+                          booking.createdAt
+                            ?.toTimeString()
+                            ?.split(" ")[0]!
+                            .substring(0, 5),
+                        )}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {booking.updatedAt && (
                 <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-yellow-600 rounded-full"></div>
+                  <div className="h-2 w-2 rounded-full bg-yellow-600"></div>
                   <div>
                     <p className="font-medium">Last Updated</p>
                     <p className="text-sm text-gray-600">
-                      {formatDateTime(
-                        booking.updatedAt?.toISOString().split('T')[0] || '',
-                        booking.updatedAt?.toTimeString().split(' ')[0].substring(0, 5) || ''
-                      )}
+                      {booking.updatedAt &&
+                        formatDateTime(
+                          booking.updatedAt.toISOString().split("T")[0]!,
+                          booking.updatedAt
+                            .toTimeString()
+                            .split(" ")[0]!
+                            .substring(0, 5),
+                        )}
                     </p>
                   </div>
                 </div>
               )}
 
               <div className="flex items-center space-x-3">
-                <div className={`w-2 h-2 rounded-full ${
-                  booking.status === 'completed' ? 'bg-green-600' : 
-                  booking.status === 'cancelled' ? 'bg-red-600' : 'bg-gray-400'
-                }`}></div>
+                <div
+                  className={`h-2 w-2 rounded-full ${
+                    booking.status === "completed"
+                      ? "bg-green-600"
+                      : booking.status === "cancelled"
+                        ? "bg-red-600"
+                        : "bg-gray-400"
+                  }`}
+                ></div>
                 <div>
                   <p className="font-medium">Appointment Scheduled</p>
                   <p className="text-sm text-gray-600">
@@ -460,11 +494,15 @@ export function BookingDetails({
           <DialogHeader>
             <DialogTitle>Cancel Appointment</DialogTitle>
             <DialogDescription>
-              Are you sure you want to cancel this appointment? This action cannot be undone.
+              Are you sure you want to cancel this appointment? This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCancelDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCancelDialog(false)}
+            >
               Keep Appointment
             </Button>
             <Button variant="destructive" onClick={handleCancel}>

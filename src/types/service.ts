@@ -2,12 +2,12 @@ export interface Service {
   id: string;
   businessId: string;
   name: string;
-  description: string;
+  description: string | null;
   duration: number; // minutes
   price: number; // cents
   isActive: boolean;
-  category?: string;
-  bufferTime?: number; // minutes between bookings
+  category?: string | null;
+  bufferTime?: number | null; // minutes between bookings
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
 }
