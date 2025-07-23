@@ -53,7 +53,7 @@ const customerFormSchema = z.object({
     .string()
     .max(500, "Notes cannot exceed 500 characters")
     .optional()
-    .transform((val) => val?.trim() || undefined),
+    .transform((val) => val?.trim() ?? undefined),
 });
 
 export interface CustomerFormData {
@@ -77,10 +77,10 @@ export function CustomerForm({
   className = "",
 }: CustomerFormProps) {
   const [formData, setFormData] = useState<CustomerFormData>({
-    name: initialData.name || "",
-    email: initialData.email || "",
-    phone: initialData.phone || "",
-    notes: initialData.notes || "",
+    name: initialData.name ?? "",
+    email: initialData.email ?? "",
+    phone: initialData.phone ?? "",
+    notes: initialData.notes ?? "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -97,7 +97,7 @@ export function CustomerForm({
       if (error instanceof z.ZodError) {
         setErrors((prev) => ({
           ...prev,
-          [field]: error.issues[0]?.message || "Invalid value",
+          [field]: error.issues[0]?.message ?? "Invalid value",
         }));
       }
     }
@@ -114,7 +114,7 @@ export function CustomerForm({
 
   const handleInputBlur = (field: keyof CustomerFormData) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
-    validateField(field, formData[field] || "");
+    validateField(field, formData[field] ?? "");
   };
 
   const formatPhoneNumber = (value: string) => {
@@ -169,7 +169,7 @@ export function CustomerForm({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
-        error.issues.forEach((err: any) => {
+        error.issues.forEach((err) => {
           if (err.path[0]) {
             fieldErrors[err.path[0] as string] = err.message;
           }
@@ -256,7 +256,7 @@ export function CustomerForm({
               </p>
             )}
             <p className="text-xs text-gray-500">
-              We'll send your booking confirmation here
+              We&apos;ll send your booking confirmation here
             </p>
           </div>
 
@@ -293,7 +293,7 @@ export function CustomerForm({
               </p>
             )}
             <p className="text-xs text-gray-500">
-              We'll use this to send you appointment reminders via SMS
+              We&apos;ll use this to send you appointment reminders via SMS
             </p>
           </div>
 
@@ -320,7 +320,7 @@ export function CustomerForm({
             )}
             <div className="flex justify-between text-xs text-gray-500">
               <span>Optional - any special requests or information</span>
-              <span>{formData.notes?.length || 0}/500</span>
+              <span>{formData.notes?.length ?? 0}/500</span>
             </div>
           </div>
 
@@ -329,7 +329,7 @@ export function CustomerForm({
             type="submit"
             size="md"
             className="w-full"
-            disabled={loading || !isFormValid}
+            disabled={loading ?? !isFormValid}
           >
             {loading ? (
               <>
@@ -345,7 +345,7 @@ export function CustomerForm({
           <p className="text-center text-xs text-gray-500">
             By booking, you agree to receive appointment confirmations and
             reminders via email and SMS. Your information will only be shared
-            with the business you're booking with.
+            with the business you&apos;re booking with.
           </p>
         </form>
       </CardContent>

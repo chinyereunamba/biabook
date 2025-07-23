@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDateToYYYYMMDD, getTodayDateString } from "@/lib/date-utils";
 
 interface CalendarProps {
   selectedDate?: string;
@@ -42,7 +43,7 @@ export function Calendar({
         currentMonth.getMonth(),
         1,
       ).getDay();
-      const today = new Date().toISOString().split("T")[0];
+      const today = getTodayDateString();
 
       return { monthName, year, daysInMonth, firstDayOfMonth, today };
     }, [currentMonth]);
@@ -60,8 +61,9 @@ export function Calendar({
   };
 
   const formatDateString = (day: number): string => {
+    // Create date and format using our utility to ensure consistency
     const date = new Date(year, currentMonth.getMonth(), day);
-    return date.toISOString().split("T")[0] || "";
+    return formatDateToYYYYMMDD(date);
   };
 
   const isDateAvailable = (dateStr: string): boolean => {
@@ -69,12 +71,11 @@ export function Calendar({
   };
 
   const isDateDisabled = (dateStr: string): boolean => {
-    const date = new Date(dateStr);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Compare date strings directly to avoid timezone issues
+    const todayStr = getTodayDateString();
 
     // Disable past dates
-    if (date < today) return true;
+    if (dateStr < todayStr) return true;
 
     // Check min/max date constraints
     if (minDate && dateStr < minDate) return true;

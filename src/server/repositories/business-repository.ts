@@ -49,6 +49,7 @@ export class BusinessRepository {
       .select({
         id: businesses.id,
         name: businesses.name,
+        slug: businesses.slug,
         description: businesses.description,
         location: businesses.location,
         phone: businesses.phone,
@@ -117,6 +118,7 @@ export class BusinessRepository {
       .select({
         id: businesses.id,
         name: businesses.name,
+        slug: businesses.slug,
         description: businesses.description,
         location: businesses.location,
         phone: businesses.phone,
@@ -149,6 +151,7 @@ export class BusinessRepository {
       .select({
         id: businesses.id,
         name: businesses.name,
+        slug: businesses.slug,
         description: businesses.description,
         location: businesses.location,
         phone: businesses.phone,
@@ -184,6 +187,7 @@ export class BusinessRepository {
       .select({
         id: businesses.id,
         name: businesses.name,
+        slug: businesses.slug,
         description: businesses.description,
         location: businesses.location,
         phone: businesses.phone,

@@ -22,7 +22,7 @@ export async function GET(
     const { searchParams } = new URL(req.url);
 
     // Parse days parameter (default to 30 days)
-    const days = parseInt(searchParams.get("days") || "30");
+    const days = parseInt(searchParams.get("days") ?? "30");
 
     // Get booking trends
     const trends = await analyticsRepository.getBookingTrends(businessId, days);

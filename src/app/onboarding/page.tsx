@@ -155,7 +155,7 @@ export default function OnboardingPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error ?? "Failed to complete onboarding");
+          throw new Error(errorData.error || "Failed to complete onboarding");
         }
 
         // Get the response data
@@ -553,7 +553,7 @@ export default function OnboardingPage() {
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
               <h2 className="mb-4 text-3xl font-bold text-gray-900">
-                You're all set!
+                You&apos;re all set!
               </h2>
               <p className="mb-8 text-xl text-gray-600">
                 Your booking page is ready. Start sharing it with your
@@ -582,7 +582,7 @@ export default function OnboardingPage() {
               <div className="mb-8 grid gap-4 text-left md:grid-cols-2">
                 <div className="rounded-lg bg-purple-50 p-4">
                   <h4 className="mb-2 font-semibold text-purple-900">
-                    ✨ What's next?
+                    ✨ What&apos;s next?
                   </h4>
                   <ul className="space-y-1 text-sm text-purple-700">
                     <li>• Share your booking link</li>
@@ -625,7 +625,7 @@ export default function OnboardingPage() {
             onClick={handleNext}
             className="bg-primary hover:bg-purple-700"
             disabled={
-              isSubmitting ||
+              isSubmitting ??
               (step === 1 && (!businessData.name || !businessData.category))
             }
           >

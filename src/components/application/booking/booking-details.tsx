@@ -54,22 +54,22 @@ export function BookingDetails({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const formatTime = (timeString: string) => {
-    const [hours, minutes] = timeString.split(':');
+    const [hours, minutes] = timeString.split(":");
     const date = new Date();
-    date.setHours(parseInt(hours ?? '0'), parseInt(minutes ?? '0'));
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+    date.setHours(parseInt(hours ?? "0"), parseInt(minutes ?? "0"));
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -79,14 +79,14 @@ export function BookingDetails({
 
   const formatDateTime = (dateString: string, timeString: string) => {
     const date = new Date(`${dateString}T${timeString}:00`);
-    return date.toLocaleString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+    return date.toLocaleString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -96,34 +96,34 @@ export function BookingDetails({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy confirmation number:', err);
+      console.error("Failed to copy confirmation number:", err);
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'confirmed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'completed':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case "confirmed":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "cancelled":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "completed":
+        return "bg-blue-100 text-blue-800 border-blue-200";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'confirmed':
+      case "confirmed":
         return <CheckCircle className="h-4 w-4" />;
-      case 'pending':
+      case "pending":
         return <AlertCircle className="h-4 w-4" />;
-      case 'cancelled':
+      case "cancelled":
         return <XCircle className="h-4 w-4" />;
-      case 'completed':
+      case "completed":
         return <CheckCircle className="h-4 w-4" />;
       default:
         return <AlertCircle className="h-4 w-4" />;
@@ -144,12 +144,14 @@ export function BookingDetails({
   };
 
   const isUpcoming = () => {
-    const appointmentDateTime = new Date(`${booking.appointmentDate}T${booking.startTime}:00`);
+    const appointmentDateTime = new Date(
+      `${booking.appointmentDate}T${booking.startTime}:00`,
+    );
     return appointmentDateTime > new Date();
   };
 
   const canModify = () => {
-    return booking.status !== 'cancelled' && booking.status !== 'completed';
+    return booking.status !== "cancelled" && booking.status !== "completed";
   };
 
   return (

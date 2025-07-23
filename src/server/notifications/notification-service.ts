@@ -44,7 +44,7 @@ export class NotificationService {
     );
 
     return emailService.sendEmail({
-      to: business.email,
+      to: business.email ?? "",
       subject: `Booking Cancelled - ${appointment.customerName}`,
       html,
     });
@@ -85,7 +85,7 @@ export class NotificationService {
     );
 
     return emailService.sendEmail({
-      to: business.email,
+      to: business.email ?? "",
       subject: `Reminder: Upcoming Appointment - ${appointment.customerName}`,
       html,
     });
@@ -151,7 +151,7 @@ export class NotificationService {
     );
 
     return emailService.sendEmail({
-      to: business.email,
+      to: business.email ?? "",
       subject: `New Booking - ${appointment.customerName}`,
       html,
     });

@@ -158,7 +158,7 @@ export class AvailabilityCalculationEngine {
     if (!service) {
       throw new Error("Service not found");
     }
-    return service.bufferTime || 0;
+    return service.bufferTime ?? 0;
   }
 
   /**
@@ -166,8 +166,7 @@ export class AvailabilityCalculationEngine {
    */
   private getTodayDateString(): string {
     const today = new Date();
-    const dateString = today.toISOString().split("T")[0];
-    return dateString || this.formatDateToYYYYMMDD(today);
+    return this.formatDateToYYYYMMDD(today);
   }
 
   /**
@@ -185,9 +184,8 @@ export class AvailabilityCalculationEngine {
    */
   private addDaysToDate(dateStr: string, days: number): string | undefined {
     const date = new Date(dateStr);
-    date.setDate(date.getDate() + days);
-    const result = date.toISOString().split("T")[0];
-    return result;
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().split("T")[0];
   }
 
   /**
@@ -437,8 +435,8 @@ export class AvailabilityCalculationEngine {
 
     const options: AvailabilityOptions = {
       slotDuration: service.duration,
-      bufferTime: service.bufferTime || 0,
-      startDate: startDate || this.getTodayDateString(),
+      bufferTime: service.bufferTime ?? 0,
+      startDate: startDate ?? this.getTodayDateString(),
       days: 30,
     };
 

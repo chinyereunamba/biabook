@@ -64,8 +64,10 @@ describe("NotificationService", () => {
     id: "biz-123",
     name: "Hair Salon",
     slug: "hair-salon",
+    description: "Professional hair salon",
+    phone: "+15551234567",
     email: "salon@example.com",
-    userId: "user-123",
+    ownerId: "user-123",
     createdAt: new Date(),
     updatedAt: new Date(),
   } as const;

@@ -1,7 +1,7 @@
-import {type NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { appointments, businesses, services } from "@/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { notificationScheduler } from "@/server/notifications/notification-scheduler";
 import { bookingConflictService } from "@/server/services/booking-conflict-service";
@@ -105,7 +105,10 @@ export async function POST(request: NextRequest) {
 
     if (!conflictValidationResult.isAvailable) {
       const errorMessage = conflictValidationResult.conflicts.join("; ");
-      const response: any = { error: errorMessage };
+      const response: {
+        error: string;
+        suggestion?: { message: string; slot: unknown };
+      } = { error: errorMessage };
 
       // Include suggestions if available
       if (conflictValidationResult.suggestions?.nextAvailableSlot) {
@@ -129,23 +132,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create the appointment
-    const [newAppointment] = await db
-      .insert(appointments)
-      .values({
-        businessId,
-        serviceId,
-        customerName: customerName.trim(),
-        customerEmail: customerEmail.toLowerCase().trim(),
-        customerPhone: normalizedPhone,
-        appointmentDate,
-        startTime,
-        endTime,
-        status: "confirmed",
-        notes: notes?.trim(),
-        servicePrice: service.price,
-      })
-      .returning();
+    // Create the appointment within a transaction to prevent race conditions
+    const [newAppointment] = await db.transaction(async (tx) => {
+      // Double-check for conflicts within the transaction
+      const conflictingAppointments = await tx
+        .select({ id: appointments.id })
+        .from(appointments)
+        .where(
+          and(
+            eq(appointments.businessId, businessId),
+            eq(appointments.appointmentDate, appointmentDate),
+            inArray(appointments.status, ["pending", "confirmed"]),
+            sql`(
+              (${appointments.startTime} < ${endTime} AND ${appointments.endTime} > ${startTime}) OR
+              (${appointments.startTime} = ${startTime} AND ${appointments.endTime} = ${endTime})
+            )`,
+          ),
+        );
+
+      if (conflictingAppointments.length > 0) {
+        throw new Error("Time slot is no longer available");
+      }
+
+      // Create the appointment
+      return await tx
+        .insert(appointments)
+        .values({
+          businessId,
+          serviceId,
+          customerName: customerName.trim(),
+          customerEmail: customerEmail.toLowerCase().trim(),
+          customerPhone: normalizedPhone,
+          appointmentDate,
+          startTime,
+          endTime,
+          status: "confirmed",
+          notes: notes?.trim(),
+          servicePrice: service.price,
+        })
+        .returning();
+    });
 
     if (!newAppointment) {
       return NextResponse.json(

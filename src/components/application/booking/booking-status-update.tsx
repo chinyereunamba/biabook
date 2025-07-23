@@ -92,7 +92,9 @@ export function BookingStatusUpdate({
     return statusOptions.find((option) => option.value === selectedStatus);
   };
 
-  const handleStatusChange = (newStatus: "pending" | "confirmed" | "cancelled" | "completed") => {
+  const handleStatusChange = (
+    newStatus: "pending" | "confirmed" | "cancelled" | "completed",
+  ) => {
     setSelectedStatus(newStatus);
 
     // Show confirmation dialog for destructive actions
@@ -111,7 +113,7 @@ export function BookingStatusUpdate({
       await onStatusUpdate(
         booking.id,
         selectedStatus,
-        notes.trim() || undefined,
+        notes.trim() ?? undefined,
       );
       if (onClose) {
         onClose();
@@ -142,7 +144,7 @@ export function BookingStatusUpdate({
   const formatTime = (timeString: string) => {
     const [hours, minutes] = timeString.split(":");
     const date = new Date();
-    date.setHours(parseInt(hours || "0"), parseInt(minutes || "0"));
+    date.setHours(parseInt(hours ?? "0"), parseInt(minutes ?? "0"));
     return date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
@@ -209,7 +211,18 @@ export function BookingStatusUpdate({
             {/* Status Selection */}
             <div className="space-y-3">
               <Label htmlFor="status">New Status</Label>
-              <Select value={selectedStatus} onValueChange={(value) => handleStatusChange(value as "pending" | "confirmed" | "cancelled" | "completed")}>
+              <Select
+                value={selectedStatus}
+                onValueChange={(value) =>
+                  handleStatusChange(
+                    value as
+                      | "pending"
+                      | "confirmed"
+                      | "cancelled"
+                      | "completed",
+                  )
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>

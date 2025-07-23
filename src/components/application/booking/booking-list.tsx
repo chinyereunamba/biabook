@@ -83,7 +83,9 @@ export function BookingList({
       if (dateFrom) params.append("from", dateFrom);
       if (dateTo) params.append("to", dateTo);
 
-      const response = await fetch(`/api/businesses/${businessId}/appointments?${params}`);
+      const response = await fetch(
+        `/api/businesses/${businessId}/appointments?${params}`,
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch bookings");
@@ -130,7 +132,7 @@ export function BookingList({
   const formatTime = (timeString: string) => {
     const [hours, minutes] = timeString.split(":");
     const date = new Date();
-    date.setHours(parseInt(hours || "0"), parseInt(minutes || "0"));
+    date.setHours(parseInt(hours ?? "0"), parseInt(minutes ?? "0"));
     return date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",

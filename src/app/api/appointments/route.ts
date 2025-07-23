@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { appointmentRepository } from "@/server/repositories/appointment-repository";
 import { auth } from "@/server/auth";

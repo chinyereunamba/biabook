@@ -22,8 +22,8 @@ export async function GET(
     const { searchParams } = new URL(req.url);
 
     // Parse optional date range parameters
-    const from = searchParams.get("from") || undefined;
-    const to = searchParams.get("to") || undefined;
+    const from = searchParams.get("from") ?? undefined;
+    const to = searchParams.get("to") ?? undefined;
 
     // Get service performance analytics
     const servicePerformance = await analyticsRepository.getServicePerformance(
@@ -37,8 +37,8 @@ export async function GET(
     return NextResponse.json({
       services: servicePerformance,
       dateRange: {
-        from: from || null,
-        to: to || null,
+        from: from ?? null,
+        to: to ?? null,
       },
     });
   } catch (error) {

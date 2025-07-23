@@ -116,8 +116,8 @@ export const PricingTierCardIcon = (props: PricingTierCardProps) => {
       <div className="flex flex-col items-center px-6 pt-6 text-center md:px-8 md:pt-8">
         <FeaturedIcon
           icon={props.icon}
-          color={props.iconColor || "brand"}
-          theme={props.iconTheme || "light"}
+          color={props.iconColor ?? "brand"}
+          theme={props.iconTheme ?? "light"}
           size="lg"
         />
 

@@ -75,8 +75,8 @@ export default function FindBusinessPage() {
 
   const filteredBusinesses = businesses?.filter((business) => {
     const matchesSearch =
-      business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      business.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      business.name.toLowerCase().includes(searchTerm.toLowerCase()) ??
+      business.description.toLowerCase().includes(searchTerm.toLowerCase()) ??
       business.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
       selectedCategory === "all" || business.categoryId === selectedCategory;

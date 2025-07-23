@@ -25,10 +25,10 @@ export async function GET(
     const { searchParams } = new URL(req.url);
 
     // Parse optional date range parameters
-    const from = searchParams.get("from") || undefined;
-    const to = searchParams.get("to") || undefined;
+    const from = searchParams.get("from") ?? undefined;
+    const to = searchParams.get("to") ?? undefined;
     const includeTrends = searchParams.get("trends") === "true";
-    const trendDays = parseInt(searchParams.get("trendDays") || "30");
+    const trendDays = parseInt(searchParams.get("trendDays") ?? "30");
 
     // Get comprehensive analytics
     const analytics = await analyticsRepository.getBookingAnalytics(

@@ -56,11 +56,11 @@ export function BookingLookupForm() {
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to find booking");
+        const errorData = (await response.json()) as { message?: string };
+        throw new Error(errorData.message ?? "Failed to find booking");
       }
 
-      const booking = await response.json();
+      const booking = (await response.json()) as { id: string };
 
       // Redirect to the booking details page
       router.push(`/booking/${booking.id}`);

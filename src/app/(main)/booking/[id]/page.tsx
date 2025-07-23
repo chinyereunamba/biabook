@@ -1,4 +1,4 @@
-import {type Metadata } from "next";
+import { type Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/server/db";
 import { appointments, services, businesses } from "@/server/db/schema";
@@ -12,13 +12,13 @@ export const metadata: Metadata = {
 };
 
 interface BookingPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function BookingDetailsPage({ params }: BookingPageProps) {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     // Fetch the appointment with related service and business
@@ -41,7 +41,7 @@ export default async function BookingDetailsPage({ params }: BookingPageProps) {
     // Format the data for the component
     const booking = {
       id: bookingData.appointment.id,
-      confirmationNumber: bookingData.appointment.confirmationNumber || "",
+      confirmationNumber: bookingData.appointment.confirmationNumber ?? "",
       customerName: bookingData.appointment.customerName,
       customerEmail: bookingData.appointment.customerEmail,
       customerPhone: bookingData.appointment.customerPhone,
@@ -53,9 +53,9 @@ export default async function BookingDetailsPage({ params }: BookingPageProps) {
       business: {
         id: bookingData.business.id,
         name: bookingData.business.name,
-        phone: bookingData.business.phone || undefined,
+        phone: bookingData.business.phone ?? undefined,
         email: bookingData.business.email,
-        location: bookingData.business.location || undefined,
+        location: bookingData.business.location ?? undefined,
       },
       service: {
         id: bookingData.service.id,

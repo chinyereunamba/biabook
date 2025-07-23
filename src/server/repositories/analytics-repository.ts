@@ -57,7 +57,7 @@ export class AnalyticsRepository {
     // Process status counts
     statusCounts.forEach((row) => {
       const bookingCount = Number(row.count);
-      const revenue = Number(row.revenue || 0);
+      const revenue = Number(row.revenue ?? 0);
 
       totalBookings += bookingCount;
       totalRevenue += revenue;
@@ -379,8 +379,8 @@ export class AnalyticsRepository {
         ),
       );
 
-    const currentCount = Number(currentResult?.count || 0);
-    const previousCount = Number(previousResult?.count || 0);
+    const currentCount = Number(currentResult?.count ?? 0);
+    const previousCount = Number(previousResult?.count ?? 0);
 
     if (previousCount === 0) {
       return currentCount > 0 ? 100 : 0;

@@ -79,7 +79,7 @@ export function isValidDayOfWeek(dayOfWeek: number): boolean {
  */
 export function formatDateToYYYYMMDD(date: Date): string {
   const result = date.toISOString().split("T")[0];
-  return result || "";
+  return result ?? "";
 }
 
 /**

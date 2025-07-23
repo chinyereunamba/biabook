@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 };
 
 interface ReschedulePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function ReschedulePage({ params }: ReschedulePageProps) {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     // Fetch the appointment with related service and business
@@ -83,14 +83,14 @@ export default async function ReschedulePage({ params }: ReschedulePageProps) {
     // Format the data for the component
     const booking = {
       id: bookingData.appointment.id,
-      confirmationNumber: bookingData.appointment.confirmationNumber || "",
+      confirmationNumber: bookingData.appointment.confirmationNumber ?? "",
       customerName: bookingData.appointment.customerName,
       customerEmail: bookingData.appointment.customerEmail,
       customerPhone: bookingData.appointment.customerPhone,
       appointmentDate: bookingData.appointment.appointmentDate,
       startTime: bookingData.appointment.startTime,
       endTime: bookingData.appointment.endTime,
-      notes: bookingData.appointment.notes || undefined,
+      notes: bookingData.appointment.notes ?? undefined,
       status: bookingData.appointment.status,
       business: {
         id: bookingData.business.id,

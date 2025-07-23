@@ -45,9 +45,9 @@ export class WhatsAppService {
   private isConfigured: boolean;
 
   constructor() {
-    this.apiUrl = env.WHATSAPP_API_URL || "";
-    this.phoneNumberId = env.WHATSAPP_PHONE_NUMBER_ID || "";
-    this.accessToken = env.WHATSAPP_ACCESS_TOKEN || "";
+    this.apiUrl = env.WHATSAPP_API_URL ?? "";
+    this.phoneNumberId = env.WHATSAPP_PHONE_NUMBER_ID ?? "";
+    this.accessToken = env.WHATSAPP_ACCESS_TOKEN ?? "";
 
     this.isConfigured = !!(
       this.apiUrl &&
@@ -174,7 +174,7 @@ export class WhatsAppService {
       to: phoneNumber,
       type: "template",
       template: {
-        name: "booking_cancellation",
+        name: "an",
         language: { code: "en_US" },
         components: [
           {

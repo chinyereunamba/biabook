@@ -59,7 +59,7 @@ const RadioGroupItem = React.forwardRef<
 >(({ className, size, variant, label, description, ...props }, ref) => {
   const radioId = React.useId();
 
-  if (label || description) {
+  if (label ?? description) {
     return (
       <div className="flex items-start gap-3">
         {/* Touch-friendly wrapper for minimum 44px touch target */}

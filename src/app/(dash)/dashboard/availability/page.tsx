@@ -58,7 +58,7 @@ export default function AvailabilityPage() {
           throw new Error("Failed to fetch weekly schedule");
         }
         const scheduleData = await scheduleResponse.json();
-        setWeeklySchedule(scheduleData.weeklySchedule || []);
+        setWeeklySchedule(scheduleData.weeklySchedule ?? []);
 
         // Load exceptions
         const exceptionsResponse = await fetch(
@@ -68,7 +68,7 @@ export default function AvailabilityPage() {
           throw new Error("Failed to fetch exceptions");
         }
         const exceptionsData = await exceptionsResponse.json();
-        setExceptions(exceptionsData.exceptions || []);
+        setExceptions(exceptionsData.exceptions ?? []);
       } catch (error) {
         console.error("Failed to load availability data:", error);
         toast.error("Failed to load availability data");
@@ -164,11 +164,11 @@ export default function AvailabilityPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save weekly schedule");
+        throw new Error(errorData.error ?? "Failed to save weekly schedule");
       }
 
       const data = await response.json();
-      setWeeklySchedule(data.weeklySchedule || schedule);
+      setWeeklySchedule(data.weeklySchedule ?? schedule);
       toast.success("Weekly schedule saved successfully");
       return Promise.resolve();
     } catch (error) {
@@ -201,7 +201,7 @@ export default function AvailabilityPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to add exception");
+        throw new Error(errorData.error ?? "Failed to add exception");
       }
 
       const data = await response.json();
@@ -236,7 +236,7 @@ export default function AvailabilityPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete exception");
+        throw new Error(errorData.error ?? "Failed to delete exception");
       }
 
       setExceptions((prev) => prev.filter((e) => e.id !== id));

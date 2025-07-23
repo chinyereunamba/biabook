@@ -17,6 +17,7 @@ describe("AnalyticsRepository", () => {
     await db.insert(businesses).values({
       id: testBusinessId,
       name: "Test Business",
+      slug: "test-business",
       description: "Test Description",
       categoryId: "salon",
       ownerId: "test-owner-id",

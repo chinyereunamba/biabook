@@ -26,8 +26,10 @@ export function ServiceSelection({
   showContinueButton = false,
   className,
 }: ServiceSelectionProps) {
-  const [detailsService, setDetailsService] = useState<BusinessService | null>(null);
-  
+  const [detailsService, setDetailsService] = useState<BusinessService | null>(
+    null,
+  );
+
   const formatPrice = (cents: number): string => {
     return `${(cents / 100).toFixed(2)}`;
   };
@@ -38,15 +40,17 @@ export function ServiceSelection({
     }
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+    return remainingMinutes > 0
+      ? `${hours}h ${remainingMinutes}m`
+      : `${hours}h`;
   };
 
-  const selectedService = services.find(s => s.id === selectedServiceId);
-  
+  const selectedService = services.find((s) => s.id === selectedServiceId);
+
   const handleServiceClick = (serviceId: string) => {
     // If it's already selected and clicked again, show details
     if (selectedServiceId === serviceId) {
-      const service = services.find(s => s.id === serviceId);
+      const service = services.find((s) => s.id === serviceId);
       if (service) setDetailsService(service);
     } else {
       // Otherwise just select it
@@ -63,18 +67,18 @@ export function ServiceSelection({
             <span>Choose a Service</span>
           </CardTitle>
           <p className="text-sm text-gray-600">
-            Select the service you'd like to book
+            Select the service you&apos;d like to book
           </p>
         </CardHeader>
         <CardContent className="pt-0">
           {services.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-gray-400 mb-2">
-                <Clock className="h-12 w-12 mx-auto" />
+            <div className="py-8 text-center">
+              <div className="mb-2 text-gray-400">
+                <Clock className="mx-auto h-12 w-12" />
               </div>
               <p className="text-gray-500">No services available</p>
               <p className="text-sm text-gray-400">
-                This business hasn't added any services yet.
+                This business hasn&apos;t added any services yet.
               </p>
             </div>
           ) : (
@@ -89,12 +93,12 @@ export function ServiceSelection({
 
       {/* Selected Service Summary - Fixed to bottom on mobile */}
       {selectedService && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-lg sm:relative sm:p-0 sm:bg-transparent sm:border-0 sm:shadow-none">
+        <div className="fixed right-0 bottom-0 left-0 border-t border-gray-200 bg-white p-4 shadow-lg sm:relative sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
           <Card className="border-purple-200 bg-purple-50">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-purple-900 truncate">
+                <div className="min-w-0 flex-1">
+                  <h4 className="truncate font-semibold text-purple-900">
                     Selected: {selectedService.name}
                   </h4>
                   <div className="mt-1 flex items-center space-x-3 text-sm text-purple-700">
@@ -105,14 +109,16 @@ export function ServiceSelection({
                     </span>
                   </div>
                 </div>
-                
+
                 {showContinueButton && onContinue && (
-                  <Button 
+                  <Button
                     onClick={onContinue}
-                    className="whitespace-nowrap ml-4"
+                    className="ml-4 whitespace-nowrap"
                     size="sm"
                   >
-                    <span className="hidden sm:inline">Continue to Date & Time</span>
+                    <span className="hidden sm:inline">
+                      Continue to Date & Time
+                    </span>
                     <span className="sm:hidden">Continue</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -122,7 +128,7 @@ export function ServiceSelection({
           </Card>
         </div>
       )}
-      
+
       {/* Service Details Modal */}
       <ServiceDetails
         service={detailsService}

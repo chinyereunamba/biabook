@@ -69,7 +69,7 @@ export function BookingReschedule({
   const formatTime = (timeString: string) => {
     const [hours, minutes] = timeString.split(":");
     const date = new Date();
-    date.setHours(parseInt(hours || "0"), parseInt(minutes || "0"));
+    date.setHours(parseInt(hours ?? "0"), parseInt(minutes ?? "0"));
     return date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
@@ -156,7 +156,7 @@ export function BookingReschedule({
         booking.id,
         newDate,
         selectedTime,
-        notes.trim() || undefined,
+        notes.trim() ?? undefined,
         notifyCustomer,
       );
 
@@ -175,10 +175,10 @@ export function BookingReschedule({
   const getNewEndTime = (startTime: string) => {
     const [hours, minutes] = startTime.split(":").map(Number);
     const startDate = new Date();
-    startDate.setHours(hours || 0, minutes || 0, 0, 0);
+    startDate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
 
     const endDate = new Date(startDate);
-    endDate.setMinutes(endDate.getMinutes() + (booking.service?.duration || 0));
+    endDate.setMinutes(endDate.getMinutes() + (booking.service?.duration ?? 0));
 
     return `${endDate.getHours().toString().padStart(2, "0")}:${endDate.getMinutes().toString().padStart(2, "0")}`;
   };
@@ -220,7 +220,9 @@ export function BookingReschedule({
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <CalendarIcon className="h-4 w-4 text-gray-400" />
-                      <span>{formatDate(booking.appointmentDate.toString())}</span>
+                      <span>
+                        {formatDate(booking.appointmentDate.toString())}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Clock className="h-4 w-4 text-gray-400" />
@@ -258,7 +260,8 @@ export function BookingReschedule({
                     <div className="flex items-center space-x-2">
                       <CalendarIcon className="h-4 w-4 text-green-600" />
                       <span className="font-medium">
-                        {selectedDate && formatDate(formatDateForAPI(selectedDate))}
+                        {selectedDate &&
+                          formatDate(formatDateForAPI(selectedDate))}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">

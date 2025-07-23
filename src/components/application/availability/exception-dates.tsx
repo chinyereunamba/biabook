@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -27,6 +26,7 @@ import {
   isEndTimeAfterStartTime,
   isValidDateFormat,
 } from "@/server/repositories/utils/availability-validation";
+import { formatLocalizedDate } from "@/utils/format";
 
 export interface ExceptionDate {
   id?: string;
@@ -50,6 +50,7 @@ export function ExceptionDates({
   onDeleteException,
   isLoading = false,
 }: ExceptionDatesProps) {
+  const [isClient, setIsClient] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newException, setNewException] = useState<Omit<ExceptionDate, "id">>({
     date: "",
@@ -59,6 +60,10 @@ export function ExceptionDates({
     reason: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleInputChange = (
     field: keyof Omit<ExceptionDate, "id">,
@@ -159,20 +164,6 @@ export function ExceptionDates({
     }
   };
 
-  const formatDate = (dateStr: string): string => {
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("en-US", {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    } catch (e) {
-      return dateStr;
-    }
-  };
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -231,7 +222,7 @@ export function ExceptionDates({
                       <Input
                         id="exception-start-time"
                         type="time"
-                        value={newException.startTime || ""}
+                        value={newException.startTime ?? ""}
                         onChange={(e) =>
                           handleInputChange("startTime", e.target.value)
                         }
@@ -248,7 +239,7 @@ export function ExceptionDates({
                       <Input
                         id="exception-end-time"
                         type="time"
-                        value={newException.endTime || ""}
+                        value={newException.endTime ?? ""}
                         onChange={(e) =>
                           handleInputChange("endTime", e.target.value)
                         }
@@ -274,7 +265,7 @@ export function ExceptionDates({
                 <Input
                   id="exception-reason"
                   placeholder="e.g., Holiday, Vacation, etc."
-                  value={newException.reason || ""}
+                  value={newException.reason ?? ""}
                   onChange={(e) => handleInputChange("reason", e.target.value)}
                 />
               </div>
@@ -302,12 +293,12 @@ export function ExceptionDates({
               .sort((a, b) => a.date.localeCompare(b.date))
               .map((exception) => (
                 <div
-                  key={exception.id || exception.date}
+                  key={exception.id ?? exception.date}
                   className="flex items-center justify-between rounded-lg border p-4"
                 >
                   <div className="flex flex-col">
                     <span className="font-medium">
-                      {formatDate(exception.date)}
+                      {isClient ? formatLocalizedDate(exception.date) : "..."}
                     </span>
                     <span
                       className={`text-sm ${exception.isAvailable ? "text-green-600" : "text-red-600"}`}
@@ -328,7 +319,7 @@ export function ExceptionDates({
                     onClick={() =>
                       exception.id && handleDeleteException(exception.id)
                     }
-                    disabled={isLoading || !exception.id}
+                    disabled={isLoading ?? !exception.id}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

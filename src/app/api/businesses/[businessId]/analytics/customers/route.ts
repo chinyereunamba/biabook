@@ -22,8 +22,8 @@ export async function GET(
     const { searchParams } = new URL(req.url);
 
     // Parse optional date range parameters
-    const from = searchParams.get("from") || undefined;
-    const to = searchParams.get("to") || undefined;
+    const from = searchParams.get("from") ?? undefined;
+    const to = searchParams.get("to") ?? undefined;
 
     // Get customer metrics
     const customerMetrics = await analyticsRepository.getCustomerMetrics(
@@ -37,8 +37,8 @@ export async function GET(
     return NextResponse.json({
       customers: customerMetrics,
       dateRange: {
-        from: from || null,
-        to: to || null,
+        from: from ?? null,
+        to: to ?? null,
       },
     });
   } catch (error) {

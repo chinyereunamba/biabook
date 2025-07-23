@@ -23,14 +23,14 @@ export async function getBusiness(): Promise<Business | null> {
     id: business.id,
     name: business.name,
     slug: business.slug, // Using ID as slug if not available
-    description: business.description || null,
-    address: business.location || null,
-    phone: business.phone || null,
-    email: business.email || null,
-    website: business.website || null,
-    logo: business.logo || null,
+    description: business.description ?? null,
+    address: business.location ?? undefined,
+    phone: business.phone ?? null,
+    email: business.email ?? null,
+    website: undefined, // Not available in current schema
+    logo: undefined, // Not available in current schema
     ownerId: business.ownerId,
     createdAt: business.createdAt,
-    updatedAt: business.updatedAt || new Date(),
+    updatedAt: business.updatedAt ?? new Date(),
   };
 }

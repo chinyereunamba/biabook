@@ -83,7 +83,7 @@ export function BookingCancellation({
   const formatTime = (timeString: string) => {
     const [hours, minutes] = timeString.split(":");
     const date = new Date();
-    date.setHours(parseInt(hours || "0"), parseInt(minutes || "0"));
+    date.setHours(parseInt(hours ?? "0"), parseInt(minutes ?? "0"));
     return date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
@@ -165,8 +165,8 @@ export function BookingCancellation({
       const finalReason =
         reason === "other"
           ? customReason
-          : cancellationReasons.find((r) => r.value === reason)?.label ||
-            reason;
+          : (cancellationReasons.find((r) => r.value === reason)?.label ??
+            reason);
 
       await onCancel(booking.id, finalReason, notifyCustomer, refundAmount);
 
@@ -349,7 +349,7 @@ export function BookingCancellation({
                         value={refundAmount / 100}
                         onChange={(e) =>
                           setRefundAmount(
-                            Math.round(parseFloat(e.target.value || "0") * 100),
+                            Math.round(parseFloat(e.target.value ?? "0") * 100),
                           )
                         }
                         className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
@@ -373,7 +373,7 @@ export function BookingCancellation({
                       <p className="text-sm text-blue-800">
                         <strong>Refund Summary:</strong> $
                         {formatPrice(refundAmount)} will be refunded to the
-                        customer's original payment method.
+                        customer&apos;s original payment method.
                       </p>
                     </div>
                   )}

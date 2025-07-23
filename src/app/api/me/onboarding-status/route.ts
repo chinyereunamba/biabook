@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
 import { users } from "@/server/db/schema";
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       isOnboarded: !!user.isOnboarded,
-      onboardedAt: user.onboardedAt || null,
+      onboardedAt: user.onboardedAt ?? null,
     });
   } catch (error) {
     console.error("Error checking onboarding status:", error);

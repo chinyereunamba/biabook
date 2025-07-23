@@ -41,8 +41,8 @@ export function TimePicker({
   useEffect(() => {
     if (value && isValidTimeFormat(value)) {
       const [hourStr, minuteStr] = value.split(":") || ["0", "0"];
-      let hour = parseInt(hourStr || "0", 10);
-      const minute = parseInt(minuteStr || "0", 10);
+      let hour = parseInt(hourStr ?? "0", 10);
+      const minute = parseInt(minuteStr ?? "0", 10);
       if (hourFormat === 12) {
         const newPeriod = hour >= 12 ? "PM" : "AM";
         hour = hour % 12;
@@ -58,13 +58,13 @@ export function TimePicker({
   // Generate hours array based on format
   const hoursArray = Array.from(
     { length: hourFormat === 12 ? 12 : 24 },
-    (_, i) => (hourFormat === 12 ? i + 1 : i)
+    (_, i) => (hourFormat === 12 ? i + 1 : i),
   );
 
   // Generate minutes array based on step
   const minutesArray = Array.from(
     { length: 60 / minuteStep },
-    (_, i) => i * minuteStep
+    (_, i) => i * minuteStep,
   );
 
   const handleHourChange = (hour: number) => {
@@ -82,12 +82,16 @@ export function TimePicker({
     updateValue(hours, minutes, newPeriod);
   };
 
-  const updateValue = (hour: number, minute: number, newPeriod?: "AM" | "PM") => {
+  const updateValue = (
+    hour: number,
+    minute: number,
+    newPeriod?: "AM" | "PM",
+  ) => {
     if (onChange) {
       let adjustedHour = hour;
 
       if (hourFormat === 12) {
-        const currentPeriod = newPeriod || period;
+        const currentPeriod = newPeriod ?? period;
         if (currentPeriod === "PM" && hour < 12) {
           adjustedHour = hour + 12;
         } else if (currentPeriod === "AM" && hour === 12) {
@@ -115,9 +119,9 @@ export function TimePicker({
       return placeholder;
     }
 
-    const [hourStr, minuteStr] = value.split(":") || ["0", "0"];
-    let hour = parseInt(hourStr || "0", 10);
-    const minute = parseInt(minuteStr || "0", 10);
+    const [hourStr, minuteStr] = value.split(":") ?? ["0", "0"];
+    let hour = parseInt(hourStr ?? "0", 10);
+    const minute = parseInt(minuteStr ?? "0", 10);
 
     if (hourFormat === 12) {
       const period = hour >= 12 ? "PM" : "AM";
@@ -139,7 +143,7 @@ export function TimePicker({
             "w-full justify-start text-left font-normal",
             !value && "text-muted-foreground",
             error && "border-red-500",
-            className
+            className,
           )}
         >
           <Clock className="mr-2 h-4 w-4" />
@@ -147,10 +151,10 @@ export function TimePicker({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <div className="p-4 flex flex-col gap-4">
+        <div className="flex flex-col gap-4 p-4">
           <div className="flex gap-4">
             <div className="flex flex-col">
-              <span className="text-sm font-medium mb-2">Hour</span>
+              <span className="mb-2 text-sm font-medium">Hour</span>
               <div className="grid grid-cols-4 gap-2">
                 {hoursArray.map((hour) => (
                   <Button
@@ -158,7 +162,7 @@ export function TimePicker({
                     variant={hours === hour ? "primary" : "outline"}
                     size="sm"
                     onClick={() => handleHourChange(hour)}
-                    className="w-10 h-10"
+                    className="h-10 w-10"
                   >
                     {hour}
                   </Button>
@@ -166,7 +170,7 @@ export function TimePicker({
               </div>
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-medium mb-2">Minute</span>
+              <span className="mb-2 text-sm font-medium">Minute</span>
               <div className="grid grid-cols-4 gap-2">
                 {minutesArray.map((minute) => (
                   <Button
@@ -174,7 +178,7 @@ export function TimePicker({
                     variant={minutes === minute ? "primary" : "outline"}
                     size="sm"
                     onClick={() => handleMinuteChange(minute)}
-                    className="w-10 h-10"
+                    className="h-10 w-10"
                   >
                     {minute.toString().padStart(2, "0")}
                   </Button>
@@ -206,11 +210,7 @@ export function TimePicker({
 
           <div className="flex justify-between">
             {clearable && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClear}
-              >
+              <Button variant="ghost" size="sm" onClick={handleClear}>
                 Clear
               </Button>
             )}

@@ -2,9 +2,15 @@
  * Utility functions for handling optimistic locking
  */
 
+interface DatabaseError {
+  message?: string;
+  code?: string;
+  errno?: number;
+}
+
 export class OptimisticLockError extends Error {
   constructor(
-    message: string = "Resource was modified by another process. Please refresh and try again.",
+    message = "Resource was modified by another process. Please refresh and try again.",
   ) {
     super(message);
     this.name = "OptimisticLockError";
@@ -14,7 +20,7 @@ export class OptimisticLockError extends Error {
 export class ConflictError extends Error {
   constructor(
     message: string,
-    public suggestions?: any,
+    public suggestions?: string[],
   ) {
     super(message);
     this.name = "ConflictError";
@@ -26,8 +32,8 @@ export class ConflictError extends Error {
  */
 export async function retryWithOptimisticLocking<T>(
   operation: () => Promise<T>,
-  maxRetries: number = 3,
-  delayMs: number = 100,
+  maxRetries = 3,
+  delayMs = 100,
 ): Promise<T> {
   let lastError: Error;
 
@@ -56,30 +62,33 @@ export async function retryWithOptimisticLocking<T>(
 /**
  * Check if an error is a database constraint violation (SQLite specific)
  */
-export function isDatabaseConstraintError(error: any): boolean {
-  if (!error) return false;
+export function isDatabaseConstraintError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
 
-  const message = error.message?.toLowerCase() || "";
+  const dbError = error as DatabaseError;
+  const message = dbError.message?.toLowerCase() ?? "";
 
   // SQLite constraint error patterns
   return (
-    message.includes("unique constraint") ||
-    message.includes("constraint failed") ||
-    message.includes("foreign key constraint") ||
-    error.code === "SQLITE_CONSTRAINT" ||
-    error.errno === 19 // SQLite constraint error code
+    message.includes("unique constraint") ??
+    message.includes("constraint failed") ??
+    message.includes("foreign key constraint") ??
+    dbError.code === "SQLITE_CONSTRAINT" ??
+    dbError.errno === 19 // SQLite constraint error code
   );
 }
 
 /**
  * Extract meaningful error message from database constraint errors
  */
-export function getConstraintErrorMessage(error: any): string {
+export function getConstraintErrorMessage(error: unknown): string {
   if (!isDatabaseConstraintError(error)) {
-    return error.message || "Unknown database error";
+    const dbError = error as DatabaseError;
+    return dbError.message ?? "Unknown database error";
   }
 
-  const message = error.message?.toLowerCase() || "";
+  const dbError = error as DatabaseError;
+  const message = dbError.message?.toLowerCase() ?? "";
 
   if (
     message.includes("unique constraint") &&
@@ -113,7 +122,7 @@ export async function withDatabaseErrorHandling<T>(
 ): Promise<T> {
   try {
     return await operation();
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (isDatabaseConstraintError(error)) {
       const message = getConstraintErrorMessage(error);
       throw new ConflictError(message);

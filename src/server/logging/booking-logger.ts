@@ -11,7 +11,7 @@ export interface LogContext {
   sessionId?: string;
   userAgent?: string;
   ipAddress?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface LogEntry {
@@ -21,7 +21,7 @@ export interface LogEntry {
   context?: LogContext;
   error?: Error;
   duration?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export class BookingLogger {
@@ -31,14 +31,22 @@ export class BookingLogger {
   /**
    * Log an info message
    */
-  info(message: string, context?: LogContext, metadata?: Record<string, any>) {
+  info(
+    message: string,
+    context?: LogContext,
+    metadata?: Record<string, unknown>,
+  ) {
     this.log("info", message, context, undefined, metadata);
   }
 
   /**
    * Log a warning message
    */
-  warn(message: string, context?: LogContext, metadata?: Record<string, any>) {
+  warn(
+    message: string,
+    context?: LogContext,
+    metadata?: Record<string, unknown>,
+  ) {
     this.log("warn", message, context, undefined, metadata);
   }
 
@@ -49,7 +57,7 @@ export class BookingLogger {
     message: string,
     error?: Error,
     context?: LogContext,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ) {
     this.log("error", message, context, error, metadata);
   }
@@ -57,7 +65,11 @@ export class BookingLogger {
   /**
    * Log a debug message
    */
-  debug(message: string, context?: LogContext, metadata?: Record<string, any>) {
+  debug(
+    message: string,
+    context?: LogContext,
+    metadata?: Record<string, unknown>,
+  ) {
     this.log("debug", message, context, undefined, metadata);
   }
 
@@ -70,7 +82,7 @@ export class BookingLogger {
     duration: number,
     context?: LogContext,
     error?: Error,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ) {
     const level = success ? "info" : "error";
     const message = `Booking operation: ${operation} ${success ? "succeeded" : "failed"}`;
@@ -90,7 +102,7 @@ export class BookingLogger {
     conflictType: string,
     resolved: boolean,
     context?: LogContext,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ) {
     const level = resolved ? "warn" : "error";
     const message = `Booking conflict detected: ${conflictType} - ${resolved ? "resolved" : "unresolved"}`;
@@ -107,7 +119,7 @@ export class BookingLogger {
    */
   logValidationError(
     field: string,
-    value: any,
+    value: unknown,
     reason: string,
     context?: LogContext,
   ) {
@@ -131,7 +143,7 @@ export class BookingLogger {
     operation: string,
     duration: number,
     context?: LogContext,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ) {
     const level = duration > 5000 ? "warn" : "info"; // Warn if operation takes > 5 seconds
     const message = `Performance: ${operation} took ${duration}ms`;
@@ -147,7 +159,7 @@ export class BookingLogger {
   /**
    * Get recent logs
    */
-  getRecentLogs(limit: number = 100, level?: LogEntry["level"]): LogEntry[] {
+  getRecentLogs(limit = 100, level?: LogEntry["level"]): LogEntry[] {
     let filteredLogs = this.logs;
 
     if (level) {
@@ -162,10 +174,7 @@ export class BookingLogger {
   /**
    * Get logs for a specific context
    */
-  getLogsForContext(
-    context: Partial<LogContext>,
-    limit: number = 100,
-  ): LogEntry[] {
+  getLogsForContext(context: Partial<LogContext>, limit = 100): LogEntry[] {
     return this.logs
       .filter((log) => {
         if (!log.context) return false;
@@ -201,12 +210,12 @@ export class BookingLogger {
 
     errorLogs.forEach((log) => {
       // Count by error type
-      const errorType = log.error?.name || "Unknown";
-      errorsByType[errorType] = (errorsByType[errorType] || 0) + 1;
+      const errorType = log.error?.name ?? "Unknown";
+      errorsByType[errorType] = (errorsByType[errorType] ?? 0) + 1;
 
       // Count by operation
-      const operation = log.metadata?.operation || "Unknown";
-      errorsByOperation[operation] = (errorsByOperation[operation] || 0) + 1;
+      const operation = String(log.metadata?.operation ?? "Unknown");
+      errorsByOperation[operation] = (errorsByOperation[operation] ?? 0) + 1;
     });
 
     return {
@@ -238,7 +247,7 @@ export class BookingLogger {
     message: string,
     context?: LogContext,
     error?: Error,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ) {
     const logEntry: LogEntry = {
       timestamp: new Date(),
@@ -300,16 +309,16 @@ export const bookingLogger = new BookingLogger();
  */
 export function logExecution(operation: string) {
   return function (
-    target: any,
+    target: unknown,
     propertyName: string,
     descriptor: PropertyDescriptor,
   ) {
     const method = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const startTime = Date.now();
       const context: LogContext = {
-        operation: `${target.constructor.name}.${propertyName}`,
+        operation: `${(target as { constructor: { name: string } }).constructor.name}.${propertyName}`,
       };
 
       try {

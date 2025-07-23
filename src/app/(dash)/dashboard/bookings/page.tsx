@@ -172,7 +172,7 @@ export default function BookingsPage() {
   // Format time from 24h to 12h
   const formatTime = (time: string): string => {
     const [hours, minutes] = time.split(":");
-    const hour = parseInt(hours || "0");
+    const hour = parseInt(hours ?? "0");
     const ampm = hour >= 12 ? "PM" : "AM";
     const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
     return `${displayHour}:${minutes ?? "00"} ${ampm}`;

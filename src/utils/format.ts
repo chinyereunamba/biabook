@@ -67,3 +67,21 @@ export function truncateString(str: string, maxLength: number): string {
 
   return str.slice(0, maxLength) + "...";
 }
+
+/**
+ * Formats a date string (YYYY-MM-DD) into a localized, human-readable format.
+ * This function is SSR-safe and ensures consistent output on both server and client.
+ * @param dateStr The date string in YYYY-MM-DD format.
+ * @returns A formatted date string (e.g., "Mon, Jan 1, 2023").
+ */
+export function formatLocalizedDate(dateStr: string): string {
+  // Appending T00:00:00 ensures the date is parsed in the user's local timezone,
+  // preventing the "off-by-one-day" error.
+  const date = new Date(`${dateStr}T00:00:00`);
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date);
+}

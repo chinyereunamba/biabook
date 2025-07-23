@@ -14,7 +14,7 @@ import {
   Download,
   Settings,
 } from "lucide-react";
-import {type AppointmentWithDetails } from "@/types/booking";
+import { type AppointmentWithDetails } from "@/types/booking";
 import { BookingList } from "./booking-list";
 import { BookingDetails } from "./booking-details";
 import { BookingStatusUpdate } from "./booking-status-update";
@@ -274,7 +274,7 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Today's Bookings
+              Today&apos;s Bookings
             </CardTitle>
             <Calendar className="text-muted-foreground h-4 w-4" />
           </CardHeader>

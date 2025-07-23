@@ -1,8 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { bookingConflictService } from "@/server/services/booking-conflict-service";
-import { handleApiError } from "@/app/api/error-handler";
-import { bookingLogger } from "@/server/logging/booking-logger";
 
 // Validation schema for availability check
 const availabilityCheckSchema = z.object({
@@ -80,12 +78,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     const queryData = {
-      businessId: searchParams.get("businessId") || "",
-      serviceId: searchParams.get("serviceId") || "",
-      appointmentDate: searchParams.get("appointmentDate") || "",
-      startTime: searchParams.get("startTime") || "",
+      businessId: searchParams.get("businessId") ?? "",
+      serviceId: searchParams.get("serviceId") ?? "",
+      appointmentDate: searchParams.get("appointmentDate") ?? "",
+      startTime: searchParams.get("startTime") ?? "",
       excludeAppointmentId:
-        searchParams.get("excludeAppointmentId") || undefined,
+        searchParams.get("excludeAppointmentId") ?? undefined,
     };
 
     // Validate query parameters

@@ -5,7 +5,7 @@ import { ServiceCard } from "./service-card";
 import { cn } from "@/lib/utils";
 import type { BusinessService } from "./business-profile";
 import { Input } from "@/components/ui/input";
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface ServiceGridProps {
@@ -36,10 +36,13 @@ export function ServiceGrid({
   // Filter services based on search and category
   const filteredServices = services.filter((service) => {
     const matchesSearch =
-      searchQuery === "" ||
-      service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (service.description?.toLowerCase().includes(searchQuery.toLowerCase()) ??
-        false);
+      searchQuery === ""
+        ? true
+        : service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (service.description &&
+            service.description
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()));
 
     const matchesCategory =
       activeCategory === null || service.category === activeCategory;

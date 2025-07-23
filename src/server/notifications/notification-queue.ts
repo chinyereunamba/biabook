@@ -16,7 +16,7 @@ export interface NotificationQueueItem {
   recipientType: "business" | "customer";
   recipientEmail: string;
   recipientPhone?: string | null;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
   scheduledFor: Date;
   status: NotificationStatus;
   attempts: number;
@@ -45,7 +45,7 @@ export class NotificationQueueService {
         recipientId: notification.recipientId,
         recipientType: notification.recipientType,
         recipientEmail: notification.recipientEmail,
-        recipientPhone: notification.recipientPhone || null,
+        recipientPhone: notification.recipientPhone ?? undefined,
         payload: JSON.stringify(notification.payload),
         scheduledFor: notification.scheduledFor,
         status: "pending",
@@ -125,7 +125,7 @@ export class NotificationQueueService {
         status,
         attempts,
         lastAttemptAt: new Date(),
-        error: error || null,
+        error: error ?? null,
         updatedAt: new Date(),
       })
       .where(sql`${notificationQueue.id} = ${id}`);

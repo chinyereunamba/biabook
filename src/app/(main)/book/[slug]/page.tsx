@@ -4,16 +4,24 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
 import {
-  CheckCircle,
-  ArrowLeft,
-  Loader2,
-} from "lucide-react";
-import { BusinessProfileComponent, type BusinessProfile } from "@/components/application/booking/business-profile";
+  BusinessProfileComponent,
+  type BusinessProfile,
+} from "@/components/application/booking/business-profile";
 import { Calendar } from "@/components/application/booking/calendar";
-import { TimeSlotGrid, type TimeSlot } from "@/components/application/booking/time-slot-grid";
-import { CustomerForm, type CustomerFormData } from "@/components/application/booking/customer-form";
-import { BookingConfirmation, type BookingConfirmationData } from "@/components/application/booking/booking-confirmation";
+import {
+  TimeSlotGrid,
+  type TimeSlot,
+} from "@/components/application/booking/time-slot-grid";
+import {
+  CustomerForm,
+  type CustomerFormData,
+} from "@/components/application/booking/customer-form";
+import {
+  BookingConfirmation,
+  type BookingConfirmationData,
+} from "@/components/application/booking/booking-confirmation";
 
 export default function BookingPage() {
   const params = useParams();
@@ -33,7 +41,8 @@ export default function BookingPage() {
     phone: "",
     notes: "",
   });
-  const [bookingResult, setBookingResult] = useState<BookingConfirmationData | null>(null);
+  const [bookingResult, setBookingResult] =
+    useState<BookingConfirmationData | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
 
@@ -46,7 +55,9 @@ export default function BookingPage() {
     }>;
   } | null>(null);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
-  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+  const [availabilityError, setAvailabilityError] = useState<string | null>(
+    null,
+  );
 
   // Fetch business data
   useEffect(() => {
@@ -62,7 +73,9 @@ export default function BookingPage() {
         const businessData = await response.json();
         setBusiness(businessData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load business");
+        setError(
+          err instanceof Error ? err.message : "Failed to load business",
+        );
       } finally {
         setLoading(false);
       }
@@ -79,12 +92,21 @@ export default function BookingPage() {
       setAvailabilityLoading(true);
       setAvailabilityError(null);
 
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      const startDate = `${year}-${month}-${day}`;
+
       const params = new URLSearchParams({
         serviceId,
+        startDate,
         days: "30", // Get 30 days of availability
       });
 
-      const response = await fetch(`/api/businesses/${businessId}/availability?${params}`);
+      const response = await fetch(
+        `/api/businesses/${businessId}/availability?${params}`,
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch availability");
@@ -93,14 +115,20 @@ export default function BookingPage() {
       const data = await response.json();
       setAvailabilityData(data);
     } catch (err) {
-      setAvailabilityError(err instanceof Error ? err.message : "Failed to load availability");
+      setAvailabilityError(
+        err instanceof Error ? err.message : "Failed to load availability",
+      );
     } finally {
       setAvailabilityLoading(false);
     }
   };
 
   // Real-time availability checking
-  const checkSlotAvailability = async (date: string, startTime: string, endTime: string) => {
+  const checkSlotAvailability = async (
+    date: string,
+    startTime: string,
+    endTime: string,
+  ) => {
     try {
       const params = new URLSearchParams({
         serviceId: selectedServiceId,
@@ -109,7 +137,9 @@ export default function BookingPage() {
         endTime,
       });
 
-      const response = await fetch(`/api/businesses/${businessId}/availability/check?${params}`);
+      const response = await fetch(
+        `/api/businesses/${businessId}/availability/check?${params}`,
+      );
 
       if (!response.ok) {
         return false;
@@ -139,7 +169,11 @@ export default function BookingPage() {
 
   const handleTimeSelect = async (startTime: string, endTime: string) => {
     // Check real-time availability before allowing selection
-    const isAvailable = await checkSlotAvailability(selectedDate, startTime, endTime);
+    const isAvailable = await checkSlotAvailability(
+      selectedDate,
+      startTime,
+      endTime,
+    );
 
     if (isAvailable) {
       setSelectedTime(startTime);
@@ -148,7 +182,9 @@ export default function BookingPage() {
       if (selectedServiceId) {
         fetchAvailability(selectedServiceId);
       }
-      alert("This time slot is no longer available. Please select another time.");
+      alert(
+        "This time slot is no longer available. Please select another time.",
+      );
     }
   };
 
@@ -156,14 +192,14 @@ export default function BookingPage() {
     if (selectedDate && selectedTime) {
       // Final availability check before proceeding
       const selectedSlot = availabilityData?.availability
-        .find(day => day.date === selectedDate)?.slots
-        .find(slot => slot.startTime === selectedTime);
+        .find((day) => day.date === selectedDate)
+        ?.slots.find((slot) => slot.startTime === selectedTime);
 
       if (selectedSlot) {
         const isStillAvailable = await checkSlotAvailability(
           selectedDate,
           selectedSlot.startTime,
-          selectedSlot.endTime
+          selectedSlot.endTime,
         );
 
         if (isStillAvailable) {
@@ -173,7 +209,9 @@ export default function BookingPage() {
           if (selectedServiceId) {
             fetchAvailability(selectedServiceId);
           }
-          alert("This time slot is no longer available. Please select another time.");
+          alert(
+            "This time slot is no longer available. Please select another time.",
+          );
           setSelectedTime("");
         }
       }
@@ -202,15 +240,17 @@ export default function BookingPage() {
 
     try {
       // Calculate end time based on service duration
-      const timeParts = selectedTime.split(':');
-      const startHours = parseInt(timeParts[0] || '0', 10);
-      const startMinutes = parseInt(timeParts[1] || '0', 10);
+      const timeParts = selectedTime.split(":");
+      const startHours = parseInt(timeParts[0] ?? "0", 10);
+      const startMinutes = parseInt(timeParts[1] ?? "0", 10);
 
       const startDate = new Date();
       startDate.setHours(startHours, startMinutes, 0, 0);
 
-      const endDate = new Date(startDate.getTime() + selectedService.duration * 60000);
-      const endTime = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
+      const endDate = new Date(
+        startDate.getTime() + selectedService.duration * 60000,
+      );
+      const endTime = `${endDate.getHours().toString().padStart(2, "0")}:${endDate.getMinutes().toString().padStart(2, "0")}`;
 
       const bookingData = {
         businessId,
@@ -224,10 +264,10 @@ export default function BookingPage() {
         notes: customerData.notes,
       };
 
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
+      const response = await fetch("/api/bookings", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(bookingData),
       });
@@ -235,28 +275,32 @@ export default function BookingPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to create booking');
+        throw new Error(result.error || "Failed to create booking");
       }
 
       // Set booking result and move to confirmation step
       setBookingResult(result.appointment);
       setStep(4);
     } catch (error) {
-      console.error('Booking error:', error);
-      setBookingError(error instanceof Error ? error.message : 'Failed to create booking');
+      console.error("Booking error:", error);
+      setBookingError(
+        error instanceof Error ? error.message : "Failed to create booking",
+      );
     } finally {
       setBookingLoading(false);
     }
   };
 
-  const selectedService = business?.services.find(s => s.id === selectedServiceId);
+  const selectedService = business?.services.find(
+    (s) => s.id === selectedServiceId,
+  );
 
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-600" />
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-purple-600" />
           <p className="text-gray-600">Loading business information...</p>
         </div>
       </div>
@@ -264,18 +308,18 @@ export default function BookingPage() {
   }
 
   // Error state
-  if (error || !business) {
+  if (error ?? !business) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="text-red-500 mb-4">
-            <CheckCircle className="h-12 w-12 mx-auto" />
+          <div className="mb-4 text-red-500">
+            <CheckCircle className="mx-auto h-12 w-12" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">
             Business Not Found
           </h1>
-          <p className="text-gray-600 mb-4">
-            {error || "The business you're looking for doesn't exist."}
+          <p className="mb-4 text-gray-600">
+            {error ?? "The business you&apos;re looking for doesn't exist."}
           </p>
           <Button asChild>
             <a href="/">Back to Home</a>
@@ -288,7 +332,7 @@ export default function BookingPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="mx-auto max-w-6xl">
           {/* Step 1: Service Selection */}
           {step === 1 && (
             <div className="grid gap-8 lg:grid-cols-3">
@@ -309,7 +353,8 @@ export default function BookingPage() {
                   <CardHeader>
                     <CardTitle>Choose a Service</CardTitle>
                     <p className="text-sm text-gray-600">
-                      Select the service you'd like to book with {business.name}
+                      Select the service you&apos;d like to book with{" "}
+                      {business.name}
                     </p>
                   </CardHeader>
                   <CardContent>
@@ -317,10 +362,11 @@ export default function BookingPage() {
                       {business.services.map((service) => (
                         <Card
                           key={service.id}
-                          className={`cursor-pointer transition-all hover:shadow-md ${selectedServiceId === service.id
-                            ? "ring-2 ring-purple-500 border-purple-500"
-                            : "hover:border-purple-300"
-                            }`}
+                          className={`cursor-pointer transition-all hover:shadow-md ${
+                            selectedServiceId === service.id
+                              ? "border-purple-500 ring-2 ring-purple-500"
+                              : "hover:border-purple-300"
+                          }`}
                           onClick={() => handleServiceSelect(service.id)}
                         >
                           <CardContent className="p-6">
@@ -330,21 +376,29 @@ export default function BookingPage() {
                                   {service.name}
                                 </h3>
                                 {service.description && (
-                                  <p className="text-sm text-gray-600 mt-1">
+                                  <p className="mt-1 text-sm text-gray-600">
                                     {service.description}
                                   </p>
                                 )}
                                 <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
                                   <span>{service.duration} minutes</span>
                                   <span>•</span>
-                                  <span>${(service.price / 100).toFixed(2)}</span>
+                                  <span>
+                                    ${(service.price / 100).toFixed(2)}
+                                  </span>
                                 </div>
                               </div>
                               <Button
-                                size={'sm'}
-                                variant={selectedServiceId === service.id ? "primary" : "outline"}
+                                size={"sm"}
+                                variant={
+                                  selectedServiceId === service.id
+                                    ? "primary"
+                                    : "outline"
+                                }
                               >
-                                {selectedServiceId === service.id ? "Selected" : "Select"}
+                                {selectedServiceId === service.id
+                                  ? "Selected"
+                                  : "Select"}
                               </Button>
                             </div>
                           </CardContent>
@@ -367,14 +421,20 @@ export default function BookingPage() {
                     <div className="space-y-4">
                       <div>
                         <h3 className="font-semibold">{business.name}</h3>
-                        <p className="text-sm text-gray-600">{business.category.name}</p>
+                        <p className="text-sm text-gray-600">
+                          {business.category.name}
+                        </p>
                       </div>
 
                       {selectedService && (
                         <div className="border-t pt-4">
-                          <h4 className="font-semibold mb-2">Selected Service</h4>
-                          <div className="bg-purple-50 rounded-lg p-3">
-                            <p className="font-medium">{selectedService.name}</p>
+                          <h4 className="mb-2 font-semibold">
+                            Selected Service
+                          </h4>
+                          <div className="rounded-lg bg-purple-50 p-3">
+                            <p className="font-medium">
+                              {selectedService.name}
+                            </p>
                             <div className="mt-1 flex items-center justify-between text-sm text-gray-600">
                               <span>{selectedService.duration} min</span>
                               <span className="font-semibold">
@@ -387,10 +447,12 @@ export default function BookingPage() {
 
                       {selectedDate && selectedTime && (
                         <div className="border-t pt-4">
-                          <h4 className="font-semibold mb-2">Selected Time</h4>
-                          <div className="bg-blue-50 rounded-lg p-3">
+                          <h4 className="mb-2 font-semibold">Selected Time</h4>
+                          <div className="rounded-lg bg-blue-50 p-3">
                             <p className="font-medium">{selectedDate}</p>
-                            <p className="text-sm text-gray-600">{selectedTime}</p>
+                            <p className="text-sm text-gray-600">
+                              {selectedTime}
+                            </p>
                           </div>
                         </div>
                       )}
@@ -416,14 +478,23 @@ export default function BookingPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => selectedServiceId && fetchAvailability(selectedServiceId)}
+                        onClick={() =>
+                          selectedServiceId &&
+                          fetchAvailability(selectedServiceId)
+                        }
                         disabled={availabilityLoading}
                       >
-                        <Loader2 className={`h-4 w-4 mr-2 ${availabilityLoading ? 'animate-spin' : ''}`} />
+                        <Loader2
+                          className={`mr-2 h-4 w-4 ${availabilityLoading ? "animate-spin" : ""}`}
+                        />
                         Refresh
                       </Button>
-                      <Button variant="outline" size={'sm'} onClick={() => setStep(1)}>
-                        <ArrowLeft className="h-4 w-4 mr-2" />
+                      <Button
+                        variant="outline"
+                        size={"sm"}
+                        onClick={() => setStep(1)}
+                      >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to Services
                       </Button>
                     </div>
@@ -435,8 +506,8 @@ export default function BookingPage() {
                       onDateSelect={handleDateSelect}
                       availableDates={
                         availabilityData?.availability
-                          .filter(day => day.slots.length > 0)
-                          .map(day => day.date) || []
+                          .filter((day) => day.slots.length > 0)
+                          .map((day) => day.date) ?? []
                       }
                     />
 
@@ -444,8 +515,9 @@ export default function BookingPage() {
                       selectedDate={selectedDate}
                       selectedTime={selectedTime}
                       timeSlots={
-                        availabilityData?.availability
-                          .find(day => day.date === selectedDate)?.slots || []
+                        availabilityData?.availability.find(
+                          (day) => day.date === selectedDate,
+                        )?.slots ?? []
                       }
                       onTimeSelect={handleTimeSelect}
                       loading={availabilityLoading}
@@ -453,25 +525,33 @@ export default function BookingPage() {
                   </div>
 
                   {availabilityError && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                      <p className="text-red-800 text-sm">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                      <p className="text-sm text-red-800">
                         Error loading availability: {availabilityError}
                       </p>
                       <button
-                        onClick={() => selectedServiceId && fetchAvailability(selectedServiceId)}
-                        className="text-red-600 hover:text-red-800 text-sm font-medium mt-2"
+                        onClick={() =>
+                          selectedServiceId &&
+                          fetchAvailability(selectedServiceId)
+                        }
+                        className="mt-2 text-sm font-medium text-red-600 hover:text-red-800"
                       >
                         Try again
                       </button>
                     </div>
                   )}
 
-                  {!availabilityLoading && !availabilityError && availabilityData &&
-                    availabilityData.availability.every(day => day.slots.length === 0) && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <p className="text-yellow-800 text-sm">
-                          No availability found for the selected service in the next 30 days.
-                          Please try selecting a different service or contact the business directly.
+                  {!availabilityLoading &&
+                    !availabilityError &&
+                    availabilityData &&
+                    availabilityData.availability.every(
+                      (day) => day.slots.length === 0,
+                    ) && (
+                      <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                        <p className="text-sm text-yellow-800">
+                          No availability found for the selected service in the
+                          next 30 days. Please try selecting a different service
+                          or contact the business directly.
                         </p>
                       </div>
                     )}
@@ -495,7 +575,7 @@ export default function BookingPage() {
               <div className="lg:col-span-1">
                 <Card className="sticky top-8">
                   <CardContent className="p-6">
-                    <h3 className="font-semibold mb-4">Booking Summary</h3>
+                    <h3 className="mb-4 font-semibold">Booking Summary</h3>
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
                         <span>Business:</span>
@@ -503,7 +583,9 @@ export default function BookingPage() {
                       </div>
                       <div className="flex justify-between">
                         <span>Service:</span>
-                        <span className="font-medium">{selectedService?.name}</span>
+                        <span className="font-medium">
+                          {selectedService?.name}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Duration:</span>
@@ -511,11 +593,18 @@ export default function BookingPage() {
                       </div>
                       <div className="flex justify-between">
                         <span>Date & Time:</span>
-                        <span>{selectedDate} at {selectedTime}</span>
+                        <span>
+                          {selectedDate} at {selectedTime}
+                        </span>
                       </div>
                       <div className="flex justify-between border-t pt-3 font-semibold">
                         <span>Total:</span>
-                        <span>${selectedService ? (selectedService.price / 100).toFixed(2) : '0.00'}</span>
+                        <span>
+                          $
+                          {selectedService
+                            ? (selectedService.price / 100).toFixed(2)
+                            : "0.00"}
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -527,15 +616,19 @@ export default function BookingPage() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold">Your Information</h2>
-                    <Button variant="outline" size={'sm'} onClick={() => setStep(2)}>
-                      <ArrowLeft className="h-4 w-4 mr-2" />
+                    <Button
+                      variant="outline"
+                      size={"sm"}
+                      onClick={() => setStep(2)}
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
                       Back to Date & Time
                     </Button>
                   </div>
 
                   {bookingError && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                      <p className="text-red-800 text-sm">{bookingError}</p>
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                      <p className="text-sm text-red-800">{bookingError}</p>
                     </div>
                   )}
 
@@ -554,7 +647,8 @@ export default function BookingPage() {
             <BookingConfirmation
               booking={{
                 id: bookingResult.id,
-                confirmationNumber: bookingResult.confirmationNumber || bookingResult.id,
+                confirmationNumber:
+                  bookingResult.confirmationNumber ?? bookingResult.id,
                 customerName: bookingResult.customerName,
                 customerEmail: bookingResult.customerEmail,
                 customerPhone: bookingResult.customerPhone,
@@ -566,16 +660,16 @@ export default function BookingPage() {
                 business: {
                   id: business.id,
                   name: business.name,
-                  phone: business.phone || undefined,
-                  email: business.email || undefined,
-                  location: business.location || undefined
+                  phone: business.phone ?? undefined,
+                  email: business.email ?? undefined,
+                  location: business.location ?? undefined,
                 },
                 service: {
                   id: selectedService!.id,
                   name: selectedService!.name,
                   duration: selectedService!.duration,
-                  price: selectedService!.price
-                }
+                  price: selectedService!.price,
+                },
               }}
               onNewBooking={() => {
                 // Reset form and go back to step 1

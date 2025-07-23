@@ -30,6 +30,7 @@ describe("BookingConflictService", () => {
     await db.insert(businesses).values({
       id: testBusinessId,
       name: "Test Business",
+      slug: "test-business",
       categoryId: "salon",
       ownerId: "test-owner",
     });

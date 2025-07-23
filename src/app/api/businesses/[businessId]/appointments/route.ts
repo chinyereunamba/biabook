@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { appointments, services } from "@/server/db/schema";
 import { eq, and, desc, gte, count } from "drizzle-orm";
@@ -25,8 +25,8 @@ export async function GET(
     const url = new URL(req.url);
 
     // Parse query parameters
-    const limit = parseInt(url.searchParams.get("limit") || "10");
-    const offset = parseInt(url.searchParams.get("offset") || "0");
+    const limit = parseInt(url.searchParams.get("limit") ?? "10");
+    const offset = parseInt(url.searchParams.get("offset") ?? "0");
     const status = url.searchParams.get("status");
     const startDate = url.searchParams.get("startDate");
 
@@ -34,7 +34,12 @@ export async function GET(
     const conditions = [eq(appointments.businessId, businessId)];
 
     if (status) {
-      conditions.push(eq(appointments.status, status as "pending" | "confirmed" | "cancelled" | "completed"));
+      conditions.push(
+        eq(
+          appointments.status,
+          status as "pending" | "confirmed" | "cancelled" | "completed",
+        ),
+      );
     }
 
     if (startDate) {

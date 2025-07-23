@@ -172,7 +172,7 @@ export function WeeklySchedule({
       </CardHeader>
       <CardContent className="grid gap-4">
         {DAYS_OF_WEEK.map(({ name, value }) => {
-          const day = schedule.find((d) => d.dayOfWeek === value) || {
+          const day = schedule.find((d) => d.dayOfWeek === value) ?? {
             dayOfWeek: value,
             isAvailable: true,
             startTime: DEFAULT_START_TIME,

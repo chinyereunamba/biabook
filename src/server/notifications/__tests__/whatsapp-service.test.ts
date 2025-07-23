@@ -57,9 +57,10 @@ describe("WhatsAppService", () => {
     id: "biz-123",
     name: "Hair Salon",
     slug: "hair-salon",
+    description: "Professional hair salon",
     email: "salon@example.com",
     phone: "+15551234567",
-    userId: "user-123",
+    ownerId: "user-123",
     createdAt: new Date(),
     updatedAt: new Date(),
   } as const;
@@ -156,7 +157,7 @@ describe("WhatsAppService", () => {
 
   it("should handle network errors gracefully", async () => {
     // Mock network error
-    (global.fetch as any).mockRejectedValue(new Error("Network Error"));
+    (global.fetch as vi.Mock).mockRejectedValue(new Error("Network Error"));
 
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
@@ -176,7 +177,7 @@ describe("WhatsAppService", () => {
   });
 
   it("should return false if business phone is not available", async () => {
-    const businessWithoutPhone = { ...business, phone: undefined };
+    const businessWithoutPhone = { ...business, phone: null };
 
     const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 

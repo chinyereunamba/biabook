@@ -15,7 +15,6 @@ import {
   MapPin,
   MessageSquare,
   Copy,
-  ExternalLink,
   AlertTriangle,
   X,
   RefreshCw,
@@ -87,7 +86,7 @@ export function CustomerBookingDetails({
   const formatTime = (timeString: string) => {
     const [hours, minutes] = timeString.split(":");
     const date = new Date();
-    date.setHours(parseInt(hours || "0"), parseInt(minutes || "0"));
+    date.setHours(parseInt(hours ?? "0"), parseInt(minutes ?? "0"));
     return date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
@@ -174,7 +173,7 @@ export function CustomerBookingDetails({
 
     const title = `${booking.service.name} - ${booking.business.name}`;
     const description = `Appointment with ${booking.business.name}\n\nService: ${booking.service.name}\nDuration: ${booking.service.duration} minutes\nPrice: ${formatPrice(booking.service.price)}\n\nCustomer: ${booking.customerName}\nPhone: ${booking.customerPhone}\nEmail: ${booking.customerEmail}\n\nConfirmation: ${booking.confirmationNumber}${booking.notes ? `\n\nNotes: ${booking.notes}` : ""}`;
-    const location = booking.business.location || booking.business.name;
+    const location = booking.business.location ?? booking.business.name;
 
     if (type === "google") {
       const googleUrl = new URL("https://calendar.google.com/calendar/render");
@@ -580,7 +579,7 @@ export function CustomerBookingDetails({
           <DialogHeader>
             <DialogTitle>Reschedule Booking</DialogTitle>
             <DialogDescription>
-              You'll be redirected to select a new date and time for your
+              You&apos;ll be redirected to select a new date and time for your
               appointment.
             </DialogDescription>
           </DialogHeader>

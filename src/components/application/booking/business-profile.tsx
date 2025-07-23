@@ -3,14 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Star, 
-  Clock,
-  DollarSign 
-} from "lucide-react";
+import { MapPin, Phone, Mail, Star, Clock, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface BusinessService {
@@ -60,7 +53,9 @@ export function BusinessProfileComponent({
     }
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+    return remainingMinutes > 0
+      ? `${hours}h ${remainingMinutes}m`
+      : `${hours}h`;
   };
 
   return (
@@ -70,14 +65,14 @@ export function BusinessProfileComponent({
         <CardContent>
           <div className="flex items-start space-x-4">
             {/* Business Logo/Avatar */}
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 flex-shrink-0">
+            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-purple-100">
               <span className="text-2xl font-bold text-purple-600">
                 {business.name.charAt(0).toUpperCase()}
               </span>
             </div>
-            
+
             {/* Business Info */}
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
@@ -92,13 +87,13 @@ export function BusinessProfileComponent({
                   </div>
                 </div>
               </div>
-              
+
               {business.description && (
-                <p className="mt-3 text-gray-600 text-sm leading-relaxed">
+                <p className="mt-3 text-sm leading-relaxed text-gray-600">
                   {business.description}
                 </p>
               )}
-              
+
               {/* Contact Info */}
               <div className="mt-4 space-y-2">
                 {business.location && (
@@ -138,50 +133,47 @@ export function BusinessProfileComponent({
         </CardHeader>
         <CardContent>
           {business.services.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-gray-400 mb-2">
-                <Clock className="h-12 w-12 mx-auto" />
+            <div className="py-8 text-center">
+              <div className="mb-2 text-gray-400">
+                <Clock className="mx-auto h-12 w-12" />
               </div>
               <p className="text-gray-500">No services available</p>
               <p className="text-sm text-gray-400">
-                This business hasn't added any services yet.
+                This business hasn&apos;t added any services yet.
               </p>
             </div>
           ) : (
             <div className="grid gap-4">
               {business.services.map((service) => {
                 const isSelected = selectedServiceId === service.id;
-                
+
                 return (
                   <div
                     key={service.id}
                     className={cn(
-                      "relative rounded-lg border p-4 transition-all cursor-pointer",
+                      "relative cursor-pointer rounded-lg border p-4 transition-all",
                       "hover:border-purple-300 hover:shadow-sm",
                       {
                         "border-purple-500 bg-purple-50 shadow-sm": isSelected,
                         "border-gray-200": !isSelected,
-                      }
+                      },
                     )}
                     onClick={() => onServiceSelect(service.id)}
                   >
                     <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between">
                           <div>
                             <h3 className="font-semibold text-gray-900">
                               {service.name}
                             </h3>
                             {service.category && (
-                              <Badge 
-                                variant="outline" 
-                                className="mt-1 text-xs"
-                              >
+                              <Badge variant="outline" className="mt-1 text-xs">
                                 {service.category}
                               </Badge>
                             )}
                           </div>
-                          <div className="text-right ml-4">
+                          <div className="ml-4 text-right">
                             <p className="text-xl font-bold text-gray-900">
                               {formatPrice(service.price)}
                             </p>
@@ -191,28 +183,31 @@ export function BusinessProfileComponent({
                             </div>
                           </div>
                         </div>
-                        
+
                         {service.description && (
-                          <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+                          <p className="mt-2 text-sm leading-relaxed text-gray-600">
                             {service.description}
                           </p>
                         )}
-                        
+
                         {service.bufferTime && service.bufferTime > 0 && (
                           <p className="mt-2 text-xs text-gray-500">
-                            +{service.bufferTime}m buffer time between appointments
+                            +{service.bufferTime}m buffer time between
+                            appointments
                           </p>
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="mt-4 flex items-center justify-between">
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span>Duration: {formatDuration(service.duration)}</span>
+                        <span>
+                          Duration: {formatDuration(service.duration)}
+                        </span>
                         <span>•</span>
                         <span>Price: {formatPrice(service.price)}</span>
                       </div>
-                      
+
                       <Button
                         size="sm"
                         variant={isSelected ? "primary" : "outline"}

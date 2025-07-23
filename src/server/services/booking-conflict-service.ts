@@ -12,7 +12,7 @@ import {
   isValidDateFormat,
   isValidTimeFormat,
 } from "@/server/repositories/utils/availability-validation";
-import { BookingErrors, toBookingError } from "@/server/errors/booking-errors";
+import { toBookingError } from "@/server/errors/booking-errors";
 import { bookingLogger, logExecution } from "@/server/logging/booking-logger";
 
 export interface ConflictCheckResult {
@@ -50,39 +50,66 @@ export class BookingConflictService {
       businessId: input.businessId,
       serviceId: input.serviceId,
       appointmentDate: input.appointmentDate,
-      startTime: input.startTime
+      startTime: input.startTime,
     };
 
     const conflicts: string[] = [];
     try {
-
       // Basic input validation
       if (!input.businessId?.trim()) {
-        bookingLogger.logValidationError("businessId", input.businessId, "Business ID is required", context);
+        bookingLogger.logValidationError(
+          "businessId",
+          input.businessId,
+          "Business ID is required",
+          context,
+        );
         conflicts.push("Business ID is required");
       }
 
       if (!input.serviceId?.trim()) {
-        bookingLogger.logValidationError("serviceId", input.serviceId, "Service ID is required", context);
+        bookingLogger.logValidationError(
+          "serviceId",
+          input.serviceId,
+          "Service ID is required",
+          context,
+        );
         conflicts.push("Service ID is required");
       }
 
       if (!isValidDateFormat(input.appointmentDate)) {
-        bookingLogger.logValidationError("appointmentDate", input.appointmentDate, "Invalid date format", context);
+        bookingLogger.logValidationError(
+          "appointmentDate",
+          input.appointmentDate,
+          "Invalid date format",
+          context,
+        );
         conflicts.push("Invalid appointment date format");
       }
 
       if (!isValidTimeFormat(input.startTime)) {
-        bookingLogger.logValidationError("startTime", input.startTime, "Invalid time format", context);
+        bookingLogger.logValidationError(
+          "startTime",
+          input.startTime,
+          "Invalid time format",
+          context,
+        );
         conflicts.push("Invalid start time format");
       }
 
       if (conflicts.length > 0) {
-        bookingLogger.warn("Booking validation failed due to input errors", context, { conflicts });
+        bookingLogger.warn(
+          "Booking validation failed due to input errors",
+          context,
+          { conflicts },
+        );
         return { isAvailable: false, conflicts };
       }
     } catch (error: unknown) {
-      bookingLogger.error("Error validating booking request", error instanceof Error ? error : new Error(String(error)), context);
+      bookingLogger.error(
+        "Error validating booking request",
+        error instanceof Error ? error : new Error(String(error)),
+        context,
+      );
       throw toBookingError(error);
     }
 

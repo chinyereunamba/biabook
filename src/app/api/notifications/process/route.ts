@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { notificationScheduler } from "@/server/notifications/notification-scheduler";
 import { auth } from "@/server/auth";
 
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     // Get the limit from the request body
     const body = await request.json();
-    const limit = body.limit || 10;
+    const limit = body.limit ?? 10;
 
     // Process pending notifications
     const processedCount =

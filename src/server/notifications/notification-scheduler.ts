@@ -7,7 +7,7 @@ import {
   businesses,
   businessNotificationPreferences,
 } from "@/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { Appointment } from "@/types/appointment";
 import type { Service } from "@/types/service";
 import type { Business } from "@/types/business";
@@ -46,13 +46,13 @@ export class NotificationScheduler {
     );
 
     // Send notification to business owner if enabled
-    if (preferences.email || preferences.whatsapp) {
+    if (preferences.email ?? preferences.whatsapp) {
       await this.scheduleNotification({
         type: "business_new_booking",
         recipientId: business.id,
         recipientType: "business",
-        recipientEmail: business.email,
-        recipientPhone: business.phone,
+        recipientEmail: business.email ?? "",
+        recipientPhone: business.phone ?? undefined,
         payload: {
           appointmentId: appointment.id,
           serviceId: service.id,
@@ -121,13 +121,13 @@ export class NotificationScheduler {
     );
 
     // Schedule 24-hour reminder for business if enabled
-    if (preferences.reminderEmail || preferences.reminderWhatsapp) {
+    if (preferences.reminderEmail ?? preferences.reminderWhatsapp) {
       await this.scheduleNotification({
         type: "business_booking_reminder",
         recipientId: business.id,
         recipientType: "business",
-        recipientEmail: business.email,
-        recipientPhone: business.phone,
+        recipientEmail: business.email ?? "",
+        recipientPhone: business.phone ?? undefined,
         payload: {
           appointmentId: appointment.id,
           serviceId: service.id,
@@ -167,13 +167,13 @@ export class NotificationScheduler {
     );
 
     // Send notification to business owner if enabled
-    if (preferences.email || preferences.whatsapp) {
+    if (preferences.email ?? preferences.whatsapp) {
       await this.scheduleNotification({
         type: "business_booking_cancelled",
         recipientId: business.id,
         recipientType: "business",
-        recipientEmail: business.email,
-        recipientPhone: business.phone,
+        recipientEmail: business.email ?? "",
+        recipientPhone: business.phone ?? undefined,
         payload: {
           appointmentId: appointment.id,
           serviceId: service.id,
@@ -213,13 +213,13 @@ export class NotificationScheduler {
     );
 
     // Send notification to business owner if enabled
-    if (preferences.email || preferences.whatsapp) {
+    if (preferences.email ?? preferences.whatsapp) {
       await this.scheduleNotification({
         type: "booking_rescheduled",
         recipientId: business.id,
         recipientType: "business",
-        recipientEmail: business.email,
-        recipientPhone: business.phone,
+        recipientEmail: business.email ?? "",
+        recipientPhone: business.phone ?? undefined,
         payload: {
           appointmentId: appointment.id,
           serviceId: service.id,
@@ -244,7 +244,7 @@ export class NotificationScheduler {
 
         // Get the appointment, service, and business data
         const appointment = await this.getAppointmentById(
-          payload.appointmentId,
+          payload.appointmentId as string,
         );
         if (!appointment) {
           await notificationQueueService.markAsFailed(
@@ -254,7 +254,7 @@ export class NotificationScheduler {
           continue;
         }
 
-        const service = await this.getServiceById(payload.serviceId);
+        const service = await this.getServiceById(payload.serviceId as string);
         if (!service) {
           await notificationQueueService.markAsFailed(
             notification.id!,
@@ -263,7 +263,9 @@ export class NotificationScheduler {
           continue;
         }
 
-        const business = await this.getBusinessById(payload.businessId);
+        const business = await this.getBusinessById(
+          payload.businessId as string,
+        );
         if (!business) {
           await notificationQueueService.markAsFailed(
             notification.id!,
@@ -413,7 +415,7 @@ export class NotificationScheduler {
     recipientType: "business" | "customer";
     recipientEmail: string;
     recipientPhone?: string;
-    payload: Record<string, any>;
+    payload: Record<string, unknown>;
     scheduledFor: Date;
   }): Promise<string> {
     return notificationQueueService.enqueue(notification);
@@ -455,7 +457,12 @@ export class NotificationScheduler {
       .where(eq(appointments.id, id))
       .limit(1);
 
-    return result ? { ...result, appointmentDate: new Date(result.appointmentDate) } as Appointment : null;
+    return result
+      ? ({
+          ...result,
+          appointmentDate: new Date(result.appointmentDate),
+        } as Appointment)
+      : null;
   }
 
   /**
@@ -468,7 +475,7 @@ export class NotificationScheduler {
       .where(eq(services.id, id))
       .limit(1);
 
-    return result ? result as Service : null;
+    return result ? (result as Service) : null;
   }
 
   /**
@@ -481,7 +488,13 @@ export class NotificationScheduler {
       .where(eq(businesses.id, id))
       .limit(1);
 
-    return result ? ({ ...result, slug: result.name.toLowerCase().replace(/ /g, "-"), userId: result.ownerId }) as Business : null;
+    return result
+      ? ({
+          ...result,
+          slug: result.name.toLowerCase().replace(/ /g, "-"),
+          userId: result.ownerId,
+        } as Business)
+      : null;
   }
 }
 

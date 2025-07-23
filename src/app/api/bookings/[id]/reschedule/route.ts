@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { appointments, services, businesses } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -6,10 +6,10 @@ import { notificationService } from "@/server/notifications/notification-service
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { appointmentDate, startTime, endTime, rescheduleReason } =
       await request.json();
 
@@ -71,7 +71,7 @@ export async function POST(
         startTime,
         endTime,
         notes: rescheduleReason
-          ? `${appointmentData.appointment.notes || ""}\n\nReschedule reason: ${rescheduleReason}`.trim()
+          ? `${appointmentData.appointment.notes ?? ""}\n\nReschedule reason: ${rescheduleReason}`.trim()
           : appointmentData.appointment.notes,
         updatedAt: new Date(),
       })
@@ -92,7 +92,7 @@ export async function POST(
         slug: appointmentData.business.slug ?? "", // Add a fallback for slug
         ownerId: appointmentData.business.ownerId, // Assuming ownerId is the userId
       };
-      
+
       // Notify the business owner
       await notificationService.sendBookingNotificationToBusiness(
         updatedAppointment,

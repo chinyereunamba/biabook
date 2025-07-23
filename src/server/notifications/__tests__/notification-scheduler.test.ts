@@ -134,9 +134,10 @@ describe("NotificationScheduler", () => {
     id: "biz-123",
     name: "Hair Salon",
     slug: "hair-salon",
+    description: "Professional hair salon",
     email: "salon@example.com",
     phone: "+15551234567",
-    userId: "user-123",
+    ownerId: "user-123",
     createdAt: new Date(),
     updatedAt: new Date(),
   } as const;

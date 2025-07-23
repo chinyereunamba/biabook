@@ -97,7 +97,7 @@ export default function DashboardPage() {
           throw new Error("Failed to fetch recent bookings");
         }
         const bookingsData = await bookingsResponse.json();
-        setRecentBookings(bookingsData.appointments || []);
+        setRecentBookings(bookingsData.appointments ?? []);
       } catch (error) {
         console.error("Failed to load dashboard data:", error);
         toast.error("Failed to load dashboard data");
@@ -173,8 +173,11 @@ export default function DashboardPage() {
                 ${stats?.revenue ? formatPrice(stats?.revenue?.total) : "0.00"}
               </div>
               <p className="text-muted-foreground text-xs">
-                {stats?.revenue?.percentChange && stats.revenue.percentChange > 0 ? "+" : ""}
-                {stats?.revenue?.percentChange?.toFixed(1) || "0"}% from last
+                {stats?.revenue?.percentChange &&
+                stats.revenue.percentChange > 0
+                  ? "+"
+                  : ""}
+                {stats?.revenue?.percentChange?.toFixed(1) ?? "0"}% from last
                 month
               </p>
             </CardContent>
@@ -186,11 +189,14 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                +{stats?.bookings?.total || "0"}
+                +{stats?.bookings?.total ?? "0"}
               </div>
               <p className="text-muted-foreground text-xs">
-                {stats?.bookings?.percentChange && stats.bookings.percentChange > 0 ? "+" : ""}
-                {stats?.bookings?.percentChange?.toFixed(1) || "0"}% from last
+                {stats?.bookings?.percentChange &&
+                stats.bookings.percentChange > 0
+                  ? "+"
+                  : ""}
+                {stats?.bookings?.percentChange?.toFixed(1) ?? "0"}% from last
                 month
               </p>
             </CardContent>
@@ -223,7 +229,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                +{stats?.bookings?.today ??"0"}
+                +{stats?.bookings?.today ?? "0"}
               </div>
               <p className="text-muted-foreground text-xs">
                 Appointments scheduled for today
@@ -286,7 +292,7 @@ export default function DashboardPage() {
                           </div>
                         </TableCell>
                         <TableCell className="hidden xl:table-column">
-                          {booking.serviceName || "Service"}
+                          {booking.serviceName ?? "Service"}
                         </TableCell>
                         <TableCell className="hidden xl:table-column">
                           <Badge
@@ -349,7 +355,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <div className="ml-auto font-medium">
-                  {stats?.bookings?.currentMonth || "0"}
+                  {stats?.bookings?.currentMonth ?? "0"}
                 </div>
               </div>
             </CardContent>

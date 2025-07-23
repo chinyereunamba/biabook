@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { isBookingError, BookingError } from "@/server/errors/booking-errors";
 import { bookingLogger } from "@/server/logging/booking-logger";
 
@@ -18,9 +18,9 @@ export async function withErrorHandling(
       path: url.pathname,
       method: request.method,
       query: Object.fromEntries(url.searchParams.entries()),
-      userAgent: request.headers.get("user-agent") || undefined,
-      referer: request.headers.get("referer") || undefined,
-      contentType: request.headers.get("content-type") || undefined,
+      userAgent: request.headers.get("user-agent") ?? undefined,
+      referer: request.headers.get("referer") ?? undefined,
+      contentType: request.headers.get("content-type") ?? undefined,
     };
 
     // Handle booking errors

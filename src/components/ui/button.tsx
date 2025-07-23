@@ -149,7 +149,7 @@ function Button({
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, fullWidth, className }))}
-      disabled={disabled || loading}
+      disabled={disabled ?? loading}
       {...props}
     >
       {buttonContent}

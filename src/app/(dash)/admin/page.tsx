@@ -90,8 +90,8 @@ export default function AdminPage() {
 
   const filteredBusinesses = businesses.filter(
     (business) =>
-      business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      business.owner.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      business.name.toLowerCase().includes(searchTerm.toLowerCase()) ??
+      business.owner.toLowerCase().includes(searchTerm.toLowerCase()) ??
       business.category.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 

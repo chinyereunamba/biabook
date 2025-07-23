@@ -157,7 +157,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Handle validation errors
     if (error instanceof Error) {
       if (
-        error.message.includes("not found") ||
+        error.message.includes("not found") ??
         error.message.includes("access denied")
       ) {
         return NextResponse.json(
@@ -166,7 +166,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         );
       }
       if (
-        error.message.includes("required") ||
+        error.message.includes("required") ??
         error.message.includes("cannot be")
       ) {
         return NextResponse.json({ error: error.message }, { status: 400 });
@@ -234,7 +234,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Handle validation errors
     if (error instanceof Error) {
       if (
-        error.message.includes("not found") ||
+        error.message.includes("not found") ??
         error.message.includes("access denied")
       ) {
         return NextResponse.json(

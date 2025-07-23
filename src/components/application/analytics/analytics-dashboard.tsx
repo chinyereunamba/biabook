@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import {
@@ -82,7 +82,7 @@ export function AnalyticsDashboard() {
       // Headers
       "Date,Total Bookings,Confirmed Bookings,Revenue",
       // Data rows
-      ...(analyticsData.trends || []).map(
+      ...(analyticsData.trends ?? []).map(
         (trend) =>
           `${trend.date},${trend.bookings},${trend.confirmedBookings},${(trend.revenue / 100).toFixed(2)}`,
       ),
@@ -162,7 +162,7 @@ export function AnalyticsDashboard() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="h-[300px]">
-                    <BookingTrendsChart data={analyticsData.trends || []} />
+                    <BookingTrendsChart data={analyticsData.trends ?? []} />
                   </CardContent>
                 </Card>
                 <Card>
@@ -261,7 +261,7 @@ export function AnalyticsDashboard() {
                 </CardHeader>
                 <CardContent className="h-[350px]">
                   <BookingTrendsChart
-                    data={analyticsData.trends || []}
+                    data={analyticsData.trends ?? []}
                     showRevenue={true}
                     hideBookings={true}
                   />
@@ -286,7 +286,7 @@ export function AnalyticsDashboard() {
         <TabsContent value="services" className="space-y-6">
           {isLoading ? (
             <ServicesSkeleton />
-          ) : analyticsData && analyticsData.services ? (
+          ) : analyticsData?.services ? (
             <Card>
               <CardHeader>
                 <CardTitle>Service Performance</CardTitle>

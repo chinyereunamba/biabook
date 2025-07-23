@@ -29,10 +29,10 @@ export function TimeSlotGrid({
 }: TimeSlotGridProps) {
   const formatTime = (time: string): string => {
     const [hours, minutes] = time.split(":");
-    const hour = parseInt(hours || "0");
+    const hour = parseInt(hours ?? "0");
     const ampm = hour >= 12 ? "PM" : "AM";
     const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    return `${displayHour}:${minutes || "00"} ${ampm}`;
+    return `${displayHour}:${minutes ?? "00"} ${ampm}`;
   };
 
   const formatDate = (dateStr: string): string => {
@@ -110,7 +110,7 @@ export function TimeSlotGrid({
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {availableSlots.map((slot, index) => {
                 const isSelected = selectedTime === slot.startTime;
-                const timeKey = `${selectedDate || slot.date}-${slot.startTime}`;
+                const timeKey = `${selectedDate ?? slot.date}-${slot.startTime}`;
 
                 return (
                   <Button

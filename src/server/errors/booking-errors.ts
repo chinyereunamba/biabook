@@ -11,7 +11,7 @@ export class BookingError extends Error {
   constructor(
     message: string,
     code: string,
-    statusCode: number = 400,
+    statusCode = 400,
     userMessage?: string,
     suggestions?: string[],
   ) {
@@ -19,7 +19,7 @@ export class BookingError extends Error {
     this.name = "BookingError";
     this.code = code;
     this.statusCode = statusCode;
-    this.userMessage = userMessage || message;
+    this.userMessage = userMessage ?? message;
     this.suggestions = suggestions;
   }
 }
@@ -194,7 +194,7 @@ export const BookingErrors = {
 /**
  * Utility function to determine if an error is a booking error
  */
-export function isBookingError(error: any): error is BookingError {
+export function isBookingError(error: unknown): error is BookingError {
   return error instanceof BookingError;
 }
 

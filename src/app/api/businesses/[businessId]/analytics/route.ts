@@ -22,10 +22,10 @@ export async function GET(
     const { searchParams } = new URL(req.url);
 
     // Parse query parameters
-    const from = searchParams.get("from") || undefined;
-    const to = searchParams.get("to") || undefined;
+    const from = searchParams.get("from") ?? undefined;
+    const to = searchParams.get("to") ?? undefined;
     const includeTrends = searchParams.get("trends") === "true";
-    const trendDays = parseInt(searchParams.get("trendDays") || "30");
+    const trendDays = parseInt(searchParams.get("trendDays") ?? "30");
     const includeServices = searchParams.get("services") !== "false";
 
     // Get comprehensive analytics
@@ -81,10 +81,10 @@ export async function GET(
     }
 
     // Add date range info if filters were applied
-    if (from || to) {
+    if (from ?? to) {
       response.dateRange = {
-        from: from || null,
-        to: to || null,
+        from: from ?? null,
+        to: to ?? null,
       };
     }
 

@@ -83,14 +83,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
         </div>
-        {(error || helperText) && (
+        {(error ?? helperText) && (
           <p
             className={cn(
               "mt-2 text-sm",
               error ? "text-error-600" : "text-neutral-600",
             )}
           >
-            {error || helperText}
+            {error ?? helperText}
           </p>
         )}
       </div>

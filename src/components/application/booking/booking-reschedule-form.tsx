@@ -34,6 +34,7 @@ interface BookingDetails {
 }
 
 interface TimeSlot {
+  date: string;
   startTime: string;
   endTime: string;
   available: boolean;
@@ -68,7 +69,7 @@ export function BookingRescheduleForm({ booking }: BookingRescheduleFormProps) {
       try {
         const formattedDate = format(selectedDate, "yyyy-MM-dd");
         const response = await fetch(
-          `/api/businesses/${booking.business.id}/availability?date=${formattedDate}&serviceId=${booking.service.id}`,
+          `/api/businesses/${booking.business.id}/availability?startDate=${formattedDate}&days=1&serviceId=${booking.service.id}`,
         );
 
         if (!response.ok) {
@@ -76,7 +77,12 @@ export function BookingRescheduleForm({ booking }: BookingRescheduleFormProps) {
         }
 
         const data = await response.json();
-        setTimeSlots(data.timeSlots);
+        // Extract time slots from the availability structure
+        const availabilitySlots = data.availability || [];
+        const daySlots = availabilitySlots.find(
+          (slot: any) => slot.date === formattedDate,
+        );
+        setTimeSlots(daySlots?.slots || []);
       } catch (err) {
         console.error("Error fetching time slots:", err);
         setError("Failed to load available time slots. Please try again.");
@@ -136,7 +142,7 @@ export function BookingRescheduleForm({ booking }: BookingRescheduleFormProps) {
   const formatTime = (timeString: string) => {
     const [hours, minutes] = timeString.split(":");
     const date = new Date();
-    date.setHours(parseInt(hours || "0"), parseInt(minutes || "0"));
+    date.setHours(parseInt(hours ?? "0"), parseInt(minutes ?? "0"));
     return date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
@@ -214,7 +220,7 @@ export function BookingRescheduleForm({ booking }: BookingRescheduleFormProps) {
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               <span>Loading available times...</span>
             </div>
-          ) : timeSlots.length > 0 ? (
+          ) : timeSlots && timeSlots.length > 0 ? (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
               {timeSlots.map((slot, index) => (
                 <Button
@@ -270,7 +276,7 @@ export function BookingRescheduleForm({ booking }: BookingRescheduleFormProps) {
 
         <Button
           onClick={handleReschedule}
-          disabled={isSubmitting || !selectedDate || !selectedTimeSlot}
+          disabled={isSubmitting ?? !selectedDate ?? !selectedTimeSlot}
         >
           {isSubmitting ? (
             <>

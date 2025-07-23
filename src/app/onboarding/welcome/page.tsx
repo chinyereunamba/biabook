@@ -30,14 +30,14 @@ export default function WelcomePage() {
             Welcome to BookMe, {session?.user?.name?.split(" ")[0]}!
           </h1>
           <p className="text-gray-600">
-            Let's set up your booking system in just a few minutes
+            Let&apos;s set up your booking system in just a few minutes
           </p>
         </div>
 
         <Card className="overflow-hidden border-gray-200 shadow-lg">
           <div className="grid md:grid-cols-2">
             <div className="bg-gradient-to-br from-purple-500 to-purple-700 p-8 text-white">
-              <h2 className="mb-4 text-2xl font-bold">What you'll get</h2>
+              <h2 className="mb-4 text-2xl font-bold">What you&apos;ll get</h2>
               <ul className="space-y-4">
                 <li className="flex items-start">
                   <div className="mr-3 rounded-full bg-white/20 p-1">
@@ -132,7 +132,7 @@ export default function WelcomePage() {
                   Setup takes just 3 steps
                 </h2>
                 <p className="mb-6 text-gray-600">
-                  We'll guide you through the process
+                  We&apos;ll guide you through the process
                 </p>
 
                 <div className="space-y-4">
@@ -206,7 +206,7 @@ export default function WelcomePage() {
                     </>
                   ) : (
                     <>
-                      Let's get started
+                      Let&apos;s get started
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </>
                   )}

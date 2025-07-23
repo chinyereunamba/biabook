@@ -26,7 +26,9 @@ export function ServiceManagement({
   className,
 }: ServiceManagementProps) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [editingService, setEditingService] = React.useState<Service | null>(null);
+  const [editingService, setEditingService] = React.useState<Service | null>(
+    null,
+  );
   const [formLoading, setFormLoading] = React.useState(false);
 
   const handleCreate = () => {
@@ -78,9 +80,9 @@ export function ServiceManagement({
       />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto bg-none">
           <ServiceForm
-            service={editingService || undefined}
+            service={editingService ?? undefined}
             onSubmit={handleFormSubmit}
             onCancel={handleFormCancel}
             isLoading={formLoading}

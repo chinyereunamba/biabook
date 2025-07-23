@@ -33,7 +33,7 @@ export async function GET(
     const availability =
       await availabilityCalculationEngine.calculateAvailability(
         businessId,
-        serviceId || undefined,
+        serviceId ?? undefined,
         options,
       );
 

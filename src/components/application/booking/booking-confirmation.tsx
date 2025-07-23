@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import {
   CheckCircle,
   Calendar,
@@ -69,7 +70,7 @@ export function BookingConfirmation({
   const formatTime = (timeString: string) => {
     const [hours, minutes] = timeString.split(":");
     const date = new Date();
-    date.setHours(parseInt(hours || "0"), parseInt(minutes || "0"));
+    date.setHours(parseInt(hours ?? "0"), parseInt(minutes ?? "0"));
     return date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
@@ -114,7 +115,7 @@ export function BookingConfirmation({
 
     const title = `${booking.service.name} - ${booking.business.name}`;
     const description = `Appointment with ${booking.business.name}\n\nService: ${booking.service.name}\nDuration: ${booking.service.duration} minutes\nPrice: $${formatPrice(booking.service.price)}\n\nCustomer: ${booking.customerName}\nPhone: ${booking.customerPhone}\nEmail: ${booking.customerEmail}\n\nConfirmation: ${booking.confirmationNumber}${booking.notes ? `\n\nNotes: ${booking.notes}` : ""}`;
-    const location = booking.business.location || booking.business.name;
+    const location = booking.business.location ?? booking.business.name;
 
     if (type === "google") {
       const googleUrl = new URL("https://calendar.google.com/calendar/render");
@@ -363,7 +364,7 @@ export function BookingConfirmation({
               <div>
                 <p className="font-medium">Confirmation Sent</p>
                 <p className="text-blue-600">
-                  You'll receive email and SMS confirmations within minutes
+                  You&apos;ll receive email and SMS confirmations within minutes
                 </p>
               </div>
             </div>
@@ -401,7 +402,7 @@ export function BookingConfirmation({
             Add to Calendar
           </h3>
           <p className="mb-3 text-sm text-green-700">
-            Don't forget your appointment! Add it to your calendar:
+            Don&apos;t forget your appointment! Add it to your calendar:
           </p>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -441,10 +442,10 @@ export function BookingConfirmation({
         )}
 
         <Button variant="outline" size="md" asChild>
-          <a href="/">
+          <Link href="/">
             <ExternalLink className="mr-2 h-4 w-4" />
             Back to Home
-          </a>
+          </Link>
         </Button>
       </div>
 

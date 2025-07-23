@@ -8,8 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { Service, CreateServiceInput, UpdateServiceInput } from "@/server/repositories/service-repository";
-
+import type {
+  Service,
+  CreateServiceInput,
+  UpdateServiceInput,
+} from "@/server/repositories/service-repository";
 
 export interface ServiceFormData {
   name: string;
@@ -37,16 +40,18 @@ export function ServiceForm({
   className,
 }: ServiceFormProps) {
   const [formData, setFormData] = React.useState<ServiceFormData>({
-    name: service?.name || "",
-    description: service?.description || "",
-    duration: service?.duration || 60,
-    price: service?.price || 0,
-    category: service?.category || "",
-    bufferTime: service?.bufferTime || 0,
+    name: service?.name ?? "",
+    description: service?.description ?? "",
+    duration: service?.duration ?? 60,
+    price: service?.price ?? 0,
+    category: service?.category ?? "",
+    bufferTime: service?.bufferTime ?? 0,
     isActive: service?.isActive ?? true,
   });
 
-  const [errors, setErrors] = React.useState<Partial<Record<keyof ServiceFormData, string>>>({});
+  const [errors, setErrors] = React.useState<
+    Partial<Record<keyof ServiceFormData, string>>
+  >({});
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof ServiceFormData, string>> = {};
@@ -73,7 +78,7 @@ export function ServiceForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -85,12 +90,15 @@ export function ServiceForm({
     }
   };
 
-  const handleInputChange = (field: keyof ServiceFormData, value: string | number | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
+  const handleInputChange = (
+    field: keyof ServiceFormData,
+    value: string | number | boolean,
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
@@ -106,9 +114,7 @@ export function ServiceForm({
   return (
     <Card className={cn("w-full max-w-2xl", className)}>
       <CardHeader>
-        <CardTitle>
-          {service ? "Edit Service" : "Add New Service"}
-        </CardTitle>
+        <CardTitle>{service ? "Edit Service" : "Add New Service"}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -124,7 +130,7 @@ export function ServiceForm({
               disabled={isLoading}
             />
             {errors.name && (
-              <p className="text-sm text-destructive">{errors.name}</p>
+              <p className="text-destructive text-sm">{errors.name}</p>
             )}
           </div>
 
@@ -142,7 +148,7 @@ export function ServiceForm({
           </div>
 
           {/* Duration and Price Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="duration">Duration (minutes) *</Label>
               <Input
@@ -150,13 +156,15 @@ export function ServiceForm({
                 type="number"
                 min="1"
                 value={formData.duration}
-                onChange={(e) => handleInputChange("duration", parseInt(e.target.value) || 0)}
+                onChange={(e) =>
+                  handleInputChange("duration", parseInt(e.target.value) ?? 0)
+                }
                 placeholder="60"
                 aria-invalid={!!errors.duration}
                 disabled={isLoading}
               />
               {errors.duration && (
-                <p className="text-sm text-destructive">{errors.duration}</p>
+                <p className="text-destructive text-sm">{errors.duration}</p>
               )}
             </div>
 
@@ -168,19 +176,24 @@ export function ServiceForm({
                 min="0"
                 step="0.01"
                 value={formatPriceForDisplay(formData.price)}
-                onChange={(e) => handleInputChange("price", parsePriceFromDisplay(e.target.value))}
+                onChange={(e) =>
+                  handleInputChange(
+                    "price",
+                    parsePriceFromDisplay(e.target.value),
+                  )
+                }
                 placeholder="50.00"
                 aria-invalid={!!errors.price}
                 disabled={isLoading}
               />
               {errors.price && (
-                <p className="text-sm text-destructive">{errors.price}</p>
+                <p className="text-destructive text-sm">{errors.price}</p>
               )}
             </div>
           </div>
 
           {/* Category and Buffer Time Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Input
@@ -199,15 +212,17 @@ export function ServiceForm({
                 type="number"
                 min="0"
                 value={formData.bufferTime}
-                onChange={(e) => handleInputChange("bufferTime", parseInt(e.target.value) || 0)}
+                onChange={(e) =>
+                  handleInputChange("bufferTime", parseInt(e.target.value) ?? 0)
+                }
                 placeholder="15"
                 aria-invalid={!!errors.bufferTime}
                 disabled={isLoading}
               />
               {errors.bufferTime && (
-                <p className="text-sm text-destructive">{errors.bufferTime}</p>
+                <p className="text-destructive text-sm">{errors.bufferTime}</p>
               )}
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Time between appointments for preparation/cleanup
               </p>
             </div>
@@ -218,14 +233,18 @@ export function ServiceForm({
             <Switch
               id="isActive"
               checked={formData.isActive}
-              onCheckedChange={(checked) => handleInputChange("isActive", checked)}
+              onCheckedChange={(checked) =>
+                handleInputChange("isActive", checked)
+              }
               disabled={isLoading}
             />
-            <Label htmlFor="isActive">Service is active and available for booking</Label>
+            <Label htmlFor="isActive">
+              Service is active and available for booking
+            </Label>
           </div>
 
           {/* Form Actions */}
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             {onCancel && (
               <Button
                 type="button"
@@ -237,7 +256,11 @@ export function ServiceForm({
               </Button>
             )}
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : service ? "Update Service" : "Create Service"}
+              {isLoading
+                ? "Saving..."
+                : service
+                  ? "Update Service"
+                  : "Create Service"}
             </Button>
           </div>
         </form>

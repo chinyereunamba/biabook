@@ -35,7 +35,7 @@ export async function GET(
 // POST /api/businesses/:businessId/availability/exceptions
 export async function POST(
   req: NextRequest,
-  { params }: { params: { businessId: string } },
+  { params }: { params: Promise<{ businessId: string }> },
 ) {
   try {
     const session = await auth();
@@ -45,7 +45,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const {businessId} = params;
+    const {businessId} = await params;
     const data = await req.json();
 
     // Create the exception

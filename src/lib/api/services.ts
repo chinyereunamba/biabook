@@ -21,7 +21,7 @@ export interface ServiceResponse {
 export class ServicesApi {
   private static async request<T>(
     url: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(url, {
@@ -32,13 +32,13 @@ export class ServicesApi {
         ...options,
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as { error?: string } & T;
 
       if (!response.ok) {
-        return { error: data.error || "An error occurred" };
+        return { error: data.error ?? "An error occurred" };
       }
 
-      return { data };
+      return { data: data as T };
     } catch (error) {
       console.error("API request failed:", error);
       return { error: "Network error" };
@@ -48,7 +48,9 @@ export class ServicesApi {
   /**
    * Get all services for the current business
    */
-  static async getServices(includeInactive = false): Promise<ApiResponse<ServicesResponse>> {
+  static async getServices(
+    includeInactive = false,
+  ): Promise<ApiResponse<ServicesResponse>> {
     const params = new URLSearchParams();
     if (includeInactive) {
       params.set("includeInactive", "true");
@@ -68,7 +70,9 @@ export class ServicesApi {
   /**
    * Create a new service
    */
-  static async createService(data: ServiceFormData): Promise<ApiResponse<ServiceResponse>> {
+  static async createService(
+    data: ServiceFormData,
+  ): Promise<ApiResponse<ServiceResponse>> {
     return this.request<ServiceResponse>("/api/dashboard/services", {
       method: "POST",
       body: JSON.stringify(data),
@@ -80,7 +84,7 @@ export class ServicesApi {
    */
   static async updateService(
     id: string,
-    data: Partial<ServiceFormData>
+    data: Partial<ServiceFormData>,
   ): Promise<ApiResponse<ServiceResponse>> {
     return this.request<ServiceResponse>(`/api/dashboard/services/${id}`, {
       method: "PUT",
@@ -91,7 +95,10 @@ export class ServicesApi {
   /**
    * Delete a service (soft delete by default)
    */
-  static async deleteService(id: string, hardDelete = false): Promise<ApiResponse<{ message: string; deleted: boolean }>> {
+  static async deleteService(
+    id: string,
+    hardDelete = false,
+  ): Promise<ApiResponse<{ message: string; deleted: boolean }>> {
     const params = new URLSearchParams();
     if (hardDelete) {
       params.set("hard", "true");
@@ -135,44 +142,50 @@ export function useServices() {
     }
 
     if (result.data) {
-      setServices(prev => [result.data!.service, ...prev]);
+      setServices((prev) => [result.data!.service, ...prev]);
     }
   }, []);
 
-  const updateService = React.useCallback(async (id: string, data: Partial<ServiceFormData>) => {
-    const result = await ServicesApi.updateService(id, data);
+  const updateService = React.useCallback(
+    async (id: string, data: Partial<ServiceFormData>) => {
+      const result = await ServicesApi.updateService(id, data);
 
-    if (result.error) {
-      throw new Error(result.error);
-    }
+      if (result.error) {
+        throw new Error(result.error);
+      }
 
-    if (result.data) {
-      setServices(prev =>
-        prev.map(service =>
-          service.id === id ? result.data!.service : service
-        )
-      );
-    }
-  }, []);
+      if (result.data) {
+        setServices((prev) =>
+          prev.map((service) =>
+            service.id === id ? result.data!.service : service,
+          ),
+        );
+      }
+    },
+    [],
+  );
 
-  const deleteService = React.useCallback(async (id: string, hardDelete = false) => {
-    const result = await ServicesApi.deleteService(id, hardDelete);
+  const deleteService = React.useCallback(
+    async (id: string, hardDelete = false) => {
+      const result = await ServicesApi.deleteService(id, hardDelete);
 
-    if (result.error) {
-      throw new Error(result.error);
-    }
+      if (result.error) {
+        throw new Error(result.error);
+      }
 
-    if (hardDelete) {
-      setServices(prev => prev.filter(service => service.id !== id));
-    } else {
-      // For soft delete, update the service to inactive
-      setServices(prev =>
-        prev.map(service =>
-          service.id === id ? { ...service, isActive: false } : service
-        )
-      );
-    }
-  }, []);
+      if (hardDelete) {
+        setServices((prev) => prev.filter((service) => service.id !== id));
+      } else {
+        // For soft delete, update the service to inactive
+        setServices((prev) =>
+          prev.map((service) =>
+            service.id === id ? { ...service, isActive: false } : service,
+          ),
+        );
+      }
+    },
+    [],
+  );
 
   return {
     services,

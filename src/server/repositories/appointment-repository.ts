@@ -21,26 +21,27 @@ import {
   // isValidDateFormat,
 } from "./utils/availability-validation";
 // import { bookingConflictService } from "@/server/services/booking-conflict-service";
-import { BookingErrors, toBookingError } from "@/server/errors/booking-errors";
+import { BookingErrors } from "@/server/errors/booking-errors";
 import { bookingLogger, logExecution } from "@/server/logging/booking-logger";
 
 function toAppointmentWithDetails(
-  result: AppointmentDetailWithDate,
-): AppointmentDetailWithDate | null {
+  result: AppointmentDetailWithDate | undefined | null,
+): AppointmentWithDetails | null {
   if (!result) {
     return null;
   }
 
-  const { business, ...appointment } = result;
+  const { business, service, ...appointment } = result;
 
   return {
     ...appointment,
-    appointmentDate: new Date(appointment.appointmentDate),
+    appointmentDate: appointment.appointmentDate,
     business: {
       ...business,
       slug: business.name.toLowerCase().replace(/ /g, "-"),
-      userId: business.ownerId,
+      ownerId: business.ownerId,
     },
+    service,
   };
 }
 
@@ -64,7 +65,7 @@ export class AppointmentRepository {
       });
 
       if (!service) {
-        bookingLogger.error(`Service not found`, null, {
+        bookingLogger.error(`Service not found`, undefined, {
           serviceId: data.serviceId,
         });
         throw BookingErrors.serviceNotFound(data.serviceId);
@@ -132,10 +133,10 @@ export class AppointmentRepository {
         bookingLogger.logConflictDetection("business_unavailable_date", false, {
           businessId: data.businessId,
           appointmentDate: data.appointmentDate,
-          reason: exception.reason || "Business closed",
+          reason: exception.reason ?? "Business closed",
         });
         throw BookingErrors.businessUnavailable(
-          exception.reason || "Business is not available on this date",
+          exception.reason ?? "Business is not available on this date",
         );
       }
 
@@ -206,7 +207,9 @@ export class AppointmentRepository {
         .returning();
 
       if (!appointment) {
-        bookingLogger.error("Failed to create appointment", null, { data });
+        bookingLogger.error("Failed to create appointment", undefined, {
+          data,
+        });
         throw BookingErrors.database("Failed to create appointment");
       }
 
@@ -223,7 +226,7 @@ export class AppointmentRepository {
    * @param id Appointment ID
    * @returns The appointment with business and service details
    */
-  async getById(id: string): Promise<AppointmentDetailWithDate | null> {
+  async getById(id: string): Promise<AppointmentWithDetails | null> {
     const result = await db.query.appointments.findFirst({
       where: eq(appointments.id, id),
       with: {
@@ -653,7 +656,7 @@ export class AppointmentRepository {
       .from(appointments)
       .where(and(...whereConditions));
 
-    return results;
+    return results.map((r) => ({ ...r, appointmentDate: new Date(r.appointmentDate) }));
   }
 
   /**
