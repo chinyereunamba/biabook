@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { createAccessibleFormFieldProps } from "@/lib/accessibility";
 
 export interface FormFieldProps {
   label?: string;
@@ -18,12 +19,20 @@ export function FormField({
   children,
   className,
 }: FormFieldProps) {
-  const fieldId = React.useId();
+  // Generate accessible IDs and props
+  const { fieldId, labelId, helpId, errorId, fieldProps, labelProps } =
+    createAccessibleFormFieldProps(label || "", {
+      required,
+      invalid: !!error,
+      helpText: helperText,
+      errorMessage: error,
+    });
 
   return (
     <div className={cn("w-full space-y-2", className)}>
       {label && (
         <label
+          {...labelProps}
           htmlFor={fieldId}
           className="block text-sm leading-tight font-medium text-neutral-700"
         >
@@ -37,31 +46,28 @@ export function FormField({
       )}
 
       <div className="relative">
-        {React.cloneElement(children as React.ReactElement, {
-          "aria-invalid": !!error,
-          "aria-describedby": error
-            ? `${fieldId}-error`
-            : helperText
-              ? `${fieldId}-helper`
-              : undefined,
-        } as any)}
+        {React.cloneElement(
+          children as React.ReactElement,
+          {
+            ...fieldProps,
+            id: fieldId,
+          } as any,
+        )}
       </div>
 
       {error && (
         <p
-          id={`${fieldId}-error`}
+          id={errorId}
           className="text-error-600 text-sm leading-tight"
           role="alert"
+          aria-live="polite"
         >
           {error}
         </p>
       )}
 
       {!error && helperText && (
-        <p
-          id={`${fieldId}-helper`}
-          className="text-sm leading-tight text-neutral-600"
-        >
+        <p id={helpId} className="text-sm leading-tight text-neutral-600">
           {helperText}
         </p>
       )}

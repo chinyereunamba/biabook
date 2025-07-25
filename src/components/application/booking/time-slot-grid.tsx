@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAccessibility } from "@/hooks/use-accessibility";
+import { KEYBOARD_KEYS } from "@/lib/accessibility";
 
 export interface TimeSlot {
   date: string;
@@ -43,6 +45,38 @@ export function TimeSlotGrid({
       day: "numeric",
     });
   };
+
+  // Enhanced accessibility for time slot selection
+  const { containerRef, announceToScreenReader } = useAccessibility<HTMLDivElement>({
+    label: "Available time slots",
+    enableKeyboardNavigation: true,
+    onArrowKeys: (key) => {
+      // Handle arrow key navigation between time slots
+      const buttons = containerRef.current?.querySelectorAll(
+        "button:not([disabled])",
+      );
+      if (!buttons) return;
+
+      const currentIndex = Array.from(buttons).findIndex(
+        (btn) => btn === document.activeElement,
+      );
+      let nextIndex = currentIndex;
+
+      if (
+        key === KEYBOARD_KEYS.ARROW_RIGHT ||
+        key === KEYBOARD_KEYS.ARROW_DOWN
+      ) {
+        nextIndex = (currentIndex + 1) % buttons.length;
+      } else if (
+        key === KEYBOARD_KEYS.ARROW_LEFT ||
+        key === KEYBOARD_KEYS.ARROW_UP
+      ) {
+        nextIndex = currentIndex === 0 ? buttons.length - 1 : currentIndex - 1;
+      }
+
+      (buttons[nextIndex] as HTMLElement)?.focus();
+    },
+  });
 
   if (loading) {
     return (
@@ -107,7 +141,12 @@ export function TimeSlotGrid({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div
+              ref={containerRef}
+              className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+              role="group"
+              aria-label="Available time slots"
+            >
               {availableSlots.map((slot, index) => {
                 const isSelected = selectedTime === slot.startTime;
                 const timeKey = `${selectedDate ?? slot.date}-${slot.startTime}`;
@@ -117,7 +156,12 @@ export function TimeSlotGrid({
                     key={timeKey}
                     variant={isSelected ? "primary" : "outline"}
                     size="sm"
-                    onClick={() => onTimeSelect(slot.startTime, slot.endTime)}
+                    onClick={() => {
+                      onTimeSelect(slot.startTime, slot.endTime);
+                      announceToScreenReader(
+                        `Selected time ${formatTime(slot.startTime)}`,
+                      );
+                    }}
                     className={cn(
                       "min-h-[44px] touch-manipulation justify-center text-sm font-medium transition-all",
                       {
@@ -127,8 +171,9 @@ export function TimeSlotGrid({
                           !isSelected,
                       },
                     )}
-                    aria-label={`Select time ${formatTime(slot.startTime)}`}
+                    aria-label={`Select time ${formatTime(slot.startTime)}${isSelected ? ", currently selected" : ""}`}
                     aria-pressed={isSelected}
+                    tabIndex={index === 0 ? 0 : -1}
                   >
                     {formatTime(slot.startTime)}
                   </Button>

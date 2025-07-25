@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateToYYYYMMDD, getTodayDateString } from "@/lib/date-utils";
+import { useAccessibleGrid } from "@/hooks/use-accessibility";
+import { KEYBOARD_KEYS } from "@/lib/accessibility";
 
 interface CalendarProps {
   selectedDate?: string;
@@ -25,6 +27,22 @@ export function Calendar({
   const [currentMonth, setCurrentMonth] = useState(() => {
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
+
+  // Enhanced accessibility for calendar grid
+  const { containerRef, currentCell, setCurrentCell } = useAccessibleGrid<HTMLDivElement>({
+    rowCount: 6, // Maximum rows in a calendar
+    columnCount: 7, // Days of the week
+    onCellSelect: (row, col) => {
+      // Calculate the day based on grid position
+      const dayNumber = row * 7 + col - firstDayOfMonth + 1;
+      if (dayNumber > 0 && dayNumber <= daysInMonth) {
+        const dateStr = formatDateString(dayNumber);
+        if (!isDateDisabled(dateStr)) {
+          onDateSelect(dateStr);
+        }
+      }
+    },
   });
 
   const { monthName, year, daysInMonth, firstDayOfMonth, today } =
@@ -105,8 +123,15 @@ export function Calendar({
           key={day}
           onClick={() => !isDisabled && onDateSelect(dateStr)}
           disabled={isDisabled}
-          aria-label={`Select ${new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`}
+          role="gridcell"
+          aria-label={`${new Date(dateStr).toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+          })}${isAvailable ? ", available" : ", unavailable"}${isToday ? ", today" : ""}`}
           aria-pressed={isSelected}
+          aria-current={isToday ? "date" : undefined}
+          tabIndex={isSelected ? 0 : -1}
           className={cn(
             "relative min-h-[44px] min-w-[44px] touch-manipulation rounded-md p-2 text-sm transition-colors",
             "hover:bg-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none",
@@ -122,7 +147,10 @@ export function Calendar({
         >
           {day}
           {isAvailable && !isSelected && (
-            <div className="absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 transform rounded-full bg-green-500" />
+            <div
+              className="absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 transform rounded-full bg-green-500"
+              aria-hidden="true"
+            />
           )}
         </button>,
       );
@@ -175,7 +203,14 @@ export function Calendar({
         </div>
 
         {/* Calendar days */}
-        <div className="grid grid-cols-7 gap-1">{renderCalendarDays()}</div>
+        <div
+          ref={containerRef}
+          className="grid grid-cols-7 gap-1"
+          role="grid"
+          aria-label={`Calendar for ${monthName} ${year}`}
+        >
+          {renderCalendarDays()}
+        </div>
 
         {/* Legend */}
         <div className="mt-4 flex items-center justify-center space-x-4 text-xs text-gray-500">

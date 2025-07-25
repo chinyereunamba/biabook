@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { User, Mail, Phone, MessageSquare, Loader2 } from "lucide-react";
 import { z } from "zod";
+import { useAccessibleForm } from "@/hooks/use-accessibility";
 
 // Validation schema
 const customerFormSchema = z.object({
@@ -85,6 +86,15 @@ export function CustomerForm({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Enhanced accessibility for form
+  const { containerRef, announceToScreenReader } = useAccessibleForm({
+    onSubmit: async () => {
+      if (isFormValid) {
+        await handleSubmit(new Event("submit") as any);
+      }
+    },
+  });
 
   const validateField = (field: keyof CustomerFormData, value: string) => {
     try {
@@ -208,14 +218,25 @@ export function CustomerForm({
               />
             </div>
             {errors.name && (
-              <p className="flex items-center text-sm text-red-600">
-                <span className="mr-1">⚠️</span>
+              <p
+                className="flex items-center text-sm text-red-600"
+                role="alert"
+                aria-live="polite"
+              >
+                <span className="mr-1" aria-hidden="true">
+                  ⚠️
+                </span>
                 {errors.name}
               </p>
             )}
             {touched.name && !errors.name && formData.name && (
-              <p className="flex items-center text-sm text-green-600">
-                <span className="mr-1">✓</span>
+              <p
+                className="flex items-center text-sm text-green-600"
+                aria-live="polite"
+              >
+                <span className="mr-1" aria-hidden="true">
+                  ✓
+                </span>
                 Looks good!
               </p>
             )}
@@ -244,14 +265,25 @@ export function CustomerForm({
               />
             </div>
             {errors.email && (
-              <p className="flex items-center text-sm text-red-600">
-                <span className="mr-1">⚠️</span>
+              <p
+                className="flex items-center text-sm text-red-600"
+                role="alert"
+                aria-live="polite"
+              >
+                <span className="mr-1" aria-hidden="true">
+                  ⚠️
+                </span>
                 {errors.email}
               </p>
             )}
             {touched.email && !errors.email && formData.email && (
-              <p className="flex items-center text-sm text-green-600">
-                <span className="mr-1">✓</span>
+              <p
+                className="flex items-center text-sm text-green-600"
+                aria-live="polite"
+              >
+                <span className="mr-1" aria-hidden="true">
+                  ✓
+                </span>
                 Valid email address
               </p>
             )}
@@ -281,14 +313,25 @@ export function CustomerForm({
               />
             </div>
             {errors.phone && (
-              <p className="flex items-center text-sm text-red-600">
-                <span className="mr-1">⚠️</span>
+              <p
+                className="flex items-center text-sm text-red-600"
+                role="alert"
+                aria-live="polite"
+              >
+                <span className="mr-1" aria-hidden="true">
+                  ⚠️
+                </span>
                 {errors.phone}
               </p>
             )}
             {touched.phone && !errors.phone && formData.phone && (
-              <p className="flex items-center text-sm text-green-600">
-                <span className="mr-1">✓</span>
+              <p
+                className="flex items-center text-sm text-green-600"
+                aria-live="polite"
+              >
+                <span className="mr-1" aria-hidden="true">
+                  ✓
+                </span>
                 Valid phone number
               </p>
             )}

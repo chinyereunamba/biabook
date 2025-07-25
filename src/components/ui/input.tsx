@@ -2,6 +2,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import { createAccessibleFormFieldProps } from "@/lib/accessibility";
 
 const inputVariants = cva(
   // Base mobile-first styles with touch-friendly targets
@@ -57,16 +58,35 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     // Use error variant if error is provided
     const inputVariant = error ? "error" : variant;
 
+    // Generate accessible IDs and props
+    const { fieldId, labelId, helpId, errorId, fieldProps, labelProps } =
+      createAccessibleFormFieldProps(label || "", {
+        required: props.required,
+        invalid: !!error,
+        helpText: helperText,
+        errorMessage: error,
+      });
+
     return (
       <div className="w-full">
         {label && (
-          <label className="mb-2 block text-sm font-medium text-neutral-700">
+          <label
+            {...labelProps}
+            htmlFor={fieldId}
+            className="mb-2 block text-sm font-medium text-neutral-700"
+          >
             {label}
-            {props.required && <span className="text-error-500 ml-1">*</span>}
+            {props.required && (
+              <span className="text-error-500 ml-1" aria-label="required">
+                *
+              </span>
+            )}
           </label>
         )}
         <div className="relative">
           <input
+            {...fieldProps}
+            id={fieldId}
             type={type}
             data-slot="input"
             className={cn(
@@ -78,19 +98,27 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightIcon && (
-            <div className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400">
+            <div
+              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400"
+              aria-hidden="true"
+            >
               {rightIcon}
             </div>
           )}
         </div>
-        {(error ?? helperText) && (
+        {error && (
           <p
-            className={cn(
-              "mt-2 text-sm",
-              error ? "text-error-600" : "text-neutral-600",
-            )}
+            id={errorId}
+            className="text-error-600 mt-2 text-sm"
+            role="alert"
+            aria-live="polite"
           >
-            {error ?? helperText}
+            {error}
+          </p>
+        )}
+        {!error && helperText && (
+          <p id={helpId} className="mt-2 text-sm text-neutral-600">
+            {helperText}
           </p>
         )}
       </div>

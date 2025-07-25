@@ -3,6 +3,8 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import { useAccessibleButton } from "@/hooks/use-accessibility";
+import { KEYBOARD_KEYS } from "@/lib/accessibility";
 
 const buttonVariants = cva(
   // Base mobile-first styles with touch-friendly targets
@@ -50,6 +52,12 @@ export interface ButtonProps
   asChild?: boolean;
   loading?: boolean;
   icon?: React.ReactNode;
+  // Accessibility props
+  "aria-label"?: string;
+  "aria-describedby"?: string;
+  "aria-expanded"?: React.AriaAttributes["aria-expanded"];
+  "aria-pressed"?: React.AriaAttributes["aria-pressed"];
+  "aria-controls"?: string;
 }
 
 function Button({
@@ -62,9 +70,35 @@ function Button({
   icon,
   children,
   disabled,
+  "aria-label": ariaLabel,
+  "aria-describedby": ariaDescribedBy,
+  "aria-expanded": ariaExpanded,
+  "aria-pressed": ariaPressed,
+  "aria-controls": ariaControls,
+  onClick,
   ...props
 }: ButtonProps) {
   const Comp = asChild ? Slot : "button";
+
+  // Enhanced accessibility for buttons
+  const accessibilityProps = {
+    "aria-label":
+      ariaLabel || (typeof children === "string" ? children : undefined),
+    "aria-describedby": ariaDescribedBy,
+    "aria-expanded": ariaExpanded,
+    "aria-pressed": ariaPressed,
+    "aria-controls": ariaControls,
+    "aria-disabled": disabled || loading,
+  };
+
+  // Handle keyboard activation
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === KEYBOARD_KEYS.SPACE && !disabled && !loading) {
+      event.preventDefault();
+      onClick?.(event as any);
+    }
+    props.onKeyDown?.(event);
+  };
 
   // Create the button content
   const buttonContent = loading ? (
@@ -150,6 +184,9 @@ function Button({
       data-slot="button"
       className={cn(buttonVariants({ variant, size, fullWidth, className }))}
       disabled={disabled ?? loading}
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      {...accessibilityProps}
       {...props}
     >
       {buttonContent}

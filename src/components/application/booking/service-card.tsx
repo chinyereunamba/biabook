@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, DollarSign, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAccessibleButton } from "@/hooks/use-accessibility";
+import { KEYBOARD_KEYS } from "@/lib/accessibility";
 import type { BusinessService } from "./business-profile";
 
 interface ServiceCardProps {
@@ -34,19 +36,38 @@ export function ServiceCard({
       : `${hours}h`;
   };
 
+  // Enhanced accessibility for service card
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (
+      event.key === KEYBOARD_KEYS.ENTER ||
+      event.key === KEYBOARD_KEYS.SPACE
+    ) {
+      event.preventDefault();
+      onSelect(service.id);
+    }
+  };
+
+  const cardLabel = `${service.name} service, ${formatDuration(service.duration)}, $${formatPrice(service.price)}${isSelected ? ", currently selected" : ""}`;
+
   return (
     <div
       className={cn(
-        "relative rounded-lg border p-4 transition-all",
+        "relative cursor-pointer rounded-lg border p-4 transition-all",
         "touch-action-manipulation active:scale-[0.98]",
         "hover:border-purple-300 hover:shadow-sm",
+        "focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:outline-none",
         {
           "border-purple-500 bg-purple-50 shadow-sm": isSelected,
           "border-gray-200": !isSelected,
         },
         className,
       )}
+      role="button"
+      tabIndex={0}
+      aria-label={cardLabel}
+      aria-pressed={isSelected}
       onClick={() => onSelect(service.id)}
+      onKeyDown={handleKeyDown}
     >
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
         <div className="min-w-0 flex-1">
@@ -90,13 +111,15 @@ export function ServiceCard({
         </div>
 
         <div className="flex items-center justify-between sm:ml-4 sm:flex-col sm:items-end">
-          <p className="text-xl font-bold text-gray-900">
+          <p className="text-xl font-bold text-gray-900" aria-hidden="true">
             {formatPrice(service.price)}
           </p>
           <Button
             size="sm"
             variant={isSelected ? "primary" : "outline"}
             className="mt-2 min-w-[90px]"
+            aria-label={`${isSelected ? "Selected" : "Select"} ${service.name} service`}
+            aria-pressed={isSelected}
             onClick={(e) => {
               e.stopPropagation();
               onSelect(service.id);
