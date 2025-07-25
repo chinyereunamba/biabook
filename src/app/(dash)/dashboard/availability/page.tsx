@@ -74,7 +74,8 @@ export default function AvailabilityPage() {
         if (!scheduleResponse.ok) {
           throw new Error("Failed to fetch weekly schedule");
         }
-        const scheduleData: WeeklyScheduleResponse = await scheduleResponse.json();
+        const scheduleData: WeeklyScheduleResponse =
+          await scheduleResponse.json();
         setWeeklySchedule(scheduleData.weeklySchedule ?? []);
 
         // Load exceptions
@@ -84,7 +85,8 @@ export default function AvailabilityPage() {
         if (!exceptionsResponse.ok) {
           throw new Error("Failed to fetch exceptions");
         }
-        const exceptionsData: ExceptionsResponse = await exceptionsResponse.json();
+        const exceptionsData: ExceptionsResponse =
+          await exceptionsResponse.json();
         setExceptions(exceptionsData.exceptions ?? []);
       } catch (error) {
         console.error("Failed to load availability data:", error);

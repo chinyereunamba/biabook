@@ -68,6 +68,8 @@ interface CustomerFormProps {
   initialData?: Partial<CustomerFormData>;
   onSubmit: (data: CustomerFormData) => Promise<void>;
   loading?: boolean;
+  error?: string | null;
+  onErrorClear?: () => void;
   className?: string;
 }
 
@@ -75,6 +77,8 @@ export function CustomerForm({
   initialData = {},
   onSubmit,
   loading = false,
+  error = null,
+  onErrorClear,
   className = "",
 }: CustomerFormProps) {
   const [formData, setFormData] = useState<CustomerFormData>({
@@ -163,6 +167,9 @@ export function CustomerForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Clear any external errors when user tries to submit
+    onErrorClear?.();
+
     // Mark all fields as touched
     const allFields = Object.keys(formData) as (keyof CustomerFormData)[];
     setTouched(Object.fromEntries(allFields.map((field) => [field, true])));
@@ -185,6 +192,12 @@ export function CustomerForm({
           }
         });
         setErrors(fieldErrors);
+
+        // Announce validation errors to screen readers
+        const errorCount = Object.keys(fieldErrors).length;
+        announceToScreenReader(
+          `Form has ${errorCount} error${errorCount !== 1 ? "s" : ""}. Please review and correct the highlighted fields.`,
+        );
       }
     }
   };
@@ -196,201 +209,230 @@ export function CustomerForm({
   return (
     <Card className={className}>
       <CardContent className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Field */}
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium">
-              Full Name *
-            </Label>
-            <div className="relative">
-              <User className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                id="name"
-                type="text"
-                placeholder="Enter your full name"
-                className={`pl-10 ${errors.name ? "border-red-500 focus:border-red-500" : touched.name && !errors.name ? "border-green-500" : ""}`}
-                value={formData.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
-                onBlur={() => handleInputBlur("name")}
-                disabled={loading}
-                required
-                autoComplete="name"
-              />
+        <div ref={containerRef}>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name Field */}
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium">
+                Full Name *
+              </Label>
+              <div className="relative">
+                <User className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Enter your full name"
+                  className={`pl-10 ${errors.name ? "border-red-500 focus:border-red-500" : touched.name && !errors.name ? "border-green-500" : ""}`}
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  onBlur={() => handleInputBlur("name")}
+                  disabled={loading}
+                  required
+                  autoComplete="name"
+                />
+              </div>
+              {errors.name && (
+                <p
+                  className="flex items-center text-sm text-red-600"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  <span className="mr-1" aria-hidden="true">
+                    ⚠️
+                  </span>
+                  {errors.name}
+                </p>
+              )}
+              {touched.name && !errors.name && formData.name && (
+                <p
+                  className="flex items-center text-sm text-green-600"
+                  aria-live="polite"
+                >
+                  <span className="mr-1" aria-hidden="true">
+                    ✓
+                  </span>
+                  Looks good!
+                </p>
+              )}
             </div>
-            {errors.name && (
-              <p
-                className="flex items-center text-sm text-red-600"
-                role="alert"
-                aria-live="polite"
-              >
-                <span className="mr-1" aria-hidden="true">
-                  ⚠️
-                </span>
-                {errors.name}
-              </p>
-            )}
-            {touched.name && !errors.name && formData.name && (
-              <p
-                className="flex items-center text-sm text-green-600"
-                aria-live="polite"
-              >
-                <span className="mr-1" aria-hidden="true">
-                  ✓
-                </span>
-                Looks good!
-              </p>
-            )}
-          </div>
 
-          {/* Email Field */}
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium">
-              Email Address *
-            </Label>
-            <div className="relative">
-              <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                className={`pl-10 ${errors.email ? "border-red-500 focus:border-red-500" : touched.email && !errors.email ? "border-green-500" : ""}`}
-                value={formData.email}
-                onChange={(e) =>
-                  handleInputChange("email", e.target.value.toLowerCase())
-                }
-                onBlur={() => handleInputBlur("email")}
-                disabled={loading}
-                required
-                autoComplete="email"
-              />
+            {/* Email Field */}
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">
+                Email Address *
+              </Label>
+              <div className="relative">
+                <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  className={`pl-10 ${errors.email ? "border-red-500 focus:border-red-500" : touched.email && !errors.email ? "border-green-500" : ""}`}
+                  value={formData.email}
+                  onChange={(e) =>
+                    handleInputChange("email", e.target.value.toLowerCase())
+                  }
+                  onBlur={() => handleInputBlur("email")}
+                  disabled={loading}
+                  required
+                  autoComplete="email"
+                />
+              </div>
+              {errors.email && (
+                <p
+                  className="flex items-center text-sm text-red-600"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  <span className="mr-1" aria-hidden="true">
+                    ⚠️
+                  </span>
+                  {errors.email}
+                </p>
+              )}
+              {touched.email && !errors.email && formData.email && (
+                <p
+                  className="flex items-center text-sm text-green-600"
+                  aria-live="polite"
+                >
+                  <span className="mr-1" aria-hidden="true">
+                    ✓
+                  </span>
+                  Valid email address
+                </p>
+              )}
+              <p className="text-xs text-gray-500">
+                We&apos;ll send your booking confirmation here
+              </p>
             </div>
-            {errors.email && (
-              <p
-                className="flex items-center text-sm text-red-600"
-                role="alert"
-                aria-live="polite"
-              >
-                <span className="mr-1" aria-hidden="true">
-                  ⚠️
-                </span>
-                {errors.email}
+
+            {/* Phone Field */}
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-sm font-medium">
+                Phone Number *
+              </Label>
+              <div className="relative">
+                <Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="(555) 123-4567 or +1 555 123 4567"
+                  className={`pl-10 ${errors.phone ? "border-red-500 focus:border-red-500" : touched.phone && !errors.phone ? "border-green-500" : ""}`}
+                  value={formData.phone}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  onBlur={() => handleInputBlur("phone")}
+                  disabled={loading}
+                  required
+                  autoComplete="tel"
+                />
+              </div>
+              {errors.phone && (
+                <p
+                  className="flex items-center text-sm text-red-600"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  <span className="mr-1" aria-hidden="true">
+                    ⚠️
+                  </span>
+                  {errors.phone}
+                </p>
+              )}
+              {touched.phone && !errors.phone && formData.phone && (
+                <p
+                  className="flex items-center text-sm text-green-600"
+                  aria-live="polite"
+                >
+                  <span className="mr-1" aria-hidden="true">
+                    ✓
+                  </span>
+                  Valid phone number
+                </p>
+              )}
+              <p className="text-xs text-gray-500">
+                We&apos;ll use this to send you appointment reminders via SMS
               </p>
+            </div>
+
+            {/* Notes Field */}
+            <div className="space-y-2">
+              <Label htmlFor="notes" className="text-sm font-medium">
+                Additional Notes (Optional)
+              </Label>
+              <div className="relative">
+                <MessageSquare className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                <Textarea
+                  id="notes"
+                  placeholder="Any special requests or information..."
+                  className={`min-h-[80px] resize-none pl-10 ${errors.notes ? "border-red-500 focus:border-red-500" : ""}`}
+                  value={formData.notes}
+                  onChange={(e) => handleInputChange("notes", e.target.value)}
+                  onBlur={() => handleInputBlur("notes")}
+                  disabled={loading}
+                  maxLength={500}
+                />
+              </div>
+              {errors.notes && (
+                <p className="text-sm text-red-600">{errors.notes}</p>
+              )}
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Optional - any special requests or information</span>
+                <span>{formData.notes?.length ?? 0}/500</span>
+              </div>
+            </div>
+
+            {/* External Error Display */}
+            {error && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                <div className="flex items-start space-x-2">
+                  <span className="text-red-600" aria-hidden="true">
+                    ⚠️
+                  </span>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-red-800">
+                      Booking Error
+                    </p>
+                    <p className="text-sm text-red-700">{error}</p>
+                  </div>
+                  {onErrorClear && (
+                    <button
+                      type="button"
+                      onClick={onErrorClear}
+                      className="text-red-600 hover:text-red-800"
+                      aria-label="Dismiss error"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
             )}
-            {touched.email && !errors.email && formData.email && (
-              <p
-                className="flex items-center text-sm text-green-600"
-                aria-live="polite"
-              >
-                <span className="mr-1" aria-hidden="true">
-                  ✓
-                </span>
-                Valid email address
-              </p>
-            )}
-            <p className="text-xs text-gray-500">
-              We&apos;ll send your booking confirmation here
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              size="md"
+              className="w-full"
+              disabled={loading ?? !isFormValid}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Confirming Booking...
+                </>
+              ) : (
+                "Confirm Booking"
+              )}
+            </Button>
+
+            {/* Privacy Notice */}
+            <p className="text-center text-xs text-gray-500">
+              By booking, you agree to receive appointment confirmations and
+              reminders via email and SMS. Your information will only be shared
+              with the business you&apos;re booking with.
             </p>
-          </div>
-
-          {/* Phone Field */}
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="text-sm font-medium">
-              Phone Number *
-            </Label>
-            <div className="relative">
-              <Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="(555) 123-4567 or +1 555 123 4567"
-                className={`pl-10 ${errors.phone ? "border-red-500 focus:border-red-500" : touched.phone && !errors.phone ? "border-green-500" : ""}`}
-                value={formData.phone}
-                onChange={(e) => handlePhoneChange(e.target.value)}
-                onBlur={() => handleInputBlur("phone")}
-                disabled={loading}
-                required
-                autoComplete="tel"
-              />
-            </div>
-            {errors.phone && (
-              <p
-                className="flex items-center text-sm text-red-600"
-                role="alert"
-                aria-live="polite"
-              >
-                <span className="mr-1" aria-hidden="true">
-                  ⚠️
-                </span>
-                {errors.phone}
-              </p>
-            )}
-            {touched.phone && !errors.phone && formData.phone && (
-              <p
-                className="flex items-center text-sm text-green-600"
-                aria-live="polite"
-              >
-                <span className="mr-1" aria-hidden="true">
-                  ✓
-                </span>
-                Valid phone number
-              </p>
-            )}
-            <p className="text-xs text-gray-500">
-              We&apos;ll use this to send you appointment reminders via SMS
-            </p>
-          </div>
-
-          {/* Notes Field */}
-          <div className="space-y-2">
-            <Label htmlFor="notes" className="text-sm font-medium">
-              Additional Notes (Optional)
-            </Label>
-            <div className="relative">
-              <MessageSquare className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
-              <Textarea
-                id="notes"
-                placeholder="Any special requests or information..."
-                className={`min-h-[80px] resize-none pl-10 ${errors.notes ? "border-red-500 focus:border-red-500" : ""}`}
-                value={formData.notes}
-                onChange={(e) => handleInputChange("notes", e.target.value)}
-                onBlur={() => handleInputBlur("notes")}
-                disabled={loading}
-                maxLength={500}
-              />
-            </div>
-            {errors.notes && (
-              <p className="text-sm text-red-600">{errors.notes}</p>
-            )}
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>Optional - any special requests or information</span>
-              <span>{formData.notes?.length ?? 0}/500</span>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            size="md"
-            className="w-full"
-            disabled={loading ?? !isFormValid}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Confirming Booking...
-              </>
-            ) : (
-              "Confirm Booking"
-            )}
-          </Button>
-
-          {/* Privacy Notice */}
-          <p className="text-center text-xs text-gray-500">
-            By booking, you agree to receive appointment confirmations and
-            reminders via email and SMS. Your information will only be shared
-            with the business you&apos;re booking with.
-          </p>
-        </form>
+          </form>
+        </div>
       </CardContent>
     </Card>
   );

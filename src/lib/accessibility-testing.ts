@@ -500,9 +500,9 @@ export class AccessibilityTester {
     const match = rgb.match(/\d+/g);
     if (!match || match.length < 3) return null;
 
-    const r = parseInt(match[0] ?? '0');
-    const g = parseInt(match[1] ?? '0');
-    const b = parseInt(match[2] ?? '0');
+    const r = parseInt(match[0] ?? "0");
+    const g = parseInt(match[1] ?? "0");
+    const b = parseInt(match[2] ?? "0");
 
     return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
   }

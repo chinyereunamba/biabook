@@ -407,10 +407,7 @@ export class AppointmentRepository {
     const appointment = appointmentWithDetails;
 
     // Implement optimistic locking
-    if (
-      expectedVersion !== 0 &&
-      appointment.version !== expectedVersion
-    ) {
+    if (expectedVersion !== 0 && appointment.version !== expectedVersion) {
       bookingLogger.logConflictDetection("optimistic_lock", false, {
         appointmentId: id,
         expectedVersion,
@@ -446,7 +443,8 @@ export class AppointmentRepository {
       // Check for booking conflicts (excluding this appointment)
       const conflicts = await this.checkForConflicts(
         appointment.businessId,
-        data.appointmentDate?.toString() ?? appointment?.appointmentDate.toString(),
+        data.appointmentDate?.toString() ??
+          appointment?.appointmentDate.toString(),
         newStartTime,
         endTime,
         id,
@@ -461,7 +459,9 @@ export class AppointmentRepository {
     const [updatedAppointment] = await db
       .update(appointments)
       .set({
-        appointmentDate: data.appointmentDate?.toString() ?? appointment.appointmentDate.toString(),
+        appointmentDate:
+          data.appointmentDate?.toString() ??
+          appointment.appointmentDate.toString(),
         startTime: data.startTime ?? appointment.startTime,
         endTime: endTime,
         status: data.status ?? appointment.status,
@@ -656,7 +656,10 @@ export class AppointmentRepository {
       .from(appointments)
       .where(and(...whereConditions));
 
-    return results.map((r) => ({ ...r, appointmentDate: new Date(r.appointmentDate) }));
+    return results.map((r) => ({
+      ...r,
+      appointmentDate: new Date(r.appointmentDate),
+    }));
   }
 
   /**

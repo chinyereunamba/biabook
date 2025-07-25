@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Calendar } from "lucide-react";
+import { Clock, Calendar, RefreshCw, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAccessibility } from "@/hooks/use-accessibility";
 import { KEYBOARD_KEYS } from "@/lib/accessibility";
@@ -20,6 +20,8 @@ interface TimeSlotGridProps {
   timeSlots: TimeSlot[];
   onTimeSelect: (startTime: string, endTime: string) => void;
   loading?: boolean;
+  error?: string | null;
+  onRefresh?: () => void;
 }
 
 export function TimeSlotGrid({
@@ -28,6 +30,8 @@ export function TimeSlotGrid({
   timeSlots,
   onTimeSelect,
   loading = false,
+  error = null,
+  onRefresh,
 }: TimeSlotGridProps) {
   const formatTime = (time: string): string => {
     const [hours, minutes] = time.split(":");
@@ -47,36 +51,38 @@ export function TimeSlotGrid({
   };
 
   // Enhanced accessibility for time slot selection
-  const { containerRef, announceToScreenReader } = useAccessibility<HTMLDivElement>({
-    label: "Available time slots",
-    enableKeyboardNavigation: true,
-    onArrowKeys: (key) => {
-      // Handle arrow key navigation between time slots
-      const buttons = containerRef.current?.querySelectorAll(
-        "button:not([disabled])",
-      );
-      if (!buttons) return;
+  const { containerRef, announceToScreenReader } =
+    useAccessibility<HTMLDivElement>({
+      label: "Available time slots",
+      enableKeyboardNavigation: true,
+      onArrowKeys: (key) => {
+        // Handle arrow key navigation between time slots
+        const buttons = containerRef.current?.querySelectorAll(
+          "button:not([disabled])",
+        );
+        if (!buttons) return;
 
-      const currentIndex = Array.from(buttons).findIndex(
-        (btn) => btn === document.activeElement,
-      );
-      let nextIndex = currentIndex;
+        const currentIndex = Array.from(buttons).findIndex(
+          (btn) => btn === document.activeElement,
+        );
+        let nextIndex = currentIndex;
 
-      if (
-        key === KEYBOARD_KEYS.ARROW_RIGHT ||
-        key === KEYBOARD_KEYS.ARROW_DOWN
-      ) {
-        nextIndex = (currentIndex + 1) % buttons.length;
-      } else if (
-        key === KEYBOARD_KEYS.ARROW_LEFT ||
-        key === KEYBOARD_KEYS.ARROW_UP
-      ) {
-        nextIndex = currentIndex === 0 ? buttons.length - 1 : currentIndex - 1;
-      }
+        if (
+          key === KEYBOARD_KEYS.ARROW_RIGHT ||
+          key === KEYBOARD_KEYS.ARROW_DOWN
+        ) {
+          nextIndex = (currentIndex + 1) % buttons.length;
+        } else if (
+          key === KEYBOARD_KEYS.ARROW_LEFT ||
+          key === KEYBOARD_KEYS.ARROW_UP
+        ) {
+          nextIndex =
+            currentIndex === 0 ? buttons.length - 1 : currentIndex - 1;
+        }
 
-      (buttons[nextIndex] as HTMLElement)?.focus();
-    },
-  });
+        (buttons[nextIndex] as HTMLElement)?.focus();
+      },
+    });
 
   if (loading) {
     return (
@@ -122,15 +128,45 @@ export function TimeSlotGrid({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Clock className="h-5 w-5" />
-          <span>Available Times</span>
-        </CardTitle>
-        {selectedDate && (
-          <p className="text-sm text-gray-600">{formatDate(selectedDate)}</p>
-        )}
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center space-x-2">
+              <Clock className="h-5 w-5" />
+              <span>Available Times</span>
+            </CardTitle>
+            {selectedDate && (
+              <p className="text-sm text-gray-600">
+                {formatDate(selectedDate)}
+              </p>
+            )}
+          </div>
+          {onRefresh && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRefresh}
+              disabled={loading}
+              className="h-8 w-8 p-0"
+            >
+              <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+              <span className="sr-only">Refresh availability</span>
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3">
+            <div className="flex items-start space-x-2">
+              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
+              <div className="text-sm text-red-800">
+                <p className="font-medium">Availability Error</p>
+                <p>{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {availableSlots.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-gray-500">
             <Clock className="mb-4 h-12 w-12 text-gray-300" />
@@ -138,6 +174,20 @@ export function TimeSlotGrid({
             <p className="text-center text-sm">
               Please select a different date or check back later
             </p>
+            {onRefresh && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRefresh}
+                disabled={loading}
+                className="mt-3"
+              >
+                <RefreshCw
+                  className={cn("mr-2 h-4 w-4", loading && "animate-spin")}
+                />
+                Refresh Availability
+              </Button>
+            )}
           </div>
         ) : (
           <>

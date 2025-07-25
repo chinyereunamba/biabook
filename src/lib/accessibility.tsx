@@ -7,13 +7,13 @@
 import React, { useEffect, useRef, useCallback } from "react";
 
 // ARIA role types for better type safety
-export type AriaRole = 
-  | "button" 
-  | "dialog" 
-  | "menu" 
-  | "menuitem" 
-  | "tab" 
-  | "tabpanel" 
+export type AriaRole =
+  | "button"
+  | "dialog"
+  | "menu"
+  | "menuitem"
+  | "tab"
+  | "tabpanel"
   | "tablist"
   | "grid"
   | "gridcell"
@@ -99,7 +99,7 @@ export const KEYBOARD_KEYS = {
   PAGE_DOWN: "PageDown",
 } as const;
 
-export type KeyboardKey = typeof KEYBOARD_KEYS[keyof typeof KEYBOARD_KEYS];
+export type KeyboardKey = (typeof KEYBOARD_KEYS)[keyof typeof KEYBOARD_KEYS];
 
 // Focus management utilities
 export class FocusManager {
@@ -142,43 +142,58 @@ export class FocusManager {
 
   static getFocusableElements(container: HTMLElement): HTMLElement[] {
     const focusableSelectors = [
-      'button:not([disabled])',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      'a[href]',
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "a[href]",
       '[tabindex]:not([tabindex="-1"])',
-      '[contenteditable="true"]'
-    ].join(', ');
+      '[contenteditable="true"]',
+    ].join(", ");
 
-    return Array.from(container.querySelectorAll(focusableSelectors)) as HTMLElement[];
+    return Array.from(
+      container.querySelectorAll(focusableSelectors),
+    ) as HTMLElement[];
   }
 
-  static getNextFocusableElement(container: HTMLElement, current: HTMLElement, direction: 'next' | 'previous'): HTMLElement | null {
+  static getNextFocusableElement(
+    container: HTMLElement,
+    current: HTMLElement,
+    direction: "next" | "previous",
+  ): HTMLElement | null {
     const focusableElements = this.getFocusableElements(container);
     const currentIndex = focusableElements.indexOf(current);
-    
+
     if (currentIndex === -1) return null;
 
-    if (direction === 'next') {
-      return focusableElements[currentIndex + 1] || focusableElements[0] || null;
+    if (direction === "next") {
+      return (
+        focusableElements[currentIndex + 1] || focusableElements[0] || null
+      );
     } else {
-      return focusableElements[currentIndex - 1] || focusableElements[focusableElements.length - 1] || null;
+      return (
+        focusableElements[currentIndex - 1] ||
+        focusableElements[focusableElements.length - 1] ||
+        null
+      );
     }
   }
 }
 
 // Screen reader utilities
 export class ScreenReaderUtils {
-  static announceToScreenReader(message: string, priority: 'polite' | 'assertive' = 'polite') {
-    const announcement = document.createElement('div');
-    announcement.setAttribute('aria-live', priority);
-    announcement.setAttribute('aria-atomic', 'true');
-    announcement.className = 'sr-only';
+  static announceToScreenReader(
+    message: string,
+    priority: "polite" | "assertive" = "polite",
+  ) {
+    const announcement = document.createElement("div");
+    announcement.setAttribute("aria-live", priority);
+    announcement.setAttribute("aria-atomic", "true");
+    announcement.className = "sr-only";
     announcement.textContent = message;
-    
+
     document.body.appendChild(announcement);
-    
+
     // Remove after announcement
     setTimeout(() => {
       document.body.removeChild(announcement);
@@ -186,8 +201,8 @@ export class ScreenReaderUtils {
   }
 
   static createScreenReaderOnly(text: string): HTMLSpanElement {
-    const span = document.createElement('span');
-    span.className = 'sr-only';
+    const span = document.createElement("span");
+    span.className = "sr-only";
     span.textContent = text;
     return span;
   }
@@ -202,9 +217,15 @@ export function useKeyboardNavigation(
     onArrowKeys?: (key: KeyboardKey) => void;
     trapFocus?: boolean;
     autoFocus?: boolean;
-  } = {}
+  } = {},
 ) {
-  const { onEscape, onEnter, onArrowKeys, trapFocus = false, autoFocus = false } = options;
+  const {
+    onEscape,
+    onEnter,
+    onArrowKeys,
+    trapFocus = false,
+    autoFocus = false,
+  } = options;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -238,15 +259,15 @@ export function useKeyboardNavigation(
       }
     };
 
-    container.addEventListener('keydown', handleKeyDown);
-    return () => container.removeEventListener('keydown', handleKeyDown);
+    container.addEventListener("keydown", handleKeyDown);
+    return () => container.removeEventListener("keydown", handleKeyDown);
   }, [containerRef, onEscape, onEnter, onArrowKeys, trapFocus, autoFocus]);
 }
 
 // Hook for focus management in modals/dialogs
 export function useFocusManagement(
   isOpen: boolean,
-  containerRef: React.RefObject<HTMLElement | null>
+  containerRef: React.RefObject<HTMLElement | null>,
 ) {
   useEffect(() => {
     if (!isOpen) return;
@@ -276,34 +297,40 @@ export function useFocusManagement(
 export function useAriaLiveRegion() {
   const liveRegionRef = useRef<HTMLDivElement>(null);
 
-  const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
-    if (liveRegionRef.current) {
-      liveRegionRef.current.setAttribute('aria-live', priority);
-      liveRegionRef.current.textContent = message;
-      
-      // Clear after announcement
-      setTimeout(() => {
-        if (liveRegionRef.current) {
-          liveRegionRef.current.textContent = '';
-        }
-      }, 1000);
-    }
-  }, []);
+  const announce = useCallback(
+    (message: string, priority: "polite" | "assertive" = "polite") => {
+      if (liveRegionRef.current) {
+        liveRegionRef.current.setAttribute("aria-live", priority);
+        liveRegionRef.current.textContent = message;
 
-  const LiveRegion = useCallback(() => (
-    <div
-      ref={liveRegionRef}
-      aria-live="polite"
-      aria-atomic="true"
-      className="sr-only"
-    />
-  ), []);
+        // Clear after announcement
+        setTimeout(() => {
+          if (liveRegionRef.current) {
+            liveRegionRef.current.textContent = "";
+          }
+        }, 1000);
+      }
+    },
+    [],
+  );
+
+  const LiveRegion = useCallback(
+    () => (
+      <div
+        ref={liveRegionRef}
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      />
+    ),
+    [],
+  );
 
   return { announce, LiveRegion };
 }
 
 // Utility to generate accessible IDs
-export function generateAccessibleId(prefix: string = 'accessible'): string {
+export function generateAccessibleId(prefix: string = "accessible"): string {
   return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
@@ -316,19 +343,19 @@ export function createAccessibleButtonProps(
     controls?: string;
     describedBy?: string;
     disabled?: boolean;
-  } = {}
+  } = {},
 ): AriaAttributes & { id: string } {
-  const id = generateAccessibleId('button');
-  
+  const id = generateAccessibleId("button");
+
   return {
     id,
-    role: 'button',
-    'aria-label': label,
-    'aria-pressed': options.pressed,
-    'aria-expanded': options.expanded,
-    'aria-controls': options.controls,
-    'aria-describedby': options.describedBy,
-    'aria-disabled': options.disabled,
+    role: "button",
+    "aria-label": label,
+    "aria-pressed": options.pressed,
+    "aria-expanded": options.expanded,
+    "aria-controls": options.controls,
+    "aria-describedby": options.describedBy,
+    "aria-disabled": options.disabled,
   };
 }
 
@@ -341,7 +368,7 @@ export function createAccessibleFormFieldProps(
     describedBy?: string;
     helpText?: string;
     errorMessage?: string;
-  } = {}
+  } = {},
 ): {
   fieldId: string;
   labelId: string;
@@ -350,16 +377,16 @@ export function createAccessibleFormFieldProps(
   fieldProps: AriaAttributes;
   labelProps: AriaAttributes;
 } {
-  const fieldId = generateAccessibleId('field');
-  const labelId = generateAccessibleId('label');
-  const helpId = options.helpText ? generateAccessibleId('help') : undefined;
-  const errorId = options.errorMessage ? generateAccessibleId('error') : undefined;
+  const fieldId = generateAccessibleId("field");
+  const labelId = generateAccessibleId("label");
+  const helpId = options.helpText ? generateAccessibleId("help") : undefined;
+  const errorId = options.errorMessage
+    ? generateAccessibleId("error")
+    : undefined;
 
-  const describedByIds = [
-    options.describedBy,
-    helpId,
-    errorId
-  ].filter(Boolean).join(' ') || undefined;
+  const describedByIds =
+    [options.describedBy, helpId, errorId].filter(Boolean).join(" ") ||
+    undefined;
 
   return {
     fieldId,
@@ -368,10 +395,10 @@ export function createAccessibleFormFieldProps(
     errorId,
     fieldProps: {
       id: fieldId,
-      'aria-labelledby': labelId,
-      'aria-describedby': describedByIds,
-      'aria-required': options.required,
-      'aria-invalid': options.invalid,
+      "aria-labelledby": labelId,
+      "aria-describedby": describedByIds,
+      "aria-required": options.required,
+      "aria-invalid": options.invalid,
     },
     labelProps: {
       id: labelId,
@@ -396,7 +423,7 @@ export class ColorContrastUtils {
   }
 
   static getLuminance(r: number, g: number, b: number): number {
-    const [rs, gs, bs] = [r, g, b].map(c => {
+    const [rs, gs, bs] = [r, g, b].map((c) => {
       c = c / 255;
       return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
     }) as [number, number, number];
@@ -406,15 +433,15 @@ export class ColorContrastUtils {
   static getContrastRatio(color1: string, color2: string): number {
     const rgb1 = this.hexToRgb(color1);
     const rgb2 = this.hexToRgb(color2);
-    
+
     if (!rgb1 || !rgb2) return 0;
 
     const lum1 = this.getLuminance(rgb1.r, rgb1.g, rgb1.b);
     const lum2 = this.getLuminance(rgb2.r, rgb2.g, rgb2.b);
-    
+
     const brightest = Math.max(lum1, lum2);
     const darkest = Math.min(lum1, lum2);
-    
+
     return (brightest + 0.05) / (darkest + 0.05);
   }
 

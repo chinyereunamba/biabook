@@ -34,7 +34,7 @@ const bottomSheetVariants = cva(
       size: "md",
       snapPoints: true,
     },
-  }
+  },
 );
 
 export interface BottomSheetProps
@@ -66,48 +66,55 @@ function BottomSheetContent({
       side="bottom"
       className={cn(
         bottomSheetVariants({ size, snapPoints }),
-        "p-0 gap-0 w-full",
-        className
+        "w-full gap-0 p-0",
+        className,
       )}
       {...props}
     >
       {showHandle && (
         <div className="flex justify-center py-3">
-          <div className="w-12 h-1 bg-neutral-300 rounded-full" />
+          <div className="h-1 w-12 rounded-full bg-neutral-300" />
         </div>
       )}
-      <div className="flex-1 overflow-auto">
-        {children}
-      </div>
+      <div className="flex-1 overflow-auto">{children}</div>
     </SheetContent>
   );
 }
 
-function BottomSheetHeader({ className, ...props }: React.ComponentProps<typeof SheetHeader>) {
+function BottomSheetHeader({
+  className,
+  ...props
+}: React.ComponentProps<typeof SheetHeader>) {
   return (
     <SheetHeader
       className={cn(
-        "px-6 py-4 border-b border-neutral-100 text-center",
-        className
+        "border-b border-neutral-100 px-6 py-4 text-center",
+        className,
       )}
       {...props}
     />
   );
 }
 
-function BottomSheetFooter({ className, ...props }: React.ComponentProps<typeof SheetFooter>) {
+function BottomSheetFooter({
+  className,
+  ...props
+}: React.ComponentProps<typeof SheetFooter>) {
   return (
     <SheetFooter
       className={cn(
-        "px-6 py-4 border-t border-neutral-100 mt-0 flex-row gap-3",
-        className
+        "mt-0 flex-row gap-3 border-t border-neutral-100 px-6 py-4",
+        className,
       )}
       {...props}
     />
   );
 }
 
-function BottomSheetTitle({ className, ...props }: React.ComponentProps<typeof SheetTitle>) {
+function BottomSheetTitle({
+  className,
+  ...props
+}: React.ComponentProps<typeof SheetTitle>) {
   return (
     <SheetTitle
       className={cn("text-lg font-semibold text-neutral-900", className)}
@@ -116,22 +123,20 @@ function BottomSheetTitle({ className, ...props }: React.ComponentProps<typeof S
   );
 }
 
-function BottomSheetDescription({ className, ...props }: React.ComponentProps<typeof SheetDescription>) {
+function BottomSheetDescription({
+  className,
+  ...props
+}: React.ComponentProps<typeof SheetDescription>) {
   return (
     <SheetDescription
-      className={cn("text-sm text-neutral-600 mt-1", className)}
+      className={cn("mt-1 text-sm text-neutral-600", className)}
       {...props}
     />
   );
 }
 
 function BottomSheetBody({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      className={cn("px-6 py-4 flex-1", className)}
-      {...props}
-    />
-  );
+  return <div className={cn("flex-1 px-6 py-4", className)} {...props} />;
 }
 
 const BottomSheetTrigger = SheetTrigger;

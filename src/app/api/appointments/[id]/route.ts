@@ -59,7 +59,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session?.user) {
@@ -72,10 +72,7 @@ export async function PATCH(
     const validatedData = updateAppointmentSchema.parse(body);
 
     // Update appointment
-    const appointment = await appointmentRepository.update(
-      id,
-      validatedData,
-    );
+    const appointment = await appointmentRepository.update(id, validatedData);
 
     return NextResponse.json(appointment);
   } catch (error) {
@@ -101,7 +98,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params
+  const { id } = await params;
   try {
     const session = await auth();
     if (!session?.user) {

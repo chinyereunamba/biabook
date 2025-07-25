@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export interface TimeSlot {
   date: string;
@@ -15,109 +15,163 @@ export interface AvailabilitySlot {
   slots: TimeSlot[];
 }
 
+export interface AvailabilityResponse {
+  availability: AvailabilitySlot[];
+}
+
+export interface CheckAvailabilityResponse {
+  available: boolean;
+  reason?: string;
+}
+
 interface UseAvailabilityOptions {
   businessId: string;
   serviceId?: string;
-  startDate?: string;
-  days?: number;
-  refreshInterval?: number; // in milliseconds
+  autoRefreshInterval?: number; // in milliseconds, 0 to disable
 }
 
-interface UseAvailabilityReturn {
-  availability: AvailabilitySlot[];
+interface UseAvailabilityResult {
+  availabilityData: AvailabilityResponse | null;
   loading: boolean;
   error: string | null;
-  refetch: () => Promise<void>;
-  getAvailableDates: () => string[];
-  getTimeSlotsForDate: (date: string) => TimeSlot[];
+  fetchAvailability: (serviceId?: string) => Promise<void>;
+  checkSlotAvailability: (
+    date: string,
+    startTime: string,
+    endTime: string,
+  ) => Promise<boolean>;
+  refreshAvailability: () => Promise<void>;
+  clearError: () => void;
 }
 
 export function useAvailability({
   businessId,
   serviceId,
-  startDate,
-  days = 30,
-  refreshInterval = 30000, // 30 seconds
-}: UseAvailabilityOptions): UseAvailabilityReturn {
-  const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
-  const [loading, setLoading] = useState(true);
+  autoRefreshInterval = 0,
+}: UseAvailabilityOptions): UseAvailabilityResult {
+  const [availabilityData, setAvailabilityData] =
+    useState<AvailabilityResponse | null>(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAvailability = useCallback(async () => {
-    if (!businessId) {
-      setError("Business ID is required");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setError(null);
-
-      const params = new URLSearchParams();
-      if (serviceId) params.append("serviceId", serviceId);
-      if (startDate) params.append("startDate", startDate);
-      if (days) params.append("days", days.toString());
-
-      const response = await fetch(
-        `/api/businesses/${businessId}/availability?${params.toString()}`,
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch availability");
+  const fetchAvailability = useCallback(
+    async (targetServiceId?: string) => {
+      const currentServiceId = targetServiceId ?? serviceId;
+      if (!businessId || !currentServiceId) {
+        setError("Business ID and Service ID are required");
+        return;
       }
 
-      const data = await response.json();
-      setAvailability(data.availability || []);
-    } catch (err) {
-      console.error("Error fetching availability:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch availability",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [businessId, serviceId, startDate, days]);
+      try {
+        setLoading(true);
+        setError(null);
 
-  // Initial fetch
-  useEffect(() => {
-    fetchAvailability();
-  }, [fetchAvailability]);
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        const startDate = `${year}-${month}-${day}`;
 
-  // Set up periodic refresh for real-time updates
-  useEffect(() => {
-    if (!refreshInterval || refreshInterval <= 0) return;
+        const params = new URLSearchParams({
+          serviceId: currentServiceId,
+          startDate,
+          days: "30", // Get 30 days of availability
+        });
 
-    const interval = setInterval(() => {
-      // Only refresh if not currently loading
-      if (!loading) {
-        fetchAvailability();
+        const response = await fetch(
+          `/api/businesses/${businessId}/availability?${params.toString()}`,
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.error ??
+              `HTTP ${response.status}: Failed to fetch availability`,
+          );
+        }
+
+        const data: AvailabilityResponse = await response.json();
+        setAvailabilityData(data);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load availability";
+        setError(errorMessage);
+        console.error("Availability fetch error:", err);
+      } finally {
+        setLoading(false);
       }
-    }, refreshInterval);
-
-    return () => clearInterval(interval);
-  }, [fetchAvailability, loading, refreshInterval]);
-
-  const getAvailableDates = useCallback((): string[] => {
-    return availability
-      .filter((slot) => slot.slots.some((timeSlot) => timeSlot.available))
-      .map((slot) => slot.date);
-  }, [availability]);
-
-  const getTimeSlotsForDate = useCallback(
-    (date: string): TimeSlot[] => {
-      const dayAvailability = availability.find((slot) => slot.date === date);
-      return dayAvailability?.slots ?? [];
     },
-    [availability],
+    [businessId, serviceId],
   );
 
+  const checkSlotAvailability = useCallback(
+    async (
+      date: string,
+      startTime: string,
+      endTime: string,
+    ): Promise<boolean> => {
+      if (!businessId || !serviceId) {
+        console.error(
+          "Business ID and Service ID are required for slot checking",
+        );
+        return false;
+      }
+
+      try {
+        const params = new URLSearchParams({
+          serviceId,
+          date,
+          startTime,
+          endTime,
+        });
+
+        const response = await fetch(
+          `/api/businesses/${businessId}/availability/check?${params.toString()}`,
+        );
+
+        if (!response.ok) {
+          console.error("Failed to check slot availability:", response.status);
+          return false;
+        }
+
+        const data: CheckAvailabilityResponse = await response.json();
+        return data.available;
+      } catch (err) {
+        console.error("Error checking slot availability:", err);
+        return false;
+      }
+    },
+    [businessId, serviceId],
+  );
+
+  const refreshAvailability = useCallback(async () => {
+    if (serviceId) {
+      await fetchAvailability(serviceId);
+    }
+  }, [fetchAvailability, serviceId]);
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  // Auto-refresh functionality
+  useEffect(() => {
+    if (autoRefreshInterval > 0 && serviceId) {
+      const interval = setInterval(() => {
+        void refreshAvailability();
+      }, autoRefreshInterval);
+
+      return () => clearInterval(interval);
+    }
+  }, [autoRefreshInterval, serviceId, refreshAvailability]);
+
   return {
-    availability,
+    availabilityData,
     loading,
     error,
-    refetch: fetchAvailability,
-    getAvailableDates,
-    getTimeSlotsForDate,
+    fetchAvailability,
+    checkSlotAvailability,
+    refreshAvailability,
+    clearError,
   };
 }

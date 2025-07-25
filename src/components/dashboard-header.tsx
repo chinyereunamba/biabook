@@ -34,7 +34,7 @@ export default function DashboardHeader({
         </Link>
         <div>
           <h1 className="text-lg font-semibold">{heading}</h1>
-          <p className="text-sm text-muted-foreground">{subheading}</p>
+          <p className="text-muted-foreground text-sm">{subheading}</p>
         </div>
       </div>
 

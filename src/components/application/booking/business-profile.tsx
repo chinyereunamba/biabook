@@ -1,23 +1,18 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Phone, Mail, Star, Clock, DollarSign } from "lucide-react";
+import { MapPin, Phone, Mail, Star, } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ServiceCard } from "./service-card";
 import type { BusinessProfile } from "@/hooks/use-business";
 
 interface BusinessProfileProps {
   business: BusinessProfile;
-  selectedServiceId?: string;
-  onServiceSelect: (serviceId: string) => void;
   className?: string;
 }
 
 export function BusinessProfileComponent({
   business,
-  selectedServiceId,
-  onServiceSelect,
   className,
 }: BusinessProfileProps) {
   return (
@@ -82,42 +77,6 @@ export function BusinessProfileComponent({
         </CardContent>
       </Card>
 
-      {/* Services Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <DollarSign className="h-5 w-5" />
-            <span>Services</span>
-          </CardTitle>
-          <p className="text-sm text-gray-600">
-            Choose a service to book your appointment
-          </p>
-        </CardHeader>
-        <CardContent>
-          {business.services.length === 0 ? (
-            <div className="py-8 text-center">
-              <div className="mb-2 text-gray-400">
-                <Clock className="mx-auto h-12 w-12" />
-              </div>
-              <p className="text-gray-500">No services available</p>
-              <p className="text-sm text-gray-400">
-                This business hasn&apos;t added any services yet.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {business.services.map((service) => (
-                <ServiceCard
-                  key={service.id}
-                  service={service}
-                  isSelected={selectedServiceId === service.id}
-                  onSelect={onServiceSelect}
-                />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

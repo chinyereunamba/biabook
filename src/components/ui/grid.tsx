@@ -49,7 +49,16 @@ export interface GridProps
 
 const Grid = React.forwardRef<HTMLDivElement, GridProps>(
   (
-    { className, cols, gap, align, justify, asChild = false, children, ...props },
+    {
+      className,
+      cols,
+      gap,
+      align,
+      justify,
+      asChild = false,
+      children,
+      ...props
+    },
     ref,
   ) => {
     const Comp = asChild ? Slot : "div";
@@ -100,7 +109,10 @@ export interface GridItemProps
 }
 
 const GridItem = React.forwardRef<HTMLDivElement, GridItemProps>(
-  ({ className, colSpan, rowSpan, asChild = false, children, ...props }, ref) => {
+  (
+    { className, colSpan, rowSpan, asChild = false, children, ...props },
+    ref,
+  ) => {
     const Comp = asChild ? Slot : "div";
 
     return (

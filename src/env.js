@@ -18,8 +18,8 @@ export const env = createEnv({
       .refine(
         (val) =>
           val.startsWith("file:") ||
-      val.startsWith("http") ||
-      val.startsWith("libsql:"),
+          val.startsWith("http") ||
+          val.startsWith("libsql:"),
         {
           message: "DATABASE_URL must be a valid URL or a file path",
         },

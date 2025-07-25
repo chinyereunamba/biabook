@@ -39,11 +39,7 @@ export {
 } from "./drawer";
 export type { DrawerProps, DrawerContentProps } from "./drawer";
 
-export {
-  MobileTabs,
-  MobileTabBar,
-  ScrollableTabs,
-} from "./mobile-tabs";
+export { MobileTabs, MobileTabBar, ScrollableTabs } from "./mobile-tabs";
 export type {
   MobileTabsProps,
   MobileTabBarProps,

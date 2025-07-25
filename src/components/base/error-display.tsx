@@ -398,6 +398,6 @@ function getSeverityFromCode(code: string): ErrorInfo["severity"] {
   if (highCodes.includes(code)) return "high";
   if (mediumCodes.includes(code)) return "medium";
   if (lowCodes.includes(code)) return "low";
-  
+
   return "medium";
 }

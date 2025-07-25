@@ -39,7 +39,10 @@ export interface ContainerProps
 }
 
 const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
-  ({ className, size, padding, center, asChild = false, children, ...props }, ref) => {
+  (
+    { className, size, padding, center, asChild = false, children, ...props },
+    ref,
+  ) => {
     const Comp = asChild ? Slot : "div";
 
     return (

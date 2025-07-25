@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
 
     if (
       !body.duration ||
-      typeof body.duration !== "number"||
+      typeof body.duration !== "number" ||
       body.duration <= 0
     ) {
       return NextResponse.json(

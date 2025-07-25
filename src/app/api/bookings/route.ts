@@ -132,7 +132,13 @@ async function createBookingHandler(request: NextRequest) {
       bookingLogger.logConflictDetection(
         "booking_conflict",
         false,
-        { ...context, businessId, serviceId, appointmentDate, startTime: appointmentStartTime },
+        {
+          ...context,
+          businessId,
+          serviceId,
+          appointmentDate,
+          startTime: appointmentStartTime,
+        },
         { conflicts: conflictValidationResult.conflicts },
       );
 
@@ -185,7 +191,13 @@ async function createBookingHandler(request: NextRequest) {
         bookingLogger.logConflictDetection(
           "race_condition_conflict",
           false,
-          { ...context, businessId, appointmentDate, startTime: appointmentStartTime, endTime: appointmentEndTime },
+          {
+            ...context,
+            businessId,
+            appointmentDate,
+            startTime: appointmentStartTime,
+            endTime: appointmentEndTime,
+          },
           { conflictingAppointments: conflictingAppointments.length },
         );
         throw BookingErrors.conflict("Time slot is no longer available", [

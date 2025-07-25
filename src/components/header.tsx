@@ -139,7 +139,7 @@ export function Header({
             <Link href="/" className="flex items-center gap-2">
               <Calendar className="text-primary size-6" />
               <span className="text-lg font-semibold">
-                {businessName ??"BookMe"}
+                {businessName ?? "BookMe"}
               </span>
             </Link>
           </div>

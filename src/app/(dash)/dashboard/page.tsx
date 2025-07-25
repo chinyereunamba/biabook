@@ -345,7 +345,7 @@ export default function DashboardPage() {
                   <DollarSign className="h-5 w-5 text-purple-600" />
                 </div>
                 <div className="grid gap-1">
-                  <p className="text-sm font-medium leading-none">Revenue</p>
+                  <p className="text-sm leading-none font-medium">Revenue</p>
                   <p className="text-muted-foreground text-sm">
                     This month&apos;s earnings
                   </p>
@@ -362,7 +362,7 @@ export default function DashboardPage() {
                   <Users className="h-5 w-5 text-blue-600" />
                 </div>
                 <div className="grid gap-1">
-                  <p className="text-sm font-medium leading-none">Bookings</p>
+                  <p className="text-sm leading-none font-medium">Bookings</p>
                   <p className="text-muted-foreground text-sm">
                     This month&apos;s appointments
                   </p>
@@ -378,4 +378,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

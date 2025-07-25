@@ -25,7 +25,10 @@ export default function ServicesPage() {
     await createService(data);
   };
 
-  const handleUpdateService = async (serviceId: string, data: ServiceFormData) => {
+  const handleUpdateService = async (
+    serviceId: string,
+    data: ServiceFormData,
+  ) => {
     await updateService(serviceId, data);
   };
 
@@ -35,13 +38,15 @@ export default function ServicesPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
-          <h2 className="text-lg font-semibold text-destructive">Error Loading Services</h2>
+          <h2 className="text-destructive text-lg font-semibold">
+            Error Loading Services
+          </h2>
           <p className="text-muted-foreground mt-2">{error}</p>
           <button
             onClick={() => fetchServices()}
-            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 mt-4 rounded-md px-4 py-2"
           >
             Try Again
           </button>

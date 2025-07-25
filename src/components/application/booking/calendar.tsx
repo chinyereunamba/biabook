@@ -30,20 +30,21 @@ export function Calendar({
   });
 
   // Enhanced accessibility for calendar grid
-  const { containerRef, currentCell, setCurrentCell } = useAccessibleGrid<HTMLDivElement>({
-    rowCount: 6, // Maximum rows in a calendar
-    columnCount: 7, // Days of the week
-    onCellSelect: (row, col) => {
-      // Calculate the day based on grid position
-      const dayNumber = row * 7 + col - firstDayOfMonth + 1;
-      if (dayNumber > 0 && dayNumber <= daysInMonth) {
-        const dateStr = formatDateString(dayNumber);
-        if (!isDateDisabled(dateStr)) {
-          onDateSelect(dateStr);
+  const { containerRef, currentCell, setCurrentCell } =
+    useAccessibleGrid<HTMLDivElement>({
+      rowCount: 6, // Maximum rows in a calendar
+      columnCount: 7, // Days of the week
+      onCellSelect: (row, col) => {
+        // Calculate the day based on grid position
+        const dayNumber = row * 7 + col - firstDayOfMonth + 1;
+        if (dayNumber > 0 && dayNumber <= daysInMonth) {
+          const dateStr = formatDateString(dayNumber);
+          if (!isDateDisabled(dateStr)) {
+            onDateSelect(dateStr);
+          }
         }
-      }
-    },
-  });
+      },
+    });
 
   const { monthName, year, daysInMonth, firstDayOfMonth, today } =
     useMemo(() => {

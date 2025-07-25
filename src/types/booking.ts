@@ -89,7 +89,7 @@ export interface AppointmentWithDetails extends Appointment {
 
 export interface AppointmentDetailWithDate extends Appointment {
   business: Business;
-  service: Service
+  service: Service;
 }
 
 export interface BusinessWithServices extends Business {

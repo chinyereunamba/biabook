@@ -7,7 +7,7 @@ export default {
   dialect: "turso",
   dbCredentials: {
     url: env.DATABASE_URL,
-    authToken: env.DATABASE_AUTH_TOKEN
+    authToken: env.DATABASE_AUTH_TOKEN,
   },
   tablesFilter: ["biabook_*"],
 } satisfies Config;

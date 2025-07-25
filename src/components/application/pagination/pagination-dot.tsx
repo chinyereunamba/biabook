@@ -37,7 +37,7 @@ export const PaginationDot = ({
       className={cx(
         "flex h-max w-max",
         sizes[size].root,
-        framed && "bg-white/90 rounded-full backdrop-blur",
+        framed && "rounded-full bg-white/90 backdrop-blur",
         className,
       )}
     >

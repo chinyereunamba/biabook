@@ -1,18 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { BusinessProfileComponent } from "@/components/application/booking/business-profile";
-import { ServiceCard } from "@/components/application/booking/service-card";
+
 import { ServiceGrid } from "@/components/application/booking/service-grid";
 import { Calendar } from "@/components/application/booking/calendar";
-import {
-  TimeSlotGrid,
-  type TimeSlot,
-} from "@/components/application/booking/time-slot-grid";
+import { TimeSlotGrid } from "@/components/application/booking/time-slot-grid";
 import {
   CustomerForm,
   type CustomerFormData,
@@ -21,20 +18,10 @@ import {
   BookingConfirmation,
   type BookingConfirmationData,
 } from "@/components/application/booking/booking-confirmation";
-import { useBusiness, type BusinessProfile } from "@/hooks/use-business";
+import { useBusiness } from "@/hooks/use-business";
+import { useAvailability } from "@/hooks/use-availability";
+import { useBooking, createBookingRequest } from "@/hooks/use-booking";
 import Link from "next/link";
-
-interface AvailabilityResponse {
-  availability: {
-    date: string;
-    dayOfWeek: number;
-    slots: TimeSlot[];
-  }[];
-}
-
-interface CheckAvailabilityResponse {
-  available: boolean;
-}
 
 interface BookingResponse {
   appointment: BookingConfirmationData;
@@ -59,87 +46,37 @@ export default function BookingPage() {
   });
   const [bookingResult, setBookingResult] =
     useState<BookingConfirmationData | null>(null);
-  const [bookingLoading, setBookingLoading] = useState(false);
-  const [bookingError, setBookingError] = useState<string | null>(null);
 
-  // Availability state
-  const [availabilityData, setAvailabilityData] =
-    useState<AvailabilityResponse | null>(null);
-  const [availabilityLoading, setAvailabilityLoading] = useState(false);
-  const [availabilityError, setAvailabilityError] = useState<string | null>(
-    null,
-  );
+  // Use the availability hook with auto-refresh every 30 seconds when on step 2
+  const {
+    availabilityData,
+    loading: availabilityLoading,
+    error: availabilityError,
+    fetchAvailability,
+    checkSlotAvailability,
+    refreshAvailability,
+    clearError: clearAvailabilityError,
+  } = useAvailability({
+    businessId,
+    serviceId: selectedServiceId,
+    autoRefreshInterval: step === 2 ? 30000 : 0, // Auto-refresh every 30 seconds on step 2
+  });
 
-  const fetchAvailability = useCallback(
-    async (serviceId: string) => {
-      try {
-        setAvailabilityLoading(true);
-        setAvailabilityError(null);
-
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, "0");
-        const day = String(today.getDate()).padStart(2, "0");
-        const startDate = `${year}-${month}-${day}`;
-
-        const params = new URLSearchParams({
-          serviceId,
-          startDate,
-          days: "30", // Get 30 days of availability
-        });
-
-        const response = await fetch(
-          `/api/businesses/${businessId}/availability?${params.toString()}`,
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch availability");
-        }
-
-        const data: AvailabilityResponse = await response.json();
-        setAvailabilityData(data);
-      } catch (err) {
-        setAvailabilityError(
-          err instanceof Error ? err.message : "Failed to load availability",
-        );
-      } finally {
-        setAvailabilityLoading(false);
-      }
+  // Use the booking hook for enhanced booking submission
+  const {
+    submitBooking,
+    loading: bookingLoading,
+    error: bookingError,
+    clearError: clearBookingError,
+  } = useBooking({
+    onSuccess: (appointment) => {
+      setBookingResult(appointment);
+      setStep(4);
     },
-    [businessId],
-  );
-
-  // Business data is now handled by the useBusiness hook
-
-  // Real-time availability checking
-  const checkSlotAvailability = async (
-    date: string,
-    startTime: string,
-    endTime: string,
-  ) => {
-    try {
-      const params = new URLSearchParams({
-        serviceId: selectedServiceId,
-        date,
-        startTime,
-        endTime,
-      });
-
-      const response = await fetch(
-        `/api/businesses/${businessId}/availability/check?${params.toString()}`,
-      );
-
-      if (!response.ok) {
-        return false;
-      }
-
-      const data: CheckAvailabilityResponse = await response.json();
-      return data.available;
-    } catch (err) {
-      console.error("Error checking slot availability:", err);
-      return false;
-    }
-  };
+    onError: (error) => {
+      console.error("Booking submission error:", error);
+    },
+  });
 
   const handleServiceSelect = (serviceId: string) => {
     setSelectedServiceId(serviceId);
@@ -165,14 +102,10 @@ export default function BookingPage() {
 
     if (isAvailable) {
       setSelectedTime(startTime);
+      clearAvailabilityError(); // Clear any previous errors
     } else {
       // Refresh availability data if slot is no longer available
-      if (selectedServiceId) {
-        void fetchAvailability(selectedServiceId);
-      }
-      alert(
-        "This time slot is no longer available. Please select another time.",
-      );
+      await refreshAvailability();
     }
   };
 
@@ -194,28 +127,12 @@ export default function BookingPage() {
           setStep(3);
         } else {
           // Refresh availability and show error
-          if (selectedServiceId) {
-            void fetchAvailability(selectedServiceId);
-          }
-          alert(
-            "This time slot is no longer available. Please select another time.",
-          );
+          await refreshAvailability();
           setSelectedTime("");
         }
       }
     }
   };
-
-  // Auto-refresh availability every 30 seconds when on step 2
-  useEffect(() => {
-    if (step === 2 && selectedServiceId) {
-      const interval = setInterval(() => {
-        void fetchAvailability(selectedServiceId);
-      }, 30000); // 30 seconds
-
-      return () => clearInterval(interval);
-    }
-  }, [step, selectedServiceId, fetchAvailability]);
 
   const selectedService = business?.services.find(
     (s) => s.id === selectedServiceId,
@@ -223,64 +140,21 @@ export default function BookingPage() {
 
   const handleBookingSubmit = async (customerData: CustomerFormData) => {
     if (!selectedService || !selectedDate || !selectedTime) {
-      setBookingError("Missing booking information");
       return;
     }
 
-    setBookingLoading(true);
-    setBookingError(null);
+    // Create the booking request using the helper function
+    const bookingRequest = createBookingRequest(
+      businessId,
+      selectedService.id,
+      customerData,
+      selectedDate,
+      selectedTime,
+      selectedService.duration,
+    );
 
-    try {
-      // Calculate end time based on service duration
-      const timeParts = selectedTime.split(":");
-      const startHours = parseInt(timeParts[0] ?? "0", 10);
-      const startMinutes = parseInt(timeParts[1] ?? "0", 10);
-
-      const startDate = new Date();
-      startDate.setHours(startHours, startMinutes, 0, 0);
-
-      const endDate = new Date(
-        startDate.getTime() + selectedService.duration * 60000,
-      );
-      const endTime = `${endDate.getHours().toString().padStart(2, "0")}:${endDate.getMinutes().toString().padStart(2, "0")}`;
-
-      const bookingData = {
-        businessId,
-        serviceId: selectedService.id,
-        customerName: customerData.name,
-        customerEmail: customerData.email,
-        customerPhone: customerData.phone,
-        appointmentDate: selectedDate,
-        startTime: selectedTime,
-        endTime,
-        notes: customerData.notes,
-      };
-
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingData),
-      });
-
-      const result: BookingResponse = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error ?? "Failed to create booking");
-      }
-
-      // Set booking result and move to confirmation step
-      setBookingResult(result.appointment);
-      setStep(4);
-    } catch (error) {
-      console.error("Booking error:", error);
-      setBookingError(
-        error instanceof Error ? error.message : "Failed to create booking",
-      );
-    } finally {
-      setBookingLoading(false);
-    }
+    // Submit the booking using the hook
+    await submitBooking(bookingRequest);
   };
 
   // Loading state
@@ -329,8 +203,6 @@ export default function BookingPage() {
                 <div className="sticky top-8">
                   <BusinessProfileComponent
                     business={business}
-                    selectedServiceId={selectedServiceId}
-                    onServiceSelect={handleServiceSelect}
                   />
                 </div>
               </div>
@@ -424,11 +296,7 @@ export default function BookingPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                          if (selectedServiceId) {
-                            void fetchAvailability(selectedServiceId);
-                          }
-                        }}
+                        onClick={() => void refreshAvailability()}
                         disabled={availabilityLoading}
                       >
                         <Loader2
@@ -468,6 +336,8 @@ export default function BookingPage() {
                       }
                       onTimeSelect={handleTimeSelect}
                       loading={availabilityLoading}
+                      error={availabilityError}
+                      onRefresh={() => void refreshAvailability()}
                     />
                   </div>
 
@@ -477,11 +347,7 @@ export default function BookingPage() {
                         Error loading availability: {availabilityError}
                       </p>
                       <button
-                        onClick={() => {
-                          if (selectedServiceId) {
-                            void fetchAvailability(selectedServiceId);
-                          }
-                        }}
+                        onClick={() => void refreshAvailability()}
                         className="mt-2 text-sm font-medium text-red-600 hover:text-red-800"
                       >
                         Try again
@@ -574,16 +440,12 @@ export default function BookingPage() {
                     </Button>
                   </div>
 
-                  {bookingError && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                      <p className="text-sm text-red-800">{bookingError}</p>
-                    </div>
-                  )}
-
                   <CustomerForm
                     initialData={customerInfo}
                     onSubmit={handleBookingSubmit}
                     loading={bookingLoading}
+                    error={bookingError?.message ?? null}
+                    onErrorClear={clearBookingError}
                   />
                 </div>
               </div>
@@ -627,7 +489,7 @@ export default function BookingPage() {
                 setSelectedTime("");
                 setCustomerInfo({ name: "", email: "", phone: "", notes: "" });
                 setBookingResult(null);
-                setBookingError(null);
+                clearBookingError();
               }}
             />
           )}

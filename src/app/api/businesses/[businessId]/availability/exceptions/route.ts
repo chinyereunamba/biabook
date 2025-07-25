@@ -45,7 +45,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const {businessId} = await params;
+    const { businessId } = await params;
     const data = await req.json();
 
     // Create the exception

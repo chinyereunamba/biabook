@@ -48,7 +48,8 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle>Password</CardTitle>
             <CardDescription>
-              Change your password here. After saving, you&apos;ll be logged out.
+              Change your password here. After saving, you&apos;ll be logged
+              out.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -78,8 +79,9 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div>
                 <Label htmlFor="email-notifications">Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive notifications via email for new bookings and reminders.
+                <p className="text-muted-foreground text-sm">
+                  Receive notifications via email for new bookings and
+                  reminders.
                 </p>
               </div>
               <Switch id="email-notifications" defaultChecked />
@@ -87,7 +89,7 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div>
                 <Label htmlFor="sms-notifications">SMS Notifications</Label>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Receive notifications via SMS for new bookings and reminders.
                 </p>
               </div>
