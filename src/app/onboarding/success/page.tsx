@@ -13,21 +13,30 @@ export default function OnboardingSuccessPage() {
   const { data: session } = useSession();
   const [businessSlug, setBusinessSlug] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setOrigin(window.location.origin);
+    }
+  }, []);
 
   // Get the business slug from localStorage (set during onboarding)
   useEffect(() => {
     try {
-      const slug = localStorage.getItem("businessSlug");
-      if (slug) {
-        setBusinessSlug(slug);
-      } else {
-        // If no slug in localStorage, generate a fallback
-        if (session?.user?.name) {
-          const fallbackSlug = session.user.name
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-|-$/g, "");
-          setBusinessSlug(fallbackSlug);
+      if (typeof window !== "undefined") {
+        const slug = localStorage.getItem("businessSlug");
+        if (slug) {
+          setBusinessSlug(slug);
+        } else {
+          // If no slug in localStorage, generate a fallback
+          if (session?.user?.name) {
+            const fallbackSlug = session.user.name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-|-$/g, "");
+            setBusinessSlug(fallbackSlug);
+          }
         }
       }
     } catch (error) {
@@ -44,7 +53,7 @@ export default function OnboardingSuccessPage() {
   }, [session?.user?.name]);
 
   const handleCopyLink = () => {
-    const bookingUrl = `${window.location.origin}/book/${businessSlug}`;
+    const bookingUrl = `${origin}/book/${businessSlug}`;
     void navigator.clipboard.writeText(bookingUrl);
     toast.success("Booking link copied to clipboard!");
   };
@@ -82,7 +91,7 @@ export default function OnboardingSuccessPage() {
               </h3>
               <div className="flex items-center justify-center space-x-2 rounded-md border border-gray-200 bg-white p-3">
                 <span className="font-mono text-purple-600">
-                  {window.location.origin}/book/{businessSlug}
+                  {origin}/book/{businessSlug}
                 </span>
                 <Button
                   size="sm"
@@ -120,7 +129,7 @@ export default function OnboardingSuccessPage() {
                 variant="outline"
                 className="border-gray-300 bg-transparent"
                 onClick={() => {
-                  const bookingUrl = `${window.location.origin}/book/${businessSlug}`;
+                  const bookingUrl = `${origin}/book/${businessSlug}`;
                   if (navigator.share) {
                     navigator
                       .share({

@@ -1,9 +1,8 @@
 import "@/styles/globals.css";
-
-import { Inter } from "next/font/google";
+import { Geist } from "next/font/google";
 import { Providers } from "./providers";
 
-const inter = Inter({
+const geist = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
 });
@@ -21,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`font-sans ${inter.variable}`}>
+      <body className={geist.variable}>
         <Providers>
           {/* <TRPCReactProvider cookies={cookies().toString()}> */}
           {children}

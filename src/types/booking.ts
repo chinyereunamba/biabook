@@ -24,7 +24,8 @@ export interface Appointment {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  appointmentDate: string; // YYYY-MM-DD format
+  version?: number;
+  appointmentDate: Date | string; // YYYY-MM-DD format
   startTime: string; // HH:MM format
   endTime: string; // HH:MM format
   status: "pending" | "confirmed" | "cancelled" | "completed";
@@ -88,6 +89,7 @@ export interface AppointmentWithDetails extends Appointment {
 
 export interface AppointmentDetailWithDate extends Appointment {
   business: Business;
+  service: Service
 }
 
 export interface BusinessWithServices extends Business {
@@ -128,10 +130,11 @@ export interface CreateAppointmentInput {
 }
 
 export interface UpdateAppointmentInput {
-  appointmentDate?: string;
+  appointmentDate?: Date | undefined | string;
   startTime?: string;
   status?: "pending" | "confirmed" | "cancelled" | "completed";
   notes?: string | null;
+  version?: number;
 }
 
 export interface CreateWeeklyAvailabilityInput {

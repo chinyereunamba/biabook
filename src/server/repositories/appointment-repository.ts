@@ -35,7 +35,7 @@ function toAppointmentWithDetails(
 
   return {
     ...appointment,
-    appointmentDate: appointment.appointmentDate,
+    appointmentDate: new Date(appointment.appointmentDate),
     business: {
       ...business,
       slug: business.name.toLowerCase().replace(/ /g, "-"),
@@ -408,7 +408,7 @@ export class AppointmentRepository {
 
     // Implement optimistic locking
     if (
-      expectedVersion !== undefined &&
+      expectedVersion !== 0 &&
       appointment.version !== expectedVersion
     ) {
       bookingLogger.logConflictDetection("optimistic_lock", false, {
@@ -446,7 +446,7 @@ export class AppointmentRepository {
       // Check for booking conflicts (excluding this appointment)
       const conflicts = await this.checkForConflicts(
         appointment.businessId,
-        data.appointmentDate ?? appointment.appointmentDate,
+        data.appointmentDate?.toString() ?? appointment?.appointmentDate.toString(),
         newStartTime,
         endTime,
         id,
@@ -461,12 +461,12 @@ export class AppointmentRepository {
     const [updatedAppointment] = await db
       .update(appointments)
       .set({
-        appointmentDate: data.appointmentDate ?? appointment.appointmentDate,
+        appointmentDate: data.appointmentDate?.toString() ?? appointment.appointmentDate.toString(),
         startTime: data.startTime ?? appointment.startTime,
         endTime: endTime,
         status: data.status ?? appointment.status,
         notes: data.notes !== undefined ? data.notes : appointment.notes,
-        version: appointment.version + 1, // Increment version for optimistic locking
+        // version: appointment?.version + 1, // Increment version for optimistic locking
         updatedAt: new Date(),
       })
       .where(

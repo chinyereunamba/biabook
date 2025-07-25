@@ -413,7 +413,7 @@ export class WeeklyAvailabilityRepository {
     >((acc, entry) => {
       const day = entry.dayOfWeek;
       if (!acc[day]) {
-        acc[day] = [];
+        acc[day] ??= [];
       }
       acc[day].push(entry);
       return acc;

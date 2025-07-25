@@ -1,12 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { availabilityExceptionRepository } from "@/server/repositories/availability-exception-repository";
 import { auth } from "@/server/auth";
-import { getCurrentUserBusiness } from "@/server/auth/helpers";
+// import { getCurrentUserBusiness } from "@/server/auth/helpers";
 
 // DELETE /api/businesses/:businessId/availability/exceptions/:exceptionId
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { businessId: string; exceptionId: string } },
+  { params }: { params: Promise<{ businessId: string; exceptionId: string }> },
 ) {
   try {
     const session = await auth();
@@ -19,7 +19,7 @@ export async function DELETE(
     // In a real app, you would check if the user has access to this business
     // For now, we'll assume they do
 
-    const { businessId, exceptionId } = params;
+    const { businessId, exceptionId } = await params;
 
     // Delete the exception
     const success = await availabilityExceptionRepository.delete(

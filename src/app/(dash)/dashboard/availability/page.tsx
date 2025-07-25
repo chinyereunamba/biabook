@@ -11,6 +11,23 @@ import {
 } from "@/components/application/availability/exception-dates";
 import { toast } from "sonner";
 
+interface Business {
+  id: string;
+  name: string;
+}
+
+interface WeeklyScheduleResponse {
+  weeklySchedule: DaySchedule[];
+}
+
+interface ExceptionsResponse {
+  exceptions: ExceptionDate[];
+}
+
+interface ExceptionResponse {
+  exception: ExceptionDate;
+}
+
 export default function AvailabilityPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
@@ -26,7 +43,7 @@ export default function AvailabilityPage() {
           throw new Error("Failed to fetch business");
         }
 
-        const data = await response.json();
+        const data: { business: Business } = await response.json();
         if (data.business) {
           setBusinessId(data.business.id);
         } else {
@@ -40,7 +57,7 @@ export default function AvailabilityPage() {
       }
     };
 
-    loadBusiness();
+    void loadBusiness();
   }, []);
 
   // Load availability data when businessId is available
@@ -57,7 +74,7 @@ export default function AvailabilityPage() {
         if (!scheduleResponse.ok) {
           throw new Error("Failed to fetch weekly schedule");
         }
-        const scheduleData = await scheduleResponse.json();
+        const scheduleData: WeeklyScheduleResponse = await scheduleResponse.json();
         setWeeklySchedule(scheduleData.weeklySchedule ?? []);
 
         // Load exceptions
@@ -67,7 +84,7 @@ export default function AvailabilityPage() {
         if (!exceptionsResponse.ok) {
           throw new Error("Failed to fetch exceptions");
         }
-        const exceptionsData = await exceptionsResponse.json();
+        const exceptionsData: ExceptionsResponse = await exceptionsResponse.json();
         setExceptions(exceptionsData.exceptions ?? []);
       } catch (error) {
         console.error("Failed to load availability data:", error);
@@ -140,7 +157,7 @@ export default function AvailabilityPage() {
       }
     };
 
-    loadData();
+    void loadData();
   }, [businessId]);
 
   const handleSaveWeeklySchedule = async (schedule: DaySchedule[]) => {
@@ -163,18 +180,21 @@ export default function AvailabilityPage() {
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData: { error?: string } = await response.json();
         throw new Error(errorData.error ?? "Failed to save weekly schedule");
       }
 
-      const data = await response.json();
+      const data: WeeklyScheduleResponse = await response.json();
       setWeeklySchedule(data.weeklySchedule ?? schedule);
       toast.success("Weekly schedule saved successfully");
       return Promise.resolve();
     } catch (error) {
       console.error("Failed to save weekly schedule:", error);
       toast.error("Failed to save weekly schedule");
-      return Promise.reject(error);
+      if (error instanceof Error) {
+        return Promise.reject(error);
+      }
+      return Promise.reject(new Error("An unknown error occurred"));
     } finally {
       setIsLoading(false);
     }
@@ -200,11 +220,11 @@ export default function AvailabilityPage() {
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData: { error?: string } = await response.json();
         throw new Error(errorData.error ?? "Failed to add exception");
       }
 
-      const data = await response.json();
+      const data: ExceptionResponse = await response.json();
       setExceptions((prev) => [...prev, data.exception]);
       toast.success("Exception added successfully");
       return Promise.resolve();
@@ -213,7 +233,10 @@ export default function AvailabilityPage() {
       toast.error(
         error instanceof Error ? error.message : "Failed to add exception",
       );
-      return Promise.reject(error);
+      if (error instanceof Error) {
+        return Promise.reject(error);
+      }
+      return Promise.reject(new Error("An unknown error occurred"));
     } finally {
       setIsLoading(false);
     }
@@ -235,7 +258,7 @@ export default function AvailabilityPage() {
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData: { error?: string } = await response.json();
         throw new Error(errorData.error ?? "Failed to delete exception");
       }
 
@@ -245,7 +268,10 @@ export default function AvailabilityPage() {
     } catch (error) {
       console.error("Failed to delete exception:", error);
       toast.error("Failed to delete exception");
-      return Promise.reject(error);
+      if (error instanceof Error) {
+        return Promise.reject(error);
+      }
+      return Promise.reject(new Error("An unknown error occurred"));
     } finally {
       setIsLoading(false);
     }

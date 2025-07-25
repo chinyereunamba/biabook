@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+/// <reference types="vitest" />
+import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import { WhatsAppService } from "../whatsapp-service";
 import { formatDate, formatTime, formatCurrency } from "@/utils/format";
 
@@ -157,7 +158,7 @@ describe("WhatsAppService", () => {
 
   it("should handle network errors gracefully", async () => {
     // Mock network error
-    (global.fetch as vi.Mock).mockRejectedValue(new Error("Network Error"));
+    (global.fetch as Mock).mockRejectedValue(new Error("Network Error"));
 
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 

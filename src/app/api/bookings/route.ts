@@ -38,19 +38,36 @@ const createBookingSchema = z.object({
   notes: z.string().optional(),
 });
 
-export async function POST(request: NextRequest) {
+async function createBookingHandler(request: NextRequest) {
+  const startTime = Date.now();
+  const context = {
+    operation: "createBooking",
+    path: "/api/bookings",
+    method: "POST",
+  };
+
   try {
     const body = await request.json();
 
     // Validate request body
     const validationResult = createBookingSchema.safeParse(body);
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Validation failed",
-          details: validationResult.error.issues,
-        },
-        { status: 400 },
+      const fieldErrors = validationResult.error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      }));
+
+      bookingLogger.logValidationError(
+        "request_body",
+        body,
+        `Validation failed: ${fieldErrors.map((e) => `${e.field}: ${e.message}`).join(", ")}`,
+        context,
+      );
+
+      throw BookingErrors.validation(
+        "Please check your booking information",
+        "request_body",
+        fieldErrors.map((e) => `${e.field}: ${e.message}`),
       );
     }
 
@@ -61,8 +78,8 @@ export async function POST(request: NextRequest) {
       customerEmail,
       customerPhone,
       appointmentDate,
-      startTime,
-      endTime,
+      startTime: appointmentStartTime,
+      endTime: appointmentEndTime,
       notes,
     } = validationResult.data;
 
@@ -72,10 +89,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (!business) {
-      return NextResponse.json(
-        { error: "Business not found" },
-        { status: 404 },
-      );
+      bookingLogger.warn("Business not found", { ...context, businessId });
+      throw BookingErrors.businessNotFound(businessId);
     }
 
     // Verify service exists and belongs to business
@@ -88,10 +103,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!service) {
-      return NextResponse.json(
-        { error: "Service not found or inactive" },
-        { status: 404 },
-      );
+      bookingLogger.warn("Service not found or inactive", {
+        ...context,
+        serviceId,
+        businessId,
+      });
+      throw BookingErrors.serviceNotFound(serviceId);
     }
 
     // Use the booking conflict service for comprehensive validation
@@ -100,25 +117,29 @@ export async function POST(request: NextRequest) {
         businessId,
         serviceId,
         appointmentDate,
-        startTime,
+        startTime: appointmentStartTime,
       });
 
     if (!conflictValidationResult.isAvailable) {
-      const errorMessage = conflictValidationResult.conflicts.join("; ");
-      const response: {
-        error: string;
-        suggestion?: { message: string; slot: unknown };
-      } = { error: errorMessage };
-
-      // Include suggestions if available
+      const suggestions = [];
       if (conflictValidationResult.suggestions?.nextAvailableSlot) {
-        response.suggestion = {
-          message: "Next available slot",
-          slot: conflictValidationResult.suggestions.nextAvailableSlot,
-        };
+        suggestions.push(
+          `Next available slot: ${conflictValidationResult.suggestions.nextAvailableSlot.date} at ${conflictValidationResult.suggestions.nextAvailableSlot.startTime}`,
+        );
       }
+      suggestions.push("Please select a different date or time");
 
-      return NextResponse.json(response, { status: 409 });
+      bookingLogger.logConflictDetection(
+        "booking_conflict",
+        false,
+        { ...context, businessId, serviceId, appointmentDate, startTime: appointmentStartTime },
+        { conflicts: conflictValidationResult.conflicts },
+      );
+
+      throw BookingErrors.conflict(
+        conflictValidationResult.conflicts.join("; "),
+        suggestions,
+      );
     }
 
     // Normalize phone number (basic formatting)
@@ -126,9 +147,19 @@ export async function POST(request: NextRequest) {
 
     // Validate phone number length (US format)
     if (normalizedPhone.length < 10 || normalizedPhone.length > 15) {
-      return NextResponse.json(
-        { error: "Invalid phone number format" },
-        { status: 400 },
+      bookingLogger.logValidationError(
+        "customerPhone",
+        customerPhone,
+        "Invalid phone number format",
+        { ...context, normalizedPhone },
+      );
+      throw BookingErrors.validation(
+        "Invalid phone number format",
+        "customerPhone",
+        [
+          "Phone number must be between 10-15 digits",
+          "Example: (555) 123-4567 or +1 555 123 4567",
+        ],
       );
     }
 
@@ -144,14 +175,23 @@ export async function POST(request: NextRequest) {
             eq(appointments.appointmentDate, appointmentDate),
             inArray(appointments.status, ["pending", "confirmed"]),
             sql`(
-              (${appointments.startTime} < ${endTime} AND ${appointments.endTime} > ${startTime}) OR
-              (${appointments.startTime} = ${startTime} AND ${appointments.endTime} = ${endTime})
+              (${appointments.startTime} < ${appointmentEndTime} AND ${appointments.endTime} > ${appointmentStartTime}) OR
+              (${appointments.startTime} = ${appointmentStartTime} AND ${appointments.endTime} = ${appointmentEndTime})
             )`,
           ),
         );
 
       if (conflictingAppointments.length > 0) {
-        throw new Error("Time slot is no longer available");
+        bookingLogger.logConflictDetection(
+          "race_condition_conflict",
+          false,
+          { ...context, businessId, appointmentDate, startTime: appointmentStartTime, endTime: appointmentEndTime },
+          { conflictingAppointments: conflictingAppointments.length },
+        );
+        throw BookingErrors.conflict("Time slot is no longer available", [
+          "Please refresh the page and select a different time",
+          "This can happen when multiple people book at the same time",
+        ]);
       }
 
       // Create the appointment
@@ -164,8 +204,8 @@ export async function POST(request: NextRequest) {
           customerEmail: customerEmail.toLowerCase().trim(),
           customerPhone: normalizedPhone,
           appointmentDate,
-          startTime,
-          endTime,
+          startTime: appointmentStartTime,
+          endTime: appointmentEndTime,
           status: "confirmed",
           notes: notes?.trim(),
           servicePrice: service.price,
@@ -174,10 +214,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!newAppointment) {
-      return NextResponse.json(
-        { error: "Failed to create appointment" },
-        { status: 500 },
+      bookingLogger.error(
+        "Failed to create appointment - no result from database",
+        undefined,
+        { ...context, businessId, serviceId },
       );
+      throw BookingErrors.database("Failed to create appointment");
     }
 
     const appointmentForScheduler = {
@@ -209,7 +251,11 @@ export async function POST(request: NextRequest) {
         businessForScheduler,
       );
     } catch (error) {
-      console.error("Failed to schedule booking notifications:", error);
+      bookingLogger.warn(
+        "Failed to schedule booking notifications",
+        { ...context, appointmentId: newAppointment.id },
+        { error: error instanceof Error ? error.message : String(error) },
+      );
       // Don't fail the booking creation if notification scheduling fails
     }
 
@@ -232,6 +278,12 @@ export async function POST(request: NextRequest) {
       },
     };
 
+    const duration = Date.now() - startTime;
+    bookingLogger.logBookingOperation("createBooking", true, duration, {
+      ...context,
+      appointmentId: newAppointment.id,
+    });
+
     return NextResponse.json(
       {
         appointment: appointmentWithDetails,
@@ -240,17 +292,19 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error) {
-    bookingLogger.error(
-      "Error creating booking",
-      error instanceof Error ? error : new Error(String(error)),
-      {
-        path: "/api/bookings",
-        method: "POST",
-      },
+    const duration = Date.now() - startTime;
+    const bookingError = toBookingError(error);
+
+    bookingLogger.logBookingOperation(
+      "createBooking",
+      false,
+      duration,
+      context,
+      bookingError,
     );
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+
+    throw bookingError;
   }
 }
+
+export const POST = withErrorHandler(createBookingHandler);

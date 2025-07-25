@@ -6,6 +6,7 @@ export interface Appointment {
   customerEmail: string;
   customerPhone: string;
   appointmentDate: Date;
+  version?: number;
   startTime: string; // HH:MM format
   endTime: string; // HH:MM format
   status: "pending" | "confirmed" | "cancelled" | "completed";

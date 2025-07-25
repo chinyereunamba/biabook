@@ -10,7 +10,6 @@ import {
   Loader2,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +34,19 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import type { RecentBooking, Stats } from "@/types/dashboard";
 
+interface Business {
+  id: string;
+  name: string;
+}
+
+interface StatsResponse {
+  stats: Stats;
+}
+
+interface RecentBookingsResponse {
+  appointments: RecentBooking[];
+}
+
 export default function DashboardPage() {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -55,7 +67,7 @@ export default function DashboardPage() {
           throw new Error("Failed to fetch business");
         }
 
-        const data = await response.json();
+        const data: { business: Business } = await response.json();
         if (data.business) {
           setBusinessId(data.business.id);
         } else {
@@ -69,7 +81,7 @@ export default function DashboardPage() {
       }
     };
 
-    loadBusiness();
+    void loadBusiness();
   }, []);
 
   // Load dashboard data when businessId is available
@@ -86,7 +98,7 @@ export default function DashboardPage() {
         if (!statsResponse.ok) {
           throw new Error("Failed to fetch business stats");
         }
-        const statsData = await statsResponse.json();
+        const statsData: Stats = await statsResponse.json();
         setStats(statsData);
 
         // Load recent bookings
@@ -96,7 +108,8 @@ export default function DashboardPage() {
         if (!bookingsResponse.ok) {
           throw new Error("Failed to fetch recent bookings");
         }
-        const bookingsData = await bookingsResponse.json();
+        const bookingsData: RecentBookingsResponse =
+          await bookingsResponse.json();
         setRecentBookings(bookingsData.appointments ?? []);
       } catch (error) {
         console.error("Failed to load dashboard data:", error);
@@ -140,7 +153,7 @@ export default function DashboardPage() {
       }
     };
 
-    loadDashboardData();
+    void loadDashboardData();
   }, [businessId]);
 
   // Format price from cents to dollars
@@ -216,7 +229,7 @@ export default function DashboardPage() {
                   : "0.00"}
               </div>
               <p className="text-muted-foreground text-xs">
-                This month's earnings
+                This month&apos;s earnings
               </p>
             </CardContent>
           </Card>
@@ -332,9 +345,9 @@ export default function DashboardPage() {
                   <DollarSign className="h-5 w-5 text-purple-600" />
                 </div>
                 <div className="grid gap-1">
-                  <p className="text-sm leading-none font-medium">Revenue</p>
+                  <p className="text-sm font-medium leading-none">Revenue</p>
                   <p className="text-muted-foreground text-sm">
-                    This month's earnings
+                    This month&apos;s earnings
                   </p>
                 </div>
                 <div className="ml-auto font-medium">
@@ -349,9 +362,9 @@ export default function DashboardPage() {
                   <Users className="h-5 w-5 text-blue-600" />
                 </div>
                 <div className="grid gap-1">
-                  <p className="text-sm leading-none font-medium">Bookings</p>
+                  <p className="text-sm font-medium leading-none">Bookings</p>
                   <p className="text-muted-foreground text-sm">
-                    This month's appointments
+                    This month&apos;s appointments
                   </p>
                 </div>
                 <div className="ml-auto font-medium">
@@ -365,3 +378,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

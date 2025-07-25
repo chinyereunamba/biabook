@@ -4,22 +4,38 @@ BookMe is an appointment booking platform designed for service businesses like s
 
 ## Features
 
+### ✅ Implemented Features
+
 - **60-second booking**: Customers can book appointments quickly without creating accounts
-- **WhatsApp notifications**: Instant notifications for business owners when bookings are made
-- **Simple setup**: No complicated configuration required
-- **Admin dashboard**: Manage bookings, services, and availability
-- **Smart scheduling**: Automatic availability management
-- **Customer management**: Track customer information and booking history
-- **Business management**: Each user can manage their own business profile
+- **Service management**: Business owners can create, edit, and manage their services
+- **Availability management**: Configure weekly schedules and exception dates
+- **Smart scheduling**: Real-time availability calculation with conflict prevention
+- **Customer booking interface**: Intuitive booking flow with service selection and time slots
+- **Booking management**: Complete booking lifecycle management (create, view, modify, cancel)
+- **WhatsApp & Email notifications**: Automated notifications for bookings, confirmations, and reminders
+- **Analytics dashboard**: Booking trends, revenue tracking, and service performance metrics
+- **Customer self-service**: Booking lookup, cancellation, and rescheduling capabilities
+- **Admin dashboard**: Comprehensive business management interface
+- **Authentication**: Google OAuth integration with NextAuth.js v5
+
+### 🚧 In Progress
+
+- **Error handling improvements**: Enhanced error messages and recovery options
+- **Comprehensive testing**: Unit and integration test coverage
+- **Performance optimization**: Caching system for availability calculations
+- **System monitoring**: Health checks and performance analytics
 
 ## Tech Stack
 
 - **Framework**: Next.js 15 with App Router (React 19)
-- **Language**: TypeScript
-- **Database**: SQLite with Drizzle ORM
-- **Authentication**: NextAuth.js v5 with Google OAuth
-- **Styling**: Tailwind CSS v4 with shadcn/ui components
+- **Language**: TypeScript for type safety
+- **Database**: SQLite with Drizzle ORM and @libsql/client
+- **Authentication**: NextAuth.js v5 with Google OAuth and @auth/drizzle-adapter
+- **Styling**: Tailwind CSS v4 with Radix UI and shadcn/ui components
+- **Icons**: Lucide React and @untitledui/icons
 - **Package Manager**: Bun
+- **Notifications**: Email (SMTP) and WhatsApp Business API integration
+- **Development**: ESLint, Prettier, TypeScript strict mode
 
 ## Authentication
 
@@ -33,22 +49,49 @@ BookMe uses NextAuth.js v5 for authentication with the following features:
 
 ## Project Structure
 
-The project follows a modern Next.js App Router structure:
+The project follows a modern Next.js App Router structure with route groups:
+
+### Route Organization
 
 - **Public Routes** (`src/app/(main)/`): Landing page, business listings, booking flow
-- **Protected Routes** (`src/app/(dash)/`): Dashboard, admin, settings
-  - Dashboard layout with sidebar navigation and header
-  - Business-specific views and data
-- **API Routes** (`src/app/api/`): Server-side API endpoints
-  - Business data endpoints
-  - Authentication endpoints
-  - Booking and service management
-- **Components** (`src/components/`): Reusable UI components
-  - Sidebar with navigation links
-  - Dashboard header with user profile
-- **Server** (`src/server/`): Authentication, database schema, repositories
-- **Library** (`src/lib/`): Utility functions and shared logic
-  - `get-business.ts`: Helper to fetch the current user's business
+  - `/` - Landing page
+  - `/business` - Business directory
+  - `/book/[slug]` - Service booking interface
+  - `/booking/[id]` - Booking management (view, cancel, reschedule)
+- **Protected Routes** (`src/app/(dash)/`): Dashboard and admin areas
+  - `/dashboard` - Main dashboard with analytics
+  - `/dashboard/bookings` - Booking management
+  - `/dashboard/services` - Service management
+  - `/dashboard/availability` - Schedule configuration
+  - `/dashboard/analytics` - Business analytics
+  - `/admin` - Admin panel
+
+### API Structure
+
+- **Authentication**: `/api/auth/[...nextauth]` - NextAuth.js endpoints
+- **Bookings**: `/api/bookings/*` - Booking CRUD operations
+- **Services**: `/api/dashboard/services/*` - Service management
+- **Availability**: `/api/availability/*` - Schedule and time slot management
+- **Analytics**: `/api/businesses/[businessId]/analytics/*` - Business metrics
+- **Notifications**: `/api/notifications/*` - Email and WhatsApp services
+
+### Component Architecture
+
+- **UI Components** (`src/components/ui/`): shadcn/ui base components
+- **Application Components** (`src/components/application/`): Feature-specific components
+  - `booking/` - Customer booking interface components
+  - `availability/` - Schedule management components
+  - `analytics/` - Dashboard and reporting components
+  - `services/` - Service management components
+- **Base Components** (`src/components/base/`): Custom foundational components
+
+### Server Architecture
+
+- **Authentication** (`src/server/auth/`): NextAuth.js configuration and helpers
+- **Database** (`src/server/db/`): Drizzle schema, connection, and seed files
+- **Repositories** (`src/server/repositories/`): Data access layer
+- **Services** (`src/server/services/`): Business logic layer
+- **Notifications** (`src/server/notifications/`): Email and WhatsApp services
 
 ## Getting Started
 

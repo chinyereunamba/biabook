@@ -10,13 +10,13 @@ export const metadata: Metadata = {
 };
 
 interface CancelledPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function CancelledPage({ params }: CancelledPageProps) {
-  const { id } =  params;
+  // const { id } =  params;
 
   return (
     <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">

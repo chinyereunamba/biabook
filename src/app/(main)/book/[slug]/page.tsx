@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
 import {
   BusinessProfileComponent,
-  type BusinessProfile,
 } from "@/components/application/booking/business-profile";
 import { Calendar } from "@/components/application/booking/calendar";
 import {
@@ -22,6 +21,43 @@ import {
   BookingConfirmation,
   type BookingConfirmationData,
 } from "@/components/application/booking/booking-confirmation";
+import Link from "next/link";
+
+interface BusinessProfile {
+  id: string;
+  name: string;
+  category: {
+    id: string;
+    name: string;
+  };
+  services: {
+    id: string;
+    name: string;
+    description: string;
+    duration: number;
+    price: number;
+  }[];
+  phone?: string;
+  email?: string;
+  location?: string;
+}
+
+interface AvailabilityResponse {
+  availability: {
+    date: string;
+    dayOfWeek: number;
+    slots: TimeSlot[];
+  }[];
+}
+
+interface CheckAvailabilityResponse {
+  available: boolean;
+}
+
+interface BookingResponse {
+  appointment: BookingConfirmationData;
+  error?: string;
+}
 
 export default function BookingPage() {
   const params = useParams();
@@ -47,16 +83,50 @@ export default function BookingPage() {
   const [bookingError, setBookingError] = useState<string | null>(null);
 
   // Availability state
-  const [availabilityData, setAvailabilityData] = useState<{
-    availability: Array<{
-      date: string;
-      dayOfWeek: number;
-      slots: TimeSlot[];
-    }>;
-  } | null>(null);
+  const [availabilityData, setAvailabilityData] =
+    useState<AvailabilityResponse | null>(null);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [availabilityError, setAvailabilityError] = useState<string | null>(
     null,
+  );
+
+  const fetchAvailability = useCallback(
+    async (serviceId: string) => {
+      try {
+        setAvailabilityLoading(true);
+        setAvailabilityError(null);
+
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        const startDate = `${year}-${month}-${day}`;
+
+        const params = new URLSearchParams({
+          serviceId,
+          startDate,
+          days: "30", // Get 30 days of availability
+        });
+
+        const response = await fetch(
+          `/api/businesses/${businessId}/availability?${params.toString()}`,
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch availability");
+        }
+
+        const data: AvailabilityResponse = await response.json();
+        setAvailabilityData(data);
+      } catch (err) {
+        setAvailabilityError(
+          err instanceof Error ? err.message : "Failed to load availability",
+        );
+      } finally {
+        setAvailabilityLoading(false);
+      }
+    },
+    [businessId],
   );
 
   // Fetch business data
@@ -70,7 +140,7 @@ export default function BookingPage() {
           throw new Error("Business not found");
         }
 
-        const businessData = await response.json();
+        const businessData: BusinessProfile = await response.json();
         setBusiness(businessData);
       } catch (err) {
         setError(
@@ -82,46 +152,9 @@ export default function BookingPage() {
     };
 
     if (businessId) {
-      fetchBusiness();
+      void fetchBusiness();
     }
   }, [businessId]);
-
-  // Fetch availability data
-  const fetchAvailability = async (serviceId: string) => {
-    try {
-      setAvailabilityLoading(true);
-      setAvailabilityError(null);
-
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, "0");
-      const day = String(today.getDate()).padStart(2, "0");
-      const startDate = `${year}-${month}-${day}`;
-
-      const params = new URLSearchParams({
-        serviceId,
-        startDate,
-        days: "30", // Get 30 days of availability
-      });
-
-      const response = await fetch(
-        `/api/businesses/${businessId}/availability?${params}`,
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch availability");
-      }
-
-      const data = await response.json();
-      setAvailabilityData(data);
-    } catch (err) {
-      setAvailabilityError(
-        err instanceof Error ? err.message : "Failed to load availability",
-      );
-    } finally {
-      setAvailabilityLoading(false);
-    }
-  };
 
   // Real-time availability checking
   const checkSlotAvailability = async (
@@ -138,14 +171,14 @@ export default function BookingPage() {
       });
 
       const response = await fetch(
-        `/api/businesses/${businessId}/availability/check?${params}`,
+        `/api/businesses/${businessId}/availability/check?${params.toString()}`,
       );
 
       if (!response.ok) {
         return false;
       }
 
-      const data = await response.json();
+      const data: CheckAvailabilityResponse = await response.json();
       return data.available;
     } catch (err) {
       console.error("Error checking slot availability:", err);
@@ -159,7 +192,7 @@ export default function BookingPage() {
     setSelectedTime(""); // Reset time selection
     setStep(2);
     // Fetch availability for the selected service
-    fetchAvailability(serviceId);
+    void fetchAvailability(serviceId);
   };
 
   const handleDateSelect = (date: string) => {
@@ -180,7 +213,7 @@ export default function BookingPage() {
     } else {
       // Refresh availability data if slot is no longer available
       if (selectedServiceId) {
-        fetchAvailability(selectedServiceId);
+        void fetchAvailability(selectedServiceId);
       }
       alert(
         "This time slot is no longer available. Please select another time.",
@@ -207,7 +240,7 @@ export default function BookingPage() {
         } else {
           // Refresh availability and show error
           if (selectedServiceId) {
-            fetchAvailability(selectedServiceId);
+            void fetchAvailability(selectedServiceId);
           }
           alert(
             "This time slot is no longer available. Please select another time.",
@@ -222,12 +255,16 @@ export default function BookingPage() {
   useEffect(() => {
     if (step === 2 && selectedServiceId) {
       const interval = setInterval(() => {
-        fetchAvailability(selectedServiceId);
+        void fetchAvailability(selectedServiceId);
       }, 30000); // 30 seconds
 
       return () => clearInterval(interval);
     }
-  }, [step, selectedServiceId, businessId]);
+  }, [step, selectedServiceId, fetchAvailability]);
+
+  const selectedService = business?.services.find(
+    (s) => s.id === selectedServiceId,
+  );
 
   const handleBookingSubmit = async (customerData: CustomerFormData) => {
     if (!selectedService || !selectedDate || !selectedTime) {
@@ -272,10 +309,10 @@ export default function BookingPage() {
         body: JSON.stringify(bookingData),
       });
 
-      const result = await response.json();
+      const result: BookingResponse = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to create booking");
+        throw new Error(result.error ?? "Failed to create booking");
       }
 
       // Set booking result and move to confirmation step
@@ -290,10 +327,6 @@ export default function BookingPage() {
       setBookingLoading(false);
     }
   };
-
-  const selectedService = business?.services.find(
-    (s) => s.id === selectedServiceId,
-  );
 
   // Loading state
   if (loading) {
@@ -319,10 +352,10 @@ export default function BookingPage() {
             Business Not Found
           </h1>
           <p className="mb-4 text-gray-600">
-            {error ?? "The business you&apos;re looking for doesn't exist."}
+            {error ?? "The business you're looking for doesn't exist."}
           </p>
           <Button asChild>
-            <a href="/">Back to Home</a>
+            <Link href="/">Back to Home</Link>
           </Button>
         </div>
       </div>
@@ -478,10 +511,11 @@ export default function BookingPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() =>
-                          selectedServiceId &&
-                          fetchAvailability(selectedServiceId)
-                        }
+                        onClick={() => {
+                          if (selectedServiceId) {
+                            void fetchAvailability(selectedServiceId);
+                          }
+                        }}
                         disabled={availabilityLoading}
                       >
                         <Loader2
@@ -530,10 +564,11 @@ export default function BookingPage() {
                         Error loading availability: {availabilityError}
                       </p>
                       <button
-                        onClick={() =>
-                          selectedServiceId &&
-                          fetchAvailability(selectedServiceId)
-                        }
+                        onClick={() => {
+                          if (selectedServiceId) {
+                            void fetchAvailability(selectedServiceId);
+                          }
+                        }}
                         className="mt-2 text-sm font-medium text-red-600 hover:text-red-800"
                       >
                         Try again

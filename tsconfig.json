@@ -24,6 +24,7 @@
     "jsx": "preserve",
     "plugins": [{ "name": "next" }],
     "incremental": true,
+    "types": ["vitest/globals"],
 
     /* Path Aliases */
     "baseUrl": ".",

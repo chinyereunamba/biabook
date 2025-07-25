@@ -119,7 +119,7 @@ export function BookingList({
     sortDirection,
   ]);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       weekday: "short",

@@ -52,7 +52,7 @@ export function BookingDetails({
   const [copied, setCopied] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       weekday: "long",
@@ -77,7 +77,7 @@ export function BookingDetails({
     return (priceInCents / 100).toFixed(2);
   };
 
-  const formatDateTime = (dateString: string, timeString: string) => {
+  const formatDateTime = (dateString: string | Date, timeString: string) => {
     const date = new Date(`${dateString}T${timeString}:00`);
     return date.toLocaleString("en-US", {
       weekday: "long",
@@ -287,7 +287,7 @@ export function BookingDetails({
                 <div>
                   <p className="text-sm text-gray-600">Date</p>
                   <p className="font-semibold">
-                    {formatDate(booking.appointmentDate)}
+                    {formatDate(booking?.appointmentDate)}
                   </p>
                 </div>
               </div>

@@ -39,10 +39,7 @@ export function ServiceGrid({
       searchQuery === ""
         ? true
         : service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (service.description &&
-            service.description
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase()));
+          (service.description?.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesCategory =
       activeCategory === null || service.category === activeCategory;

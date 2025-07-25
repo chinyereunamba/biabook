@@ -26,7 +26,7 @@ export function getTodayDateString(): string {
  * This avoids timezone issues that can occur with new Date(dateString)
  */
 export function parseYYYYMMDDToLocalDate(dateStr: string): Date | null {
-  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr);
   if (!match) return null;
 
   const [, year, month, day] = match;
