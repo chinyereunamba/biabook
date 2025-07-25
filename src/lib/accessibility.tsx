@@ -48,6 +48,7 @@ export type AriaRole =
 
 // Common ARIA attributes interface
 export interface AriaAttributes {
+  id?: string;
   role?: AriaRole;
   "aria-label"?: string;
   "aria-labelledby"?: string;
@@ -194,7 +195,7 @@ export class ScreenReaderUtils {
 
 // Hook for keyboard navigation
 export function useKeyboardNavigation(
-  containerRef: React.RefObject<HTMLElement>,
+  containerRef: React.RefObject<HTMLElement | null>,
   options: {
     onEscape?: () => void;
     onEnter?: () => void;
@@ -245,7 +246,7 @@ export function useKeyboardNavigation(
 // Hook for focus management in modals/dialogs
 export function useFocusManagement(
   isOpen: boolean,
-  containerRef: React.RefObject<HTMLElement>
+  containerRef: React.RefObject<HTMLElement | null>
 ) {
   useEffect(() => {
     if (!isOpen) return;
@@ -272,11 +273,6 @@ export function useFocusManagement(
 }
 
 // Hook for managing ARIA live regions
-export const LiveRegion = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => (
-  <div ref={ref} aria-live="polite" aria-atomic="true" className="sr-only" {...props} />
-));
-LiveRegion.displayName = "LiveRegion";
-
 export function useAriaLiveRegion() {
   const liveRegionRef = useRef<HTMLDivElement>(null);
 
@@ -294,7 +290,16 @@ export function useAriaLiveRegion() {
     }
   }, []);
 
-  return { announce, liveRegionRef };
+  const LiveRegion = useCallback(() => (
+    <div
+      ref={liveRegionRef}
+      aria-live="polite"
+      aria-atomic="true"
+      className="sr-only"
+    />
+  ), []);
+
+  return { announce, LiveRegion };
 }
 
 // Utility to generate accessible IDs
@@ -362,14 +367,14 @@ export function createAccessibleFormFieldProps(
     helpId,
     errorId,
     fieldProps: {
-      // id: fieldId,
+      id: fieldId,
       'aria-labelledby': labelId,
       'aria-describedby': describedByIds,
       'aria-required': options.required,
       'aria-invalid': options.invalid,
     },
     labelProps: {
-      // id: labelId,
+      id: labelId,
     },
   };
 }
@@ -377,19 +382,24 @@ export function createAccessibleFormFieldProps(
 // Color contrast utilities
 export class ColorContrastUtils {
   static hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+    if (!hex) {
+      return null;
+    }
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : null;
+    return result && result[1] && result[2] && result[3]
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
   }
 
   static getLuminance(r: number, g: number, b: number): number {
     const [rs, gs, bs] = [r, g, b].map(c => {
       c = c / 255;
       return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-    });
+    }) as [number, number, number];
     return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
   }
 

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Clock, DollarSign, X, Calendar, Info } from "lucide-react";
-import type { BusinessService } from "./business-profile";
+import type { BusinessService } from "@/hooks/use-business";
 
 interface ServiceDetailsProps {
   service: BusinessService | null;

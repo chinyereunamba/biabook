@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DollarSign, Clock, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { BusinessService } from "./business-profile";
+import type { BusinessService } from "@/hooks/use-business";
 import { ServiceGrid } from "./service-grid";
 import { ServiceDetails } from "./service-details";
 

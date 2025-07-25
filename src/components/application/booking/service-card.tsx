@@ -6,7 +6,7 @@ import { Clock, DollarSign, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAccessibleButton } from "@/hooks/use-accessibility";
 import { KEYBOARD_KEYS } from "@/lib/accessibility";
-import type { BusinessService } from "./business-profile";
+import type { BusinessService } from "@/hooks/use-business";
 
 interface ServiceCardProps {
   service: BusinessService;

@@ -212,9 +212,9 @@ function rgbToHex(rgb: string): string | null {
   const match = rgb.match(/\d+/g);
   if (!match || match.length < 3) return null;
 
-  const r = parseInt(match[0]);
-  const g = parseInt(match[1]);
-  const b = parseInt(match[2]);
+  const r = parseInt(match[0] ?? "0");
+  const g = parseInt(match[1] ?? "0");
+  const b = parseInt(match[2] ?? "0");
 
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }
@@ -223,13 +223,16 @@ function getLuminance(r: number, g: number, b: number): number {
   const [rs, gs, bs] = [r, g, b].map((c) => {
     c = c / 255;
     return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  });
+  }) as [number, number, number];
   return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
 }
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  if (!hex) {
+    return null;
+  }
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
+  return result && result[1] && result[2] && result[3]
     ? {
         r: parseInt(result[1], 16),
         g: parseInt(result[2], 16),

@@ -1,8 +1,8 @@
+export { BusinessProfileComponent } from "./business-profile";
 export {
-  BusinessProfileComponent,
   type BusinessProfile,
   type BusinessService,
-} from "./business-profile";
+} from "@/hooks/use-business";
 export { ServiceSelection } from "./service-selection";
 export { Calendar } from "./calendar";
 export { TimeSlotGrid, type TimeSlot } from "./time-slot-grid";

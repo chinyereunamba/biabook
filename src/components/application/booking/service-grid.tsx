@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ServiceCard } from "./service-card";
 import { cn } from "@/lib/utils";
-import type { BusinessService } from "./business-profile";
+import type { BusinessService } from "@/hooks/use-business";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +39,9 @@ export function ServiceGrid({
       searchQuery === ""
         ? true
         : service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (service.description?.toLowerCase().includes(searchQuery.toLowerCase()));
+          service.description
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase());
 
     const matchesCategory =
       activeCategory === null || service.category === activeCategory;

@@ -5,9 +5,9 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
-import {
-  BusinessProfileComponent,
-} from "@/components/application/booking/business-profile";
+import { BusinessProfileComponent } from "@/components/application/booking/business-profile";
+import { ServiceCard } from "@/components/application/booking/service-card";
+import { ServiceGrid } from "@/components/application/booking/service-grid";
 import { Calendar } from "@/components/application/booking/calendar";
 import {
   TimeSlotGrid,
@@ -21,26 +21,8 @@ import {
   BookingConfirmation,
   type BookingConfirmationData,
 } from "@/components/application/booking/booking-confirmation";
+import { useBusiness, type BusinessProfile } from "@/hooks/use-business";
 import Link from "next/link";
-
-interface BusinessProfile {
-  id: string;
-  name: string;
-  category: {
-    id: string;
-    name: string;
-  };
-  services: {
-    id: string;
-    name: string;
-    description: string;
-    duration: number;
-    price: number;
-  }[];
-  phone?: string;
-  email?: string;
-  location?: string;
-}
 
 interface AvailabilityResponse {
   availability: {
@@ -63,10 +45,8 @@ export default function BookingPage() {
   const params = useParams();
   const businessId = params.slug as string;
 
-  // State management
-  const [business, setBusiness] = useState<BusinessProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Use the custom hook for business data
+  const { business, loading, error } = useBusiness(businessId);
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
@@ -129,32 +109,7 @@ export default function BookingPage() {
     [businessId],
   );
 
-  // Fetch business data
-  useEffect(() => {
-    const fetchBusiness = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/businesses/${businessId}`);
-
-        if (!response.ok) {
-          throw new Error("Business not found");
-        }
-
-        const businessData: BusinessProfile = await response.json();
-        setBusiness(businessData);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load business",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (businessId) {
-      void fetchBusiness();
-    }
-  }, [businessId]);
+  // Business data is now handled by the useBusiness hook
 
   // Real-time availability checking
   const checkSlotAvailability = async (
@@ -391,53 +346,11 @@ export default function BookingPage() {
                     </p>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {business.services.map((service) => (
-                        <Card
-                          key={service.id}
-                          className={`cursor-pointer transition-all hover:shadow-md ${
-                            selectedServiceId === service.id
-                              ? "border-purple-500 ring-2 ring-purple-500"
-                              : "hover:border-purple-300"
-                          }`}
-                          onClick={() => handleServiceSelect(service.id)}
-                        >
-                          <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <h3 className="text-lg font-semibold">
-                                  {service.name}
-                                </h3>
-                                {service.description && (
-                                  <p className="mt-1 text-sm text-gray-600">
-                                    {service.description}
-                                  </p>
-                                )}
-                                <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                                  <span>{service.duration} minutes</span>
-                                  <span>•</span>
-                                  <span>
-                                    ${(service.price / 100).toFixed(2)}
-                                  </span>
-                                </div>
-                              </div>
-                              <Button
-                                size={"sm"}
-                                variant={
-                                  selectedServiceId === service.id
-                                    ? "primary"
-                                    : "outline"
-                                }
-                              >
-                                {selectedServiceId === service.id
-                                  ? "Selected"
-                                  : "Select"}
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
+                    <ServiceGrid
+                      services={business.services}
+                      selectedServiceId={selectedServiceId}
+                      onServiceSelect={handleServiceSelect}
+                    />
                   </CardContent>
                 </Card>
               </div>
