@@ -17,14 +17,14 @@ export const env = createEnv({
       .string()
       .refine(
         (val) =>
-          val.startsWith("file:") ??
-          val.startsWith("http") ??
-          val.startsWith("libsql:"),
+          val.startsWith("file:") ||
+      val.startsWith("http") ||
+      val.startsWith("libsql:"),
         {
           message: "DATABASE_URL must be a valid URL or a file path",
         },
       ),
-    // DATABASE_AUTH_TOKEN: z.strinag(),
+    DATABASE_AUTH_TOKEN: z.string().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -60,7 +60,7 @@ export const env = createEnv({
     AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,
     AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
-    // DATABASE_AUTH_TOKEN: process.env.DATABASE_AUTH_TOKEN,
+    DATABASE_AUTH_TOKEN: process.env.DATABASE_AUTH_TOKEN,
     NODE_ENV: process.env.NODE_ENV,
     // Email configuration
     EMAIL_FROM: process.env.EMAIL_FROM,

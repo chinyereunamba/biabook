@@ -3,14 +3,24 @@ import { db } from "@/server/db";
 import { appointments, services, businesses } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { notificationService } from "@/server/notifications/notification-service";
+import { withErrorHandler } from "@/app/api/_middleware/error-handler";
+import { BookingErrors, toBookingError } from "@/server/errors/booking-errors";
+import { bookingLogger } from "@/server/logging/booking-logger";
 
-export async function POST(
+async function cancelBookingHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params;
+  const startTime = Date.now();
+  const { id } = await params;
+  const context = {
+    operation: "cancelBooking",
+    path: `/api/bookings/${id}/cancel`,
+    method: "POST",
+    appointmentId: id,
+  };
 
+  try {
     // Find the appointment
     const [appointmentData] = await db
       .select({
@@ -25,17 +35,20 @@ export async function POST(
       .limit(1);
 
     if (!appointmentData) {
-      return NextResponse.json(
-        { message: "Booking not found" },
-        { status: 404 },
-      );
+      bookingLogger.warn("Appointment not found for cancellation", context);
+      throw BookingErrors.appointmentNotFound(id);
     }
 
     // Check if the booking is already cancelled
     if (appointmentData.appointment.status === "cancelled") {
-      return NextResponse.json(
-        { message: "Booking is already cancelled" },
-        { status: 400 },
+      bookingLogger.warn("Attempt to cancel already cancelled booking", {
+        ...context,
+        currentStatus: appointmentData.appointment.status,
+      });
+      throw BookingErrors.validation(
+        "This booking has already been cancelled",
+        "status",
+        ["You can view your booking history in your account"],
       );
     }
 
@@ -44,10 +57,11 @@ export async function POST(
       `${appointmentData.appointment.appointmentDate}T${appointmentData.appointment.startTime}:00`,
     );
     if (appointmentDate < new Date()) {
-      return NextResponse.json(
-        { message: "Cannot cancel a booking that has already passed" },
-        { status: 400 },
-      );
+      bookingLogger.warn("Attempt to cancel past booking", {
+        ...context,
+        appointmentDate: appointmentDate.toISOString(),
+      });
+      throw BookingErrors.pastAppointment();
     }
 
     // Check if the booking is within 2 hours
