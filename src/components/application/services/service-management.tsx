@@ -52,8 +52,8 @@ export function ServiceManagement({
       setDialogOpen(false);
       setEditingService(null);
     } catch (error) {
-      console.error("Failed to save service:", error);
-      throw error; // Re-throw to let the form handle the error
+      // Let the form handle the error with proper UI error components
+      throw error;
     } finally {
       setFormLoading(false);
     }

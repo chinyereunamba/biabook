@@ -262,6 +262,11 @@ async function createBookingHandler(request: NextRequest) {
         service,
         businessForScheduler,
       );
+
+      bookingLogger.info("Booking notifications scheduled successfully", {
+        ...context,
+        appointmentId: newAppointment.id,
+      });
     } catch (error) {
       bookingLogger.warn(
         "Failed to schedule booking notifications",

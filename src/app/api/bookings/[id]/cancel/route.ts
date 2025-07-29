@@ -9,10 +9,10 @@ import { bookingLogger } from "@/server/logging/booking-logger";
 
 async function cancelBookingHandler(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: { id: string } },
 ) {
   const startTime = Date.now();
-  const { id } = await params;
+  const { id } = params;
   const context = {
     operation: "cancelBooking",
     path: `/api/bookings/${id}/cancel`,
@@ -70,9 +70,19 @@ async function cancelBookingHandler(
       (appointmentDate.getTime() - now.getTime()) / (1000 * 60 * 60);
 
     if (diffInHours <= 2) {
-      // For bookings within 2 hours, we'll still allow cancellation but mark it for business approval
-      // In a real app, you might want to handle this differently
-      console.log("Booking is within 2 hours of appointment time");
+      bookingLogger.warn("Cancellation within 2-hour window", {
+        ...context,
+        hoursUntilAppointment: diffInHours,
+      });
+      throw BookingErrors.validation(
+        "Cancellations must be made at least 2 hours before the appointment",
+        "cancellationTime",
+        [
+          "Please contact the business directly to cancel this appointment",
+          `Business phone: ${appointmentData.business.phone}`,
+          "Late cancellation fees may apply",
+        ],
+      );
     }
 
     // Update the appointment status to cancelled
@@ -91,8 +101,8 @@ async function cancelBookingHandler(
 
     const businessForNotification = {
       ...appointmentData.business,
-      slug: appointmentData.business.slug ?? "", // Add a fallback for slug
-      userId: appointmentData.business.ownerId, // Assuming ownerId is the userId
+      slug: appointmentData.business.slug ?? "",
+      userId: appointmentData.business.ownerId,
     };
 
     // Send cancellation notifications
@@ -110,13 +120,30 @@ async function cancelBookingHandler(
         appointmentData.service,
         businessForNotification,
       );
+
+      bookingLogger.info("Cancellation notifications sent successfully", {
+        ...context,
+        customerEmail: appointmentData.appointment.customerEmail,
+      });
     } catch (notificationError) {
-      console.error(
-        "Error sending cancellation notifications:",
-        notificationError,
+      bookingLogger.warn(
+        "Failed to send cancellation notifications",
+        {
+          ...context,
+          customerEmail: appointmentData.appointment.customerEmail,
+        },
+        {
+          error:
+            notificationError instanceof Error
+              ? notificationError.message
+              : String(notificationError),
+        },
       );
       // Continue with the cancellation even if notifications fail
     }
+
+    const duration = Date.now() - startTime;
+    bookingLogger.logBookingOperation("cancelBooking", true, duration, context);
 
     // Check if the request wants a redirect or JSON response
     const redirectUrl = request.nextUrl.searchParams.get("redirect");
@@ -132,10 +159,18 @@ async function cancelBookingHandler(
       id: appointmentData.appointment.id,
     });
   } catch (error) {
-    console.error("Error cancelling booking:", error);
-    return NextResponse.json(
-      { message: "Failed to cancel booking" },
-      { status: 500 },
+    const duration = Date.now() - startTime;
+    const bookingError = toBookingError(error);
+
+    bookingLogger.logBookingOperation(
+      "cancelBooking",
+      false,
+      duration,
+      context,
+      bookingError,
     );
+
+    throw bookingError;
   }
 }
+export const POST = withErrorHandler(cancelBookingHandler);

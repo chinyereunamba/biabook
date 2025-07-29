@@ -12,6 +12,10 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  LoadingServiceGrid,
+  PulseLoading,
+} from "@/components/ui/loading-states";
 import { BookingOverviewCards } from "./booking-overview-cards";
 import { RevenueChart } from "./revenue-chart";
 import { ServicePerformanceTable } from "./service-performance-table";
@@ -67,7 +71,7 @@ export function AnalyticsDashboard() {
 
         return response.json() as Promise<AnalyticsResponse>;
       } catch (error) {
-        console.error("Error fetching analytics:", error);
+        // Let the error bubble up to be handled by React Query error handling
         throw error;
       }
     },
@@ -149,7 +153,7 @@ export function AnalyticsDashboard() {
 
         <TabsContent value="overview" className="space-y-6">
           {isLoading ? (
-            <OverviewSkeleton />
+            <LoadingServiceGrid count={4} />
           ) : analyticsData ? (
             <>
               <BookingOverviewCards data={analyticsData.overview} />
@@ -200,7 +204,7 @@ export function AnalyticsDashboard() {
 
         <TabsContent value="revenue" className="space-y-6">
           {isLoading ? (
-            <RevenueSkeleton />
+            <PulseLoading className="space-y-4" />
           ) : analyticsData ? (
             <>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -285,7 +289,7 @@ export function AnalyticsDashboard() {
 
         <TabsContent value="services" className="space-y-6">
           {isLoading ? (
-            <ServicesSkeleton />
+            <LoadingServiceGrid count={3} />
           ) : analyticsData?.services ? (
             <Card>
               <CardHeader>
@@ -315,7 +319,7 @@ export function AnalyticsDashboard() {
 
         <TabsContent value="customers" className="space-y-6">
           {isLoading ? (
-            <CustomersSkeleton />
+            <PulseLoading className="space-y-4" />
           ) : analyticsData ? (
             <>
               <CustomerMetricsCards

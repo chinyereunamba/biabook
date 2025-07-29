@@ -29,6 +29,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LoadingButton } from "@/components/ui/loading-states";
 
 export interface BookingDetailsData {
   id: string;
@@ -552,20 +553,14 @@ export function CustomerBookingDetails({
             >
               Keep Booking
             </Button>
-            <Button
-              variant="destructive"
+            <LoadingButton
               onClick={handleCancelBooking}
-              disabled={isLoading}
+              loading={isLoading}
+              loadingText="Processing..."
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                "Cancel Booking"
-              )}
-            </Button>
+              Cancel Booking
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -601,16 +596,13 @@ export function CustomerBookingDetails({
             >
               Cancel
             </Button>
-            <Button onClick={handleReschedule} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                "Continue to Reschedule"
-              )}
-            </Button>
+            <LoadingButton
+              onClick={handleReschedule}
+              loading={isLoading}
+              loadingText="Processing..."
+            >
+              Continue to Reschedule
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

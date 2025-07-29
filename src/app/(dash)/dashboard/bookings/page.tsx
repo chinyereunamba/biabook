@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { LoadingOverlay } from "@/components/ui/loading-states";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
@@ -229,12 +230,7 @@ export default function BookingsPage() {
   };
 
   if (loading && bookings.length === 0) {
-    return (
-      <div className="flex h-full w-full items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-        <p className="ml-2 text-gray-600">Loading bookings...</p>
-      </div>
-    );
+    return <LoadingOverlay message="Loading bookings..." transparent={false} />;
   }
 
   return (

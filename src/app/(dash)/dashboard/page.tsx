@@ -12,6 +12,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LoadingOverlay } from "@/components/ui/loading-states";
 import {
   Card,
   CardContent,
@@ -163,10 +164,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-gray-50">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-        <p className="mt-2 text-sm text-gray-600">Loading dashboard data...</p>
-      </div>
+      <LoadingOverlay message="Loading dashboard data..." transparent={false} />
     );
   }
 

@@ -5,6 +5,12 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
+import {
+  ErrorFeedback,
+  RetryFeedback,
+  WarningFeedback,
+} from "@/components/ui/feedback-states";
+import { LoadingOverlay, Spinner } from "@/components/ui/loading-states";
 import { BusinessProfileComponent } from "@/components/application/booking/business-profile";
 
 import { ServiceGrid } from "@/components/application/booking/service-grid";
@@ -21,6 +27,7 @@ import {
 import { useBusiness } from "@/hooks/use-business";
 import { useAvailability } from "@/hooks/use-availability";
 import { useBooking, createBookingRequest } from "@/hooks/use-booking";
+import { toast } from "sonner";
 import Link from "next/link";
 
 interface BookingResponse {
@@ -72,9 +79,16 @@ export default function BookingPage() {
     onSuccess: (appointment) => {
       setBookingResult(appointment);
       setStep(4);
+      // Show success toast with WhatsApp notification info
+      toast.success("Booking confirmed!", {
+        description: "The business owner will be notified via WhatsApp",
+      });
     },
     onError: (error) => {
-      console.error("Booking submission error:", error);
+      // Show error toast
+      toast.error("Booking failed", {
+        description: error.message || "Please try again",
+      });
     },
   });
 
@@ -160,12 +174,10 @@ export default function BookingPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-purple-600" />
-          <p className="text-gray-600">Loading business information...</p>
-        </div>
-      </div>
+      <LoadingOverlay
+        message="Loading business information..."
+        transparent={false}
+      />
     );
   }
 
@@ -173,19 +185,16 @@ export default function BookingPage() {
   if (error ?? !business) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="mb-4 text-red-500">
-            <CheckCircle className="mx-auto h-12 w-12" />
-          </div>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">
-            Business Not Found
-          </h1>
-          <p className="mb-4 text-gray-600">
-            {error ?? "The business you're looking for doesn't exist."}
-          </p>
-          <Button asChild>
-            <Link href="/">Back to Home</Link>
-          </Button>
+        <div className="max-w-md">
+          <ErrorFeedback
+            title="Business Not Found"
+            message={error ?? "The business you're looking for doesn't exist."}
+            action={
+              <Button asChild>
+                <Link href="/">Back to Home</Link>
+              </Button>
+            }
+          />
         </div>
       </div>
     );
@@ -203,6 +212,8 @@ export default function BookingPage() {
                 <div className="sticky top-8">
                   <BusinessProfileComponent
                     business={business}
+                    showSharing={true}
+                    showContact={true}
                   />
                 </div>
               </div>
@@ -287,7 +298,7 @@ export default function BookingPage() {
                       <h2 className="text-2xl font-bold">Select Date & Time</h2>
                       {availabilityLoading && (
                         <div className="flex items-center space-x-2 text-sm text-gray-500">
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Spinner size="sm" />
                           <span>Updating availability...</span>
                         </div>
                       )}
@@ -299,8 +310,9 @@ export default function BookingPage() {
                         onClick={() => void refreshAvailability()}
                         disabled={availabilityLoading}
                       >
-                        <Loader2
-                          className={`mr-2 h-4 w-4 ${availabilityLoading ? "animate-spin" : ""}`}
+                        <Spinner
+                          size="sm"
+                          className={availabilityLoading ? "" : "opacity-0"}
                         />
                         Refresh
                       </Button>
@@ -342,17 +354,11 @@ export default function BookingPage() {
                   </div>
 
                   {availabilityError && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                      <p className="text-sm text-red-800">
-                        Error loading availability: {availabilityError}
-                      </p>
-                      <button
-                        onClick={() => void refreshAvailability()}
-                        className="mt-2 text-sm font-medium text-red-600 hover:text-red-800"
-                      >
-                        Try again
-                      </button>
-                    </div>
+                    <RetryFeedback
+                      message={`Error loading availability: ${availabilityError}`}
+                      onRetry={() => void refreshAvailability()}
+                      retrying={availabilityLoading}
+                    />
                   )}
 
                   {!availabilityLoading &&
@@ -361,13 +367,10 @@ export default function BookingPage() {
                     availabilityData.availability.every(
                       (day) => day.slots.length === 0,
                     ) && (
-                      <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-                        <p className="text-sm text-yellow-800">
-                          No availability found for the selected service in the
-                          next 30 days. Please try selecting a different service
-                          or contact the business directly.
-                        </p>
-                      </div>
+                      <WarningFeedback
+                        title="No Availability Found"
+                        message="No availability found for the selected service in the next 30 days. Please try selecting a different service or contact the business directly."
+                      />
                     )}
 
                   {selectedDate && selectedTime && (

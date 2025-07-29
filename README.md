@@ -267,7 +267,7 @@ The database connection is configured in `src/server/db/index.ts` using the `@li
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/bookme.git
+   git clone https://github.com/yourusername/biabook.git
    cd bookme
    ```
 

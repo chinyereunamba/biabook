@@ -4,6 +4,7 @@ import * as React from "react";
 import { ServiceManagement } from "@/components/application/services";
 import { useServices } from "@/lib/api/services";
 import type { ServiceFormData } from "@/components/application/services/service-form";
+import { RetryFeedback } from "@/components/ui/feedback-states";
 
 export default function ServicesPage() {
   const {
@@ -39,17 +40,12 @@ export default function ServicesPage() {
   if (error) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-destructive text-lg font-semibold">
-            Error Loading Services
-          </h2>
-          <p className="text-muted-foreground mt-2">{error}</p>
-          <button
-            onClick={() => fetchServices()}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 mt-4 rounded-md px-4 py-2"
-          >
-            Try Again
-          </button>
+        <div className="max-w-md">
+          <RetryFeedback
+            message={error}
+            onRetry={() => fetchServices()}
+            retrying={loading}
+          />
         </div>
       </div>
     );

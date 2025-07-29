@@ -80,7 +80,8 @@ export function ServiceList({
       setDeleteDialogOpen(false);
       setServiceToDelete(null);
     } catch (error) {
-      console.error("Failed to delete service:", error);
+      // Error will be handled by the parent component's error handling
+      throw error;
     } finally {
       setIsDeleting(false);
     }

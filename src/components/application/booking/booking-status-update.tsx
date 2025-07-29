@@ -119,8 +119,8 @@ export function BookingStatusUpdate({
         onClose();
       }
     } catch (error) {
-      console.error("Failed to update status:", error);
-      // You might want to show an error toast here
+      // Error will be handled by the parent component's error handling
+      throw error;
     } finally {
       setLoading(false);
     }

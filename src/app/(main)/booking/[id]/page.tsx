@@ -72,7 +72,7 @@ export default async function BookingDetailsPage({ params }: BookingPageProps) {
       </div>
     );
   } catch (error) {
-    console.error("Error fetching booking details:", error);
+    // Log error for debugging but don't expose details to user
     return notFound();
   }
 }

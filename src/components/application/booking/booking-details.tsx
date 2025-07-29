@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ContactSharingComponent } from "@/components/ui/sharing";
 import {
   Dialog,
   DialogContent,
@@ -422,6 +423,14 @@ export function BookingDetails({
             </CardContent>
           </Card>
         </div>
+
+        {/* Contact Business */}
+        <ContactSharingComponent
+          businessName={booking.business.name}
+          businessPhone={booking.business.phone ?? undefined}
+          businessEmail={booking.business.email ?? undefined}
+          businessLocation={booking.business.location ?? undefined}
+        />
 
         {/* Timeline */}
         <Card>

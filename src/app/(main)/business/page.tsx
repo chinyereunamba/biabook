@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RetryFeedback } from "@/components/ui/feedback-states";
+import { LoadingOverlay } from "@/components/ui/loading-states";
 import {
   Calendar,
   Search,
@@ -85,21 +87,18 @@ export default function FindBusinessPage() {
 
   if (loading) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin" />
-          <p className="text-gray-600">Loading businesses...</p>
-        </div>
-      </div>
+      <LoadingOverlay message="Loading businesses..." transparent={false} />
     );
   }
 
   if (error) {
     return (
       <div className="bg-background flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <p className="mb-4 text-red-600">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        <div className="max-w-md">
+          <RetryFeedback
+            message={error}
+            onRetry={() => window.location.reload()}
+          />
         </div>
       </div>
     );

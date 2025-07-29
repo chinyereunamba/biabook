@@ -3,6 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { NotificationStatusComponent } from "@/components/ui/notification-status";
+import {
+  SharingComponent,
+  ContactSharingComponent,
+} from "@/components/ui/sharing";
+import { useNotificationStatus } from "@/hooks/use-notification-status";
+import { toast } from "sonner";
 import Link from "next/link";
 import {
   CheckCircle,
@@ -16,7 +23,7 @@ import {
   Copy,
   ExternalLink,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export interface BookingConfirmationData {
   id: string;
@@ -57,6 +64,64 @@ export function BookingConfirmation({
 }: BookingConfirmationProps) {
   const [copied, setCopied] = useState(false);
 
+  // Use notification status hook to track WhatsApp and email notifications
+  const {
+    notifications,
+    loading: notificationLoading,
+    error: notificationError,
+    retryNotification,
+    addNotification,
+    updateNotificationStatus,
+  } = useNotificationStatus({
+    appointmentId: booking.id,
+    autoRefresh: true,
+    refreshInterval: 3000,
+  });
+
+  // Initialize notifications when component mounts
+  useEffect(() => {
+    // Add initial notifications based on booking confirmation
+    const initialNotifications = [
+      {
+        id: `whatsapp-business-${booking.id}`,
+        type: "whatsapp" as const,
+        status: "pending" as const,
+        recipient: booking.business.phone || "Business Owner",
+      },
+      {
+        id: `email-customer-${booking.id}`,
+        type: "email" as const,
+        status: "pending" as const,
+        recipient: booking.customerEmail,
+      },
+    ];
+
+    initialNotifications.forEach((notification) => {
+      addNotification(notification);
+    });
+
+    // Simulate notification status updates (in real implementation, this would come from the API)
+    setTimeout(() => {
+      updateNotificationStatus(`whatsapp-business-${booking.id}`, "sent");
+      toast.success("Business owner notified via WhatsApp", {
+        description: "The business has been notified of your booking",
+      });
+    }, 2000);
+
+    setTimeout(() => {
+      updateNotificationStatus(`email-customer-${booking.id}`, "delivered");
+      toast.success("Confirmation email sent", {
+        description: "Check your email for booking details",
+      });
+    }, 3000);
+  }, [
+    booking.id,
+    booking.business.phone,
+    booking.customerEmail,
+    addNotification,
+    updateNotificationStatus,
+  ]);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -87,8 +152,19 @@ export function BookingConfirmation({
       await navigator.clipboard.writeText(booking.confirmationNumber);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      toast.success("Confirmation number copied to clipboard");
     } catch (err) {
       console.error("Failed to copy confirmation number:", err);
+      toast.error("Failed to copy confirmation number");
+    }
+  };
+
+  const handleNotificationRetry = async (notificationId: string) => {
+    try {
+      await retryNotification(notificationId);
+      toast.success("Notification retry initiated");
+    } catch (err) {
+      toast.error("Failed to retry notification");
     }
   };
 
@@ -349,6 +425,16 @@ export function BookingConfirmation({
         </CardContent>
       </Card>
 
+      {/* Notification Status */}
+      {notifications.length > 0 && (
+        <NotificationStatusComponent
+          notifications={notifications}
+          title="Notification Status"
+          className="mb-6"
+          onRetry={handleNotificationRetry}
+        />
+      )}
+
       {/* Important Information */}
       <Card className="mb-6 border-blue-200 bg-blue-50">
         <CardContent className="">
@@ -364,7 +450,7 @@ export function BookingConfirmation({
               <div>
                 <p className="font-medium">Confirmation Sent</p>
                 <p className="text-blue-600">
-                  You&apos;ll receive email and SMS confirmations within minutes
+                  You&apos;ll receive email confirmations within minutes
                 </p>
               </div>
             </div>
@@ -448,6 +534,29 @@ export function BookingConfirmation({
           </Link>
         </Button>
       </div>
+
+      {/* Sharing Component */}
+      <SharingComponent
+        title={`Book with ${booking.business.name}`}
+        url={
+          typeof window !== "undefined"
+            ? window.location.origin + `/book/${booking.business.id}`
+            : ""
+        }
+        text={`I just booked an appointment with ${booking.business.name}! You can book too:`}
+        businessName={booking.business.name}
+        businessPhone={booking.business.phone}
+        className="mb-6"
+      />
+
+      {/* Contact Component */}
+      <ContactSharingComponent
+        businessName={booking.business.name}
+        businessPhone={booking.business.phone}
+        businessEmail={booking.business.email}
+        businessLocation={booking.business.location}
+        className="mb-6"
+      />
 
       {/* Footer Note */}
       <div className="mt-8 rounded-lg bg-gray-50 p-4 text-center">

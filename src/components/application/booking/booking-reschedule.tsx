@@ -27,6 +27,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import type { AppointmentWithDetails, TimeSlot } from "@/types/booking";
+import { LoadingButton } from "@/components/ui/loading-states";
 
 interface BookingRescheduleProps {
   booking: AppointmentWithDetails;
@@ -98,8 +99,9 @@ export function BookingReschedule({
       const data = await response.json();
       setAvailableSlots(data.timeSlots || []);
     } catch (error) {
-      console.error("Error fetching available slots:", error);
+      // Set empty slots and let user know via UI
       setAvailableSlots([]);
+      // Error will be shown in the UI through empty state
     } finally {
       setLoadingSlots(false);
     }
@@ -164,8 +166,8 @@ export function BookingReschedule({
         onClose();
       }
     } catch (error) {
-      console.error("Failed to reschedule booking:", error);
-      // You might want to show an error toast here
+      // Error will be handled by the parent component's error handling
+      throw error;
     } finally {
       setLoading(false);
       setShowConfirmDialog(false);
@@ -451,9 +453,9 @@ export function BookingReschedule({
             >
               Go Back
             </Button>
-            <Button onClick={handleConfirmReschedule} disabled={loading}>
-              {loading ? "Rescheduling..." : "Confirm Reschedule"}
-            </Button>
+            <LoadingButton loading={loading} loadingText="Rescheduling...">
+              Confirm Reschedule
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

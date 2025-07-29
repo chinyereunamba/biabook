@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InlineLoading } from "@/components/ui/loading-states";
 import { Textarea } from "@/components/ui/textarea";
 
 interface BookingDetails {
@@ -216,10 +217,11 @@ export function BookingRescheduleForm({ booking }: BookingRescheduleFormProps) {
           <h2 className="mb-4 text-lg font-semibold">Select New Time</h2>
 
           {isLoadingTimeSlots ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              <span>Loading available times...</span>
-            </div>
+            <InlineLoading
+              size="md"
+              text="Loading available times..."
+              className="flex justify-center py-8"
+            />
           ) : timeSlots && timeSlots.length > 0 ? (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
               {timeSlots.map((slot, index) => (

@@ -82,9 +82,6 @@ export function ServiceCard({
                 </Badge>
               )}
             </div>
-            {isSelected && (
-              <CheckCircle className="ml-2 h-5 w-5 text-purple-600" />
-            )}
           </div>
 
           {service.description && (

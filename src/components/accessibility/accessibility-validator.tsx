@@ -81,7 +81,7 @@ export function AccessibilityValidator({
 
       setReport(testReport);
     } catch (error) {
-      console.error("Accessibility test failed:", error);
+      // Silently handle accessibility test errors
     } finally {
       setIsRunning(false);
     }

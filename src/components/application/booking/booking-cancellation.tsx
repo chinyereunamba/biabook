@@ -33,6 +33,7 @@ import {
   Phone,
 } from "lucide-react";
 import { type AppointmentWithDetails } from "@/types/booking";
+import { LoadingButton } from "@/components/ui/loading-states";
 
 interface BookingCancellationProps {
   booking: AppointmentWithDetails;
@@ -174,8 +175,8 @@ export function BookingCancellation({
         onClose();
       }
     } catch (error) {
-      console.error("Failed to cancel booking:", error);
-      // You might want to show an error toast here
+      // Error will be handled by the parent component's error handling
+      throw error;
     } finally {
       setLoading(false);
       setShowConfirmDialog(false);
@@ -423,13 +424,15 @@ export function BookingCancellation({
             <Button variant="outline" onClick={onClose} disabled={loading}>
               Keep Appointment
             </Button>
-            <Button
-              variant="destructive"
+            <LoadingButton
+              className="bg-red-600 text-white hover:bg-red-700"
               onClick={handleCancel}
-              disabled={!isFormValid || loading}
+              disabled={!isFormValid}
+              loading={loading}
+              loadingText="Cancelling..."
             >
-              {loading ? "Cancelling..." : "Cancel Appointment"}
-            </Button>
+              Cancel Appointment
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -472,13 +475,14 @@ export function BookingCancellation({
             >
               Go Back
             </Button>
-            <Button
-              variant="destructive"
+            <LoadingButton
+              className="bg-red-600 text-white hover:bg-red-700"
               onClick={handleConfirmCancel}
-              disabled={loading}
+              loading={loading}
+              loadingText="Processing..."
             >
-              {loading ? "Processing..." : "Confirm Cancellation"}
-            </Button>
+              Confirm Cancellation
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>

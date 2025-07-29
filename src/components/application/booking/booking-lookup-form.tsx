@@ -18,6 +18,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { LoadingButton } from "@/components/ui/loading-states";
 
 // Form schema
 const lookupSchema = z.object({
@@ -105,19 +106,15 @@ export function BookingLookupForm() {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Looking up...
-                </>
-              ) : (
-                <>
-                  <Search className="mr-2 h-4 w-4" />
-                  Find Booking
-                </>
-              )}
-            </Button>
+            <LoadingButton
+              type="submit"
+              className="w-full"
+              loading={isLoading}
+              loadingText="Looking up..."
+            >
+              <Search className="mr-2 h-4 w-4" />
+              Find Booking
+            </LoadingButton>
           </form>
         </Form>
 

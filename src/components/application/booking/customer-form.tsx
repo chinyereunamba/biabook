@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { User, Mail, Phone, MessageSquare, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { useAccessibleForm } from "@/hooks/use-accessibility";
+import { FormFeedback, ErrorFeedback } from "@/components/ui/feedback-states";
 
 // Validation schema
 const customerFormSchema = z.object({
@@ -209,8 +210,9 @@ export function CustomerForm({
   return (
     <Card className={className}>
       <CardContent className="p-6">
-        <div ref={containerRef}>
+        <div ref={containerRef as React.RefObject<HTMLDivElement>}>
           <form onSubmit={handleSubmit} className="space-y-6">
+            <FormFeedback errors={errors} />
             {/* Name Field */}
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-medium">
@@ -383,29 +385,12 @@ export function CustomerForm({
 
             {/* External Error Display */}
             {error && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                <div className="flex items-start space-x-2">
-                  <span className="text-red-600" aria-hidden="true">
-                    ⚠️
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-red-800">
-                      Booking Error
-                    </p>
-                    <p className="text-sm text-red-700">{error}</p>
-                  </div>
-                  {onErrorClear && (
-                    <button
-                      type="button"
-                      onClick={onErrorClear}
-                      className="text-red-600 hover:text-red-800"
-                      aria-label="Dismiss error"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              </div>
+              <ErrorFeedback
+                title="Booking Error"
+                message={error}
+                dismissible={!!onErrorClear}
+                onDismiss={onErrorClear}
+              />
             )}
 
             {/* Submit Button */}

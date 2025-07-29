@@ -86,7 +86,8 @@ export function ServiceForm({
     try {
       await onSubmit(formData);
     } catch (error) {
-      console.error("Failed to submit service form:", error);
+      // Error will be handled by the parent component's error handling
+      throw error;
     }
   };
 

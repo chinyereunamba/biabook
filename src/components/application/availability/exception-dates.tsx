@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { FormFeedback } from "@/components/ui/feedback-states";
+import { LoadingButton } from "@/components/ui/loading-states";
 import {
   Dialog,
   DialogContent,
@@ -147,7 +149,7 @@ export function ExceptionDates({
         });
       }
     } catch (error) {
-      console.error("Failed to add exception:", error);
+      // Use toast for user feedback instead of console.error
       toast.error("Failed to add exception. Please try again.");
     }
   };
@@ -159,7 +161,7 @@ export function ExceptionDates({
         toast.success("Exception deleted successfully");
       }
     } catch (error) {
-      console.error("Failed to delete exception:", error);
+      // Use toast for user feedback instead of console.error
       toast.error("Failed to delete exception. Please try again.");
     }
   };
@@ -185,6 +187,7 @@ export function ExceptionDates({
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
+              <FormFeedback errors={errors} />
               <div className="grid gap-2">
                 <Label htmlFor="exception-date">Date</Label>
                 <Input
@@ -274,9 +277,9 @@ export function ExceptionDates({
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleAddException} disabled={isLoading}>
-                {isLoading ? "Adding..." : "Add Exception"}
-              </Button>
+              <LoadingButton loading={isLoading} loadingText="Adding...">
+                Add Exception
+              </LoadingButton>
             </DialogFooter>
           </DialogContent>
         </Dialog>

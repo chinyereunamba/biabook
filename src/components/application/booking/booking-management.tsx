@@ -20,6 +20,13 @@ import { BookingDetails } from "./booking-details";
 import { BookingStatusUpdate } from "./booking-status-update";
 import { BookingCancellation } from "./booking-cancellation";
 import { BookingReschedule } from "./booking-reschedule";
+import {
+  ErrorDisplay,
+  useErrorHandler,
+  type ErrorInfo,
+} from "@/components/base/error-display";
+import { useApiErrorHandler } from "@/utils/error-transformation";
+import { toast } from "sonner";
 
 interface BookingManagementProps {
   businessId: string;
@@ -59,6 +66,10 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
   const [stats, setStats] = useState<BookingStats | null>(null);
   const [activeTab, setActiveTab] = useState("all");
 
+  // Error handling
+  const { error, handleError, retry, clearError } = useErrorHandler();
+  const { handleApiError } = useApiErrorHandler();
+
   // Mock stats - in a real app, this would come from an API
   const mockStats: BookingStats = {
     today: { total: 8, confirmed: 5, pending: 2, completed: 1, cancelled: 0 },
@@ -95,14 +106,20 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete booking");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to delete booking");
       }
 
+      toast.success("Booking deleted successfully");
       // Refresh the booking list
       window.location.reload();
     } catch (error) {
-      console.error("Error deleting booking:", error);
-      // You might want to show an error toast here
+      const errorInfo = handleApiError(error, {
+        action: "delete_booking",
+        bookingId,
+      });
+      handleError(errorInfo);
+      toast.error("Failed to delete booking. Please try again.");
     }
   };
 
@@ -117,14 +134,21 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update status");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update status");
       }
 
+      toast.success("Booking status updated successfully");
       // Refresh the booking list
       window.location.reload();
     } catch (error) {
-      console.error("Error updating status:", error);
-      // You might want to show an error toast here
+      const errorInfo = handleApiError(error, {
+        action: "update_status",
+        bookingId,
+        status,
+      });
+      handleError(errorInfo);
+      toast.error("Failed to update booking status. Please try again.");
     }
   };
 
@@ -143,16 +167,24 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update status");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update status");
       }
 
       setShowStatusUpdate(false);
       setSelectedBooking(null);
+      toast.success("Booking status updated successfully");
       // Refresh the booking list
       window.location.reload();
     } catch (error) {
-      console.error("Error updating status:", error);
-      // You might want to show an error toast here
+      const errorInfo = handleApiError(error, {
+        action: "update_status_with_notes",
+        bookingId,
+        status,
+        notes,
+      });
+      handleError(errorInfo);
+      toast.error("Failed to update booking status. Please try again.");
     }
   };
 
@@ -180,11 +212,19 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
 
       setShowCancellation(false);
       setSelectedBooking(null);
+      toast.success("Booking cancelled successfully");
       // Refresh the booking list
       window.location.reload();
     } catch (error) {
-      console.error("Error cancelling booking:", error);
-      // You might want to show an error toast here
+      const errorInfo = handleApiError(error, {
+        action: "cancel_booking",
+        bookingId,
+        reason,
+        notifyCustomer,
+        refundAmount,
+      });
+      handleError(errorInfo);
+      toast.error("Failed to cancel booking. Please try again.");
     }
   };
 
@@ -216,11 +256,20 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
 
       setShowReschedule(false);
       setSelectedBooking(null);
+      toast.success("Booking rescheduled successfully");
       // Refresh the booking list
       window.location.reload();
     } catch (error) {
-      console.error("Error rescheduling booking:", error);
-      // You might want to show an error toast here
+      const errorInfo = handleApiError(error, {
+        action: "reschedule_booking",
+        bookingId,
+        newDate,
+        newTime,
+        notes,
+        notifyCustomer,
+      });
+      handleError(errorInfo);
+      toast.error("Failed to reschedule booking. Please try again.");
     }
   };
 
@@ -249,6 +298,17 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
 
   return (
     <div className="space-y-6">
+      {/* Error Display */}
+      {error && (
+        <ErrorDisplay
+          error={error}
+          onRetry={retry}
+          onDismiss={clearError}
+          variant="inline"
+          showDetails={true}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

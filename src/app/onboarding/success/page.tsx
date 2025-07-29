@@ -40,7 +40,6 @@ export default function OnboardingSuccessPage() {
         }
       }
     } catch (error) {
-      console.error("Error accessing localStorage:", error);
       // Fallback if localStorage is not available
       if (session?.user?.name) {
         const fallbackSlug = session.user.name
@@ -137,7 +136,9 @@ export default function OnboardingSuccessPage() {
                         text: "Book an appointment with me on BookMe",
                         url: bookingUrl,
                       })
-                      .catch(console.error);
+                      .catch(() => {
+                        // Silently handle share API errors
+                      });
                   } else {
                     handleCopyLink();
                   }

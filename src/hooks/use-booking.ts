@@ -24,6 +24,12 @@ export interface BookingResponse {
 
 export interface BookingError {
   message: string;
+  type?:
+    | "CONFLICT"
+    | "VALIDATION"
+    | "NOT_FOUND"
+    | "SERVER_ERROR"
+    | "NETWORK_ERROR";
   field?: string;
   suggestions?: string[];
 }

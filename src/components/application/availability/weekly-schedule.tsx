@@ -12,6 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { FormFeedback, ErrorFeedback } from "@/components/ui/feedback-states";
+import { ErrorDisplay, useErrorHandler } from "@/components/base/error-display";
+import { useApiErrorHandler } from "@/utils/error-transformation";
+import { LoadingButton } from "@/components/ui/loading-states";
 import {
   isValidTimeFormat,
   isEndTimeAfterStartTime,
@@ -63,6 +67,10 @@ export function WeeklySchedule({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Error handling for API operations
+  const { error: apiError, handleError, retry, clearError } = useErrorHandler();
+  const { handleApiError } = useApiErrorHandler();
 
   // Update schedule when initialSchedule changes
   useEffect(() => {
@@ -155,9 +163,14 @@ export function WeeklySchedule({
       if (onSave) {
         await onSave(schedule);
         toast.success("Weekly schedule saved successfully");
+        clearError(); // Clear any previous errors on success
       }
     } catch (error) {
-      console.error("Failed to save schedule:", error);
+      const errorInfo = handleApiError(error, {
+        action: "save_schedule",
+        schedule,
+      });
+      handleError(errorInfo);
       toast.error("Failed to save schedule. Please try again.");
     }
   };
@@ -171,6 +184,17 @@ export function WeeklySchedule({
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
+        {/* API Error Display */}
+        {apiError && (
+          <ErrorDisplay
+            error={apiError}
+            onRetry={retry}
+            onDismiss={clearError}
+            variant="inline"
+          />
+        )}
+
+        <FormFeedback errors={errors} />
         {DAYS_OF_WEEK.map(({ name, value }) => {
           const day = schedule.find((d) => d.dayOfWeek === value) ?? {
             dayOfWeek: value,
@@ -245,9 +269,9 @@ export function WeeklySchedule({
         })}
       </CardContent>
       <CardFooter>
-        <Button onClick={handleSave} disabled={isLoading}>
-          {isLoading ? "Saving..." : "Save Changes"}
-        </Button>
+        <LoadingButton loading={isLoading} loadingText="Saving...">
+          Save Changes
+        </LoadingButton>
       </CardFooter>
     </Card>
   );

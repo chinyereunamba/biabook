@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { bookingConflictService } from "@/server/services/booking-conflict-service";
+import { withErrorHandler } from "@/app/api/_middleware/error-handler";
+import { BookingErrors, toBookingError } from "@/server/errors/booking-errors";
+import { bookingLogger } from "@/server/logging/booking-logger";
 
 // Validation schema for availability check
 const availabilityCheckSchema = z.object({
@@ -15,23 +18,36 @@ const availabilityCheckSchema = z.object({
   excludeAppointmentId: z.string().optional(),
 });
 
-/**
- * POST /api/availability/check
- * Real-time availability checking endpoint
- */
-export async function POST(request: NextRequest) {
+async function checkAvailabilityHandler(request: NextRequest) {
+  const startTime = Date.now();
+  const context = {
+    operation: "checkAvailability",
+    path: "/api/availability/check",
+    method: "POST",
+  };
+
   try {
     const body = await request.json();
 
     // Validate request body
     const validationResult = availabilityCheckSchema.safeParse(body);
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Validation failed",
-          details: validationResult.error.issues,
-        },
-        { status: 400 },
+      const fieldErrors = validationResult.error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      }));
+
+      bookingLogger.logValidationError(
+        "availability_check_request",
+        body,
+        `Validation failed: ${fieldErrors.map((e) => `${e.field}: ${e.message}`).join(", ")}`,
+        context,
+      );
+
+      throw BookingErrors.validation(
+        "Please check your availability request",
+        "request_body",
+        fieldErrors.map((e) => `${e.field}: ${e.message}`),
       );
     }
 
@@ -39,7 +55,7 @@ export async function POST(request: NextRequest) {
       businessId,
       serviceId,
       appointmentDate,
-      startTime,
+      startTime: requestedStartTime,
       excludeAppointmentId,
     } = validationResult.data;
 
@@ -49,9 +65,19 @@ export async function POST(request: NextRequest) {
         businessId,
         serviceId,
         appointmentDate,
-        startTime,
+        startTime: requestedStartTime,
         excludeAppointmentId,
       });
+
+    const duration = Date.now() - startTime;
+    bookingLogger.logBookingOperation("checkAvailability", true, duration, {
+      ...context,
+      businessId,
+      serviceId,
+      appointmentDate,
+      startTime: requestedStartTime,
+      available: availabilityResult.isAvailable,
+    });
 
     const response = {
       available: availabilityResult.isAvailable,
@@ -61,19 +87,29 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Error checking availability:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
+    const duration = Date.now() - startTime;
+    const bookingError = toBookingError(error);
+
+    bookingLogger.logBookingOperation(
+      "checkAvailability",
+      false,
+      duration,
+      context,
+      bookingError,
     );
+
+    throw bookingError;
   }
 }
 
-/**
- * GET /api/availability/check
- * Real-time availability checking via query parameters
- */
-export async function GET(request: NextRequest) {
+async function checkAvailabilityGetHandler(request: NextRequest) {
+  const startTime = Date.now();
+  const context = {
+    operation: "checkAvailability",
+    path: "/api/availability/check",
+    method: "GET",
+  };
+
   try {
     const { searchParams } = new URL(request.url);
 
@@ -89,12 +125,22 @@ export async function GET(request: NextRequest) {
     // Validate query parameters
     const validationResult = availabilityCheckSchema.safeParse(queryData);
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Validation failed",
-          details: validationResult.error.issues,
-        },
-        { status: 400 },
+      const fieldErrors = validationResult.error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      }));
+
+      bookingLogger.logValidationError(
+        "availability_check_query",
+        queryData,
+        `Validation failed: ${fieldErrors.map((e) => `${e.field}: ${e.message}`).join(", ")}`,
+        context,
+      );
+
+      throw BookingErrors.validation(
+        "Please check your availability request parameters",
+        "query_params",
+        fieldErrors.map((e) => `${e.field}: ${e.message}`),
       );
     }
 
@@ -102,7 +148,7 @@ export async function GET(request: NextRequest) {
       businessId,
       serviceId,
       appointmentDate,
-      startTime,
+      startTime: requestedStartTime,
       excludeAppointmentId,
     } = validationResult.data;
 
@@ -112,9 +158,19 @@ export async function GET(request: NextRequest) {
         businessId,
         serviceId,
         appointmentDate,
-        startTime,
+        startTime: requestedStartTime,
         excludeAppointmentId,
       });
+
+    const duration = Date.now() - startTime;
+    bookingLogger.logBookingOperation("checkAvailability", true, duration, {
+      ...context,
+      businessId,
+      serviceId,
+      appointmentDate,
+      startTime: requestedStartTime,
+      available: availabilityResult.isAvailable,
+    });
 
     const response = {
       available: availabilityResult.isAvailable,
@@ -124,10 +180,20 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error("Error checking availability:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
+    const duration = Date.now() - startTime;
+    const bookingError = toBookingError(error);
+
+    bookingLogger.logBookingOperation(
+      "checkAvailability",
+      false,
+      duration,
+      context,
+      bookingError,
     );
+
+    throw bookingError;
   }
 }
+
+export const POST = withErrorHandler(checkAvailabilityHandler);
+export const GET = withErrorHandler(checkAvailabilityGetHandler);

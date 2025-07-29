@@ -119,7 +119,7 @@ export class AvailabilityCalculationEngine {
       }
 
       // Generate time slots for this day
-      const slots = this.generateTimeSlots(
+      const generatedSlots = this.generateTimeSlots(
         dayAvailability.startTime,
         dayAvailability.endTime,
         config.slotDuration,
@@ -129,10 +129,25 @@ export class AvailabilityCalculationEngine {
         date,
       );
 
+      // Filter out unavailable slots
+      const availableSlots = [];
+      for (const slot of generatedSlots) {
+        const { available } = await this.isTimeSlotAvailable(
+          businessId,
+          slot.date,
+          slot.startTime,
+          slot.endTime,
+          serviceId,
+        );
+        if (available) {
+          availableSlots.push(slot);
+        }
+      }
+
       availabilitySlots.push({
         date,
         dayOfWeek,
-        slots,
+        slots: availableSlots,
       });
     }
 

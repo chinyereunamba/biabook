@@ -15,6 +15,8 @@ export async function GET(
       );
     }
 
+    // TODO: cache the business info when fetch to avoid fetching agin when the user refreshes
+
     const business = await businessRepository.findByIdWithServices(businessId);
 
     if (!business) {

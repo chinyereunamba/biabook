@@ -58,6 +58,10 @@ async function main() {
 
   console.log(`🌱 Seeded ${createdUsers.length} users.`);
 
+  if (createdUsers.length < 4) {
+    throw new Error("Failed to create users");
+  }
+
   // Create 4 businesses, each owned by one of the users
   const createdBusinesses = await db
     .insert(businesses)
@@ -71,7 +75,7 @@ async function main() {
         location: "Lagos, Nigeria",
         phone: "+2348012345678",
         email: "chinyere.hair@example.com",
-        ownerId: createdUsers[0].id,
+        ownerId: createdUsers[0]!.id,
       },
       {
         id: "biz2",
@@ -82,7 +86,7 @@ async function main() {
         location: "Abuja, Nigeria",
         phone: "+2348023456789",
         email: "bolu.fitness@example.com",
-        ownerId: createdUsers[1].id,
+        ownerId: createdUsers[1]!.id,
       },
       {
         id: "biz3",
@@ -93,7 +97,7 @@ async function main() {
         location: "Kano, Nigeria",
         phone: "+2348034567890",
         email: "fatima.spa@example.com",
-        ownerId: createdUsers[2].id,
+        ownerId: createdUsers[2]!.id,
       },
       {
         id: "biz4",
@@ -104,12 +108,16 @@ async function main() {
         location: "Enugu, Nigeria",
         phone: "+2348045678901",
         email: "emeka.clinic@example.com",
-        ownerId: createdUsers[3].id,
+        ownerId: createdUsers[3]!.id,
       },
     ])
     .returning();
 
   console.log(`🌱 Seeded ${createdBusinesses.length} businesses.`);
+
+  if (createdBusinesses.length < 4) {
+    throw new Error("Failed to create businesses");
+  }
 
   // Create 4 services for each business
   const allServices = [];

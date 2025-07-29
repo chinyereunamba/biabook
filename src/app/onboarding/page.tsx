@@ -166,10 +166,7 @@ export default function OnboardingPage() {
           try {
             localStorage.setItem("businessSlug", data.slug);
           } catch (error) {
-            console.error(
-              "Error storing business slug in localStorage:",
-              error,
-            );
+            // Silently handle localStorage errors
             // Continue without storing in localStorage
           }
         }
@@ -177,7 +174,6 @@ export default function OnboardingPage() {
         // Redirect to success page
         router.push(data.redirectUrl || "/dashboard");
       } catch (err) {
-        console.error("Onboarding error:", err);
         setError(
           err instanceof Error ? err.message : "An unexpected error occurred",
         );
