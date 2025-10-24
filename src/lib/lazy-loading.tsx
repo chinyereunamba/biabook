@@ -1,6 +1,11 @@
 "use client";
 
-import React, { lazy, Suspense, ComponentType, ReactNode } from "react";
+import React, {
+  lazy,
+  Suspense,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {

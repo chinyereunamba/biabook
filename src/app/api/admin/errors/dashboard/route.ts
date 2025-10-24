@@ -21,7 +21,7 @@ async function getErrorDashboardHandler(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const timeRange = searchParams.get("timeRange") || "24h";
     const errorType = searchParams.get("errorType");
-    const operation = searchParams.get("operation");
+    const operation = searchParams.get("operation") || undefined;
 
     // Calculate time
     const now = new Date();
@@ -141,7 +141,8 @@ function getTotalRequests(fromDate: Date, toDate: Date): number {
   // In a real app, you'd track successful requests as well
   const allLogs = bookingLogger.getRecentLogs(1000);
   return allLogs.filter(
-    (log: { timestamp: string | number | Date }) => new Date(log.timestamp) >= fromDate && new Date(log.timestamp) <= toDate,
+    (log: { timestamp: string | number | Date }) =>
+      new Date(log.timestamp) >= fromDate && new Date(log.timestamp) <= toDate,
   ).length;
 }
 
@@ -217,7 +218,10 @@ function getUserImpactAnalysis(errorHistory: any[]): {
 
   errorHistory.forEach((error) => {
     if (error.context.userId) {
-      userErrors.set(error.context.userId, (userErrors.get(error.context.userId) || 0) + 1);
+      userErrors.set(
+        error.context.userId,
+        (userErrors.get(error.context.userId) || 0) + 1,
+      );
     }
 
     const operation = error.context.operation || "unknown";

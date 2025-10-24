@@ -297,19 +297,28 @@ export class ErrorMonitor {
       );
     }
 
-    if (metrics.errorsByType["ConflictError"] > 10) {
+    if (
+      metrics.errorsByType &&
+      (metrics.errorsByType["ConflictError"] || 0) > 10
+    ) {
       recommendations.push(
         "High booking conflicts. Consider implementing better availability caching.",
       );
     }
 
-    if (metrics.errorsByType["ValidationError"] > 20) {
+    if (
+      metrics.errorsByType &&
+      (metrics.errorsByType["ValidationError"] || 0) > 20
+    ) {
       recommendations.push(
         "Many validation errors. Review input validation on frontend.",
       );
     }
 
-    if (metrics.errorsByType["DatabaseError"] > 5) {
+    if (
+      metrics.errorsByType &&
+      (metrics.errorsByType["DatabaseError"] || 0) > 5
+    ) {
       recommendations.push(
         "Database errors detected. Check database performance and connections.",
       );

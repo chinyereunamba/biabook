@@ -1,482 +1,294 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import {
+  Building2,
   Users,
-  Building,
   TrendingUp,
+  DollarSign,
   Search,
-  MoreHorizontal,
-  Eye,
-  Trash2,
-  Ban,
-  Calendar,
+  MoreVertical,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
-export default function AdminPage() {
-  const [searchTerm, setSearchTerm] = useState("");
+const platformData = [
+  { month: "Jan", revenue: 12000 },
+  { month: "Feb", revenue: 19000 },
+  { month: "Mar", revenue: 15000 },
+  { month: "Apr", revenue: 22000 },
+  { month: "May", revenue: 28000 },
+  { month: "Jun", revenue: 32000 },
+];
 
-  // Mock data
-  const businesses = [
-    {
-      id: 1,
-      name: "Bella Hair Salon",
-      owner: "Sarah Martinez",
-      email: "sarah@bellahair.com",
-      category: "Hair Salon",
-      bookings: 156,
-      revenue: 7800,
-      status: "active",
-      joinDate: "2024-01-15",
-    },
-    {
-      id: 2,
-      name: "MindMath Tutoring",
-      owner: "David Johnson",
-      email: "david@mindmath.com",
-      category: "Education",
-      bookings: 89,
-      revenue: 4450,
-      status: "active",
-      joinDate: "2024-02-03",
-    },
-    {
-      id: 3,
-      name: "Wellness Clinic",
-      owner: "Dr. Lisa Chen",
-      email: "lisa@wellnessclinic.com",
-      category: "Healthcare",
-      bookings: 234,
-      revenue: 11700,
-      status: "active",
-      joinDate: "2024-01-08",
-    },
-    {
-      id: 4,
-      name: "FitCore Gym",
-      owner: "Mike Rodriguez",
-      email: "mike@fitcore.com",
-      category: "Fitness",
-      bookings: 45,
-      revenue: 2250,
-      status: "suspended",
-      joinDate: "2024-03-12",
-    },
-  ];
+const businesses = [
+  {
+    id: 1,
+    name: "Bella Hair Salon",
+    owner: "Sarah Martinez",
+    category: "Hair Salon",
+    bookings: 156,
+    revenue: "$7,800",
+    joined: "2024-01-15",
+    status: "active",
+  },
+  {
+    id: 2,
+    name: "MindMath Tutoring",
+    owner: "David Johnson",
+    category: "Education",
+    bookings: 89,
+    revenue: "$4,450",
+    joined: "2024-02-03",
+    status: "active",
+  },
+  {
+    id: 3,
+    name: "Wellness Clinic",
+    owner: "Dr. Lisa Chen",
+    category: "Healthcare",
+    bookings: 234,
+    revenue: "$11,700",
+    joined: "2024-01-08",
+    status: "active",
+  },
+  {
+    id: 4,
+    name: "FitCore Gym",
+    owner: "Mike Rodriguez",
+    category: "Fitness",
+    bookings: 45,
+    revenue: "$2,250",
+    joined: "2024-03-12",
+    status: "suspended",
+  },
+];
 
-  const stats = {
-    totalBusinesses: 127,
-    activeBusinesses: 119,
-    totalBookings: 2847,
-    totalRevenue: 142350,
-  };
-
-  const filteredBusinesses = businesses.filter(
-    (business) =>
-      business.name.toLowerCase().includes(searchTerm.toLowerCase()) ??
-      business.owner.toLowerCase().includes(searchTerm.toLowerCase()) ??
-      business.category.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
+export default function AdminDashboard() {
   return (
     <div className="bg-background min-h-screen">
       {/* Header */}
-      <header className="border-b bg-white">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-6 w-6 text-purple-600" />
-              <span className="text-xl font-bold">BookMe Admin</span>
-            </div>
+      <div className="border-border bg-card/50 sticky top-0 z-10 border-b backdrop-blur-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <div>
+            <h1 className="text-foreground text-2xl font-bold">
+              Admin Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Platform overview and business management
+            </p>
           </div>
-          <div className="flex items-center space-x-4">
-            <Badge variant="secondary">Super Admin</Badge>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100">
-              <span className="text-sm font-semibold text-purple-600">A</span>
-            </div>
+          <div className="bg-primary/20 text-primary flex h-10 w-10 items-center justify-center rounded-full font-semibold">
+            A
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Stats Cards */}
-        <div className="mb-8 grid gap-6 md:grid-cols-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">
-                    Total Businesses
-                  </p>
-                  <p className="text-3xl font-bold">{stats.totalBusinesses}</p>
-                </div>
-                <Building className="h-8 w-8 text-purple-600" />
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        {/* Metrics Grid */}
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="bg-card border-border hover:border-primary/50 rounded-xl border p-6 transition-colors">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Total Businesses
+                </p>
+                <h3 className="text-foreground mt-2 text-3xl font-bold">127</h3>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-primary/10 rounded-lg p-3">
+                <Building2 className="text-primary h-6 w-6" />
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm">Active on platform</p>
+          </div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">
-                    Active Businesses
-                  </p>
-                  <p className="text-3xl font-bold">{stats.activeBusinesses}</p>
-                </div>
-                <Users className="h-8 w-8 text-green-600" />
+          <div className="bg-card border-border hover:border-primary/50 rounded-xl border p-6 transition-colors">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Active Businesses
+                </p>
+                <h3 className="text-foreground mt-2 text-3xl font-bold">119</h3>
               </div>
-            </CardContent>
-          </Card>
+              <div className="rounded-lg bg-green-500/10 p-3">
+                <Users className="h-6 w-6 text-green-500" />
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm">Currently operating</p>
+          </div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">
-                    Total Bookings
-                  </p>
-                  <p className="text-3xl font-bold">
-                    {stats.totalBookings.toLocaleString()}
-                  </p>
-                </div>
-                <Calendar className="h-8 w-8 text-blue-600" />
+          <div className="bg-card border-border hover:border-primary/50 rounded-xl border p-6 transition-colors">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Total Bookings
+                </p>
+                <h3 className="text-foreground mt-2 text-3xl font-bold">
+                  2,847
+                </h3>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-accent/10 rounded-lg p-3">
+                <TrendingUp className="text-accent h-6 w-6" />
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Across all businesses
+            </p>
+          </div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm">
-                    Platform Revenue
-                  </p>
-                  <p className="text-3xl font-bold">
-                    ${stats.totalRevenue.toLocaleString()}
-                  </p>
-                </div>
-                <TrendingUp className="h-8 w-8 text-orange-600" />
+          <div className="bg-card border-border hover:border-primary/50 rounded-xl border p-6 transition-colors">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Platform Revenue
+                </p>
+                <h3 className="text-foreground mt-2 text-3xl font-bold">
+                  $142,350
+                </h3>
               </div>
-            </CardContent>
-          </Card>
+              <div className="rounded-lg bg-blue-500/10 p-3">
+                <DollarSign className="h-6 w-6 text-blue-500" />
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Total commission earned
+            </p>
+          </div>
         </div>
 
-        <Tabs defaultValue="businesses" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="businesses">Businesses</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+        {/* Revenue Chart */}
+        <div className="bg-card border-border mb-8 rounded-xl border p-6">
+          <div className="mb-6">
+            <h3 className="text-foreground text-lg font-semibold">
+              Platform Revenue Trend
+            </h3>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Last 6 months performance
+            </p>
+          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={platformData}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--color-border)"
+              />
+              <XAxis dataKey="month" stroke="var(--color-muted-foreground)" />
+              <YAxis stroke="var(--color-muted-foreground)" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--color-card)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "8px",
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="var(--color-primary)"
+                strokeWidth={2}
+                dot={{ fill: "var(--color-primary)", r: 4 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
-          <TabsContent value="businesses" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Registered Businesses</h2>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
-                  <Input
-                    placeholder="Search businesses..."
-                    className="w-64 pl-10"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
+        {/* Registered Businesses */}
+        <div className="bg-card border-border rounded-xl border p-6">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h3 className="text-foreground text-lg font-semibold">
+                Registered Businesses
+              </h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                All businesses on the platform
+              </p>
             </div>
-
-            <div className="space-y-4">
-              {filteredBusinesses.map((business) => (
-                <Card key={business.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
-                          <Building className="h-6 w-6 text-purple-600" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold">
-                            {business.name}
-                          </h3>
-                          <p className="text-muted-foreground text-sm">
-                            Owner: {business.owner} • {business.email}
-                          </p>
-                          <div className="mt-1 flex items-center space-x-4">
-                            <Badge variant="secondary">
-                              {business.category}
-                            </Badge>
-                            <Badge
-                              variant={
-                                business.status === "active"
-                                  ? "default"
-                                  : "destructive"
-                              }
-                              className={
-                                business.status === "active"
-                                  ? "bg-green-100 text-green-800"
-                                  : ""
-                              }
-                            >
-                              {business.status}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-8">
-                        <div className="text-center">
-                          <p className="text-2xl font-bold">
-                            {business.bookings}
-                          </p>
-                          <p className="text-muted-foreground text-sm">
-                            Bookings
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold">
-                            ${business.revenue.toLocaleString()}
-                          </p>
-                          <p className="text-muted-foreground text-sm">
-                            Revenue
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-sm font-medium">
-                            {business.joinDate}
-                          </p>
-                          <p className="text-muted-foreground text-sm">
-                            Joined
-                          </p>
-                        </div>
-
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Eye className="mr-2 h-4 w-4" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Ban className="mr-2 h-4 w-4" />
-                              {business.status === "active"
-                                ? "Suspend"
-                                : "Activate"}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete Business
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="relative">
+              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search businesses..."
+                className="bg-input border-border text-foreground placeholder-muted-foreground rounded-lg border py-2 pr-4 pl-10 text-sm"
+              />
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="analytics" className="space-y-6">
-            <h2 className="text-2xl font-bold">Platform Analytics</h2>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Business Growth</CardTitle>
-                  <CardDescription>
-                    New businesses registered over time
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-muted-foreground flex h-64 items-center justify-center">
-                    Chart placeholder - Business growth over time
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Booking Trends</CardTitle>
-                  <CardDescription>
-                    Total bookings across all businesses
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-muted-foreground flex h-64 items-center justify-center">
-                    Chart placeholder - Booking trends
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Category Distribution</CardTitle>
-                  <CardDescription>Businesses by category</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span>Hair Salons</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="h-2 w-24 rounded-full bg-gray-200">
-                          <div className="h-2 w-16 rounded-full bg-purple-600"></div>
-                        </div>
-                        <span className="text-sm">42</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Healthcare</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="h-2 w-24 rounded-full bg-gray-200">
-                          <div className="h-2 w-12 rounded-full bg-blue-600"></div>
-                        </div>
-                        <span className="text-sm">28</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Education</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="h-2 w-24 rounded-full bg-gray-200">
-                          <div className="h-2 w-10 rounded-full bg-green-600"></div>
-                        </div>
-                        <span className="text-sm">23</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Fitness</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="h-2 w-24 rounded-full bg-gray-200">
-                          <div className="h-2 w-8 rounded-full bg-orange-600"></div>
-                        </div>
-                        <span className="text-sm">18</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Revenue Overview</CardTitle>
-                  <CardDescription>Platform revenue breakdown</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span>This Month</span>
-                      <span className="font-bold">$12,450</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Last Month</span>
-                      <span className="font-bold">$11,200</span>
-                    </div>
-                    <div className="flex items-center justify-between text-green-600">
-                      <span>Growth</span>
-                      <span className="font-bold">+11.2%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
-            <h2 className="text-2xl font-bold">Platform Settings</h2>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>General Settings</CardTitle>
-                <CardDescription>
-                  Configure platform-wide settings
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">New Business Approval</p>
-                    <p className="text-muted-foreground text-sm">
-                      Require manual approval for new business registrations
-                    </p>
-                  </div>
-                  <Button variant="outline">Enabled</Button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">WhatsApp Integration</p>
-                    <p className="text-muted-foreground text-sm">
-                      Global WhatsApp API configuration
-                    </p>
-                  </div>
-                  <Button variant="outline">Configure</Button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Email Notifications</p>
-                    <p className="text-muted-foreground text-sm">
-                      System email notification settings
-                    </p>
-                  </div>
-                  <Button variant="outline">Manage</Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Platform Maintenance</CardTitle>
-                <CardDescription>
-                  System maintenance and updates
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-transparent"
-                >
-                  Export Business Data
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-transparent"
-                >
-                  Generate Analytics Report
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-transparent"
-                >
-                  System Health Check
-                </Button>
-                <Button variant="destructive" className="w-full justify-start">
-                  Clear Cache
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-border border-b">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Business
+                  </th>
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Owner
+                  </th>
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Category
+                  </th>
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Bookings
+                  </th>
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Revenue
+                  </th>
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Status
+                  </th>
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {businesses.map((business) => (
+                  <tr
+                    key={business.id}
+                    className="border-border hover:bg-secondary/50 border-b transition-colors"
+                  >
+                    <td className="px-4 py-4">
+                      <p className="text-foreground font-medium">
+                        {business.name}
+                      </p>
+                    </td>
+                    <td className="text-foreground px-4 py-4">
+                      {business.owner}
+                    </td>
+                    <td className="text-foreground px-4 py-4">
+                      {business.category}
+                    </td>
+                    <td className="text-foreground px-4 py-4">
+                      {business.bookings}
+                    </td>
+                    <td className="text-foreground px-4 py-4 font-semibold">
+                      {business.revenue}
+                    </td>
+                    <td className="px-4 py-4">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${
+                          business.status === "active"
+                            ? "bg-green-500/20 text-green-400"
+                            : "bg-red-500/20 text-red-400"
+                        }`}
+                      >
+                        {business.status === "active" ? "Active" : "Suspended"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <button className="hover:bg-secondary rounded-lg p-2 transition-colors">
+                        <MoreVertical className="text-muted-foreground h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

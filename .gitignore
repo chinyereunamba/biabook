@@ -48,5 +48,7 @@ yarn-error.log*
 # ide files
 /.kiro/
 .vscode
+.vscode/settingd.json
 
 /drizzle
+db.*

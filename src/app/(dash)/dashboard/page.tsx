@@ -8,371 +8,337 @@ import {
   DollarSign,
   Users,
   Loader2,
+  Calendar,
+  TrendingUp,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { LoadingOverlay } from "@/components/ui/loading-states";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import Link from "next/link";
 
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import type { RecentBooking, Stats } from "@/types/dashboard";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
-interface Business {
-  id: string;
-  name: string;
-}
 
-interface StatsResponse {
-  stats: Stats;
-}
-
-interface RecentBookingsResponse {
-  appointments: RecentBooking[];
-}
 
 export default function DashboardPage() {
-  const [businessId, setBusinessId] = useState<string | null>(null);
-  const [stats, setStats] = useState<Stats | null>(null);
   const [recentBookings, setRecentBookings] = useState<RecentBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
   const router = useRouter();
 
-  if (session?.user && session?.user.needsOnboarding) {
-    router.replace("/onboarding/welcome");
-  }
-  // Load the current user's business
-  useEffect(() => {
-    const loadBusiness = async () => {
-      try {
-        const response = await fetch("/api/me/business");
-        if (!response.ok) {
-          throw new Error("Failed to fetch business");
-        }
 
-        const data: { business: Business } = await response.json();
-        if (data.business) {
-          setBusinessId(data.business.id);
-        } else {
-          // If no business is found, use a default one for demo purposes
-          setBusinessId("business-1");
-        }
-      } catch (error) {
-        console.error("Failed to load business:", error);
-        // Use a default business ID for demo purposes
-        setBusinessId("business-1");
-      }
-    };
+  const revenueData = [
+    { month: "Jan", revenue: 4000 },
+    { month: "Feb", revenue: 3000 },
+    { month: "Mar", revenue: 2000 },
+    { month: "Apr", revenue: 2780 },
+    { month: "May", revenue: 1890 },
+    { month: "Jun", revenue: 2390 },
+  ];
 
-    void loadBusiness();
-  }, []);
-
-  // Load dashboard data when businessId is available
-  useEffect(() => {
-    if (!businessId) return;
-
-    const loadDashboardData = async () => {
-      setLoading(true);
-      try {
-        // Load stats
-        const statsResponse = await fetch(
-          `/api/businesses/${businessId}/stats`,
-        );
-        if (!statsResponse.ok) {
-          throw new Error("Failed to fetch business stats");
-        }
-        const statsData: Stats = await statsResponse.json();
-        setStats(statsData);
-
-        // Load recent bookings
-        const bookingsResponse = await fetch(
-          `/api/businesses/${businessId}/appointments?limit=5`,
-        );
-        if (!bookingsResponse.ok) {
-          throw new Error("Failed to fetch recent bookings");
-        }
-        const bookingsData: RecentBookingsResponse =
-          await bookingsResponse.json();
-        setRecentBookings(bookingsData.appointments ?? []);
-      } catch (error) {
-        console.error("Failed to load dashboard data:", error);
-        toast.error("Failed to load dashboard data");
-
-        // Set default data for demo purposes if API fails
-        setStats({
-          revenue: {
-            total: 4523189,
-            currentMonth: 1250000,
-            percentChange: 20.1,
-          },
-          bookings: {
-            total: 2350,
-            currentMonth: 350,
-            percentChange: 180.1,
-            today: 573,
-          },
-        });
-
-        setRecentBookings([
-          {
-            id: "booking-1",
-            customerName: "Liam Johnson",
-            customerEmail: "liam@example.com",
-            appointmentDate: "2023-06-23",
-            status: "confirmed",
-            servicePrice: 25000,
-          },
-          {
-            id: "booking-2",
-            customerName: "Olivia Smith",
-            customerEmail: "olivia@example.com",
-            appointmentDate: "2023-06-24",
-            status: "cancelled",
-            servicePrice: 15000,
-          },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void loadDashboardData();
-  }, [businessId]);
+  const bookingsData = [
+    { day: "Mon", bookings: 24 },
+    { day: "Tue", bookings: 13 },
+    { day: "Wed", bookings: 30 },
+    { day: "Thu", bookings: 20 },
+    { day: "Fri", bookings: 35 },
+    { day: "Sat", bookings: 28 },
+    { day: "Sun", bookings: 15 },
+  ];
 
   // Format price from cents to dollars
   const formatPrice = (priceInCents: number) => {
     return (priceInCents / 100).toFixed(2);
   };
 
-  if (loading) {
-    return (
-      <LoadingOverlay message="Loading dashboard data..." transparent={false} />
-    );
-  }
 
   return (
-    <div className="w-full">
-      <main className="flex flex-col gap-4 md:gap-8">
-        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Revenue
-              </CardTitle>
-              <DollarSign className="text-muted-foreground h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                ${stats?.revenue ? formatPrice(stats?.revenue?.total) : "0.00"}
-              </div>
-              <p className="text-muted-foreground text-xs">
-                {stats?.revenue?.percentChange &&
-                stats.revenue.percentChange > 0
-                  ? "+"
-                  : ""}
-                {stats?.revenue?.percentChange?.toFixed(1) ?? "0"}% from last
-                month
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Bookings</CardTitle>
-              <Users className="text-muted-foreground h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                +{stats?.bookings?.total ?? "0"}
-              </div>
-              <p className="text-muted-foreground text-xs">
-                {stats?.bookings?.percentChange &&
-                stats.bookings.percentChange > 0
-                  ? "+"
-                  : ""}
-                {stats?.bookings?.percentChange?.toFixed(1) ?? "0"}% from last
-                month
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Monthly Revenue
-              </CardTitle>
-              <CreditCard className="text-muted-foreground h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                $
-                {stats?.revenue
-                  ? formatPrice(stats.revenue.currentMonth)
-                  : "0.00"}
-              </div>
-              <p className="text-muted-foreground text-xs">
-                This month&apos;s earnings
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Today&apos;s Bookings
-              </CardTitle>
-              <Activity className="text-muted-foreground h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                +{stats?.bookings?.today ?? "0"}
-              </div>
-              <p className="text-muted-foreground text-xs">
-                Appointments scheduled for today
-              </p>
-            </CardContent>
-          </Card>
+    <div className="bg-background min-h-screen w-full">
+      {/* Header */}
+      <div className="border-border bg-card/50 sticky top-0 z-10 border-b backdrop-blur-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <div>
+            <h1 className="text-foreground text-2xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Welcome back! Here's your business overview.
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <button className="hover:bg-secondary rounded-lg p-2 transition-colors">
+              <svg
+                className="text-muted-foreground h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
+              </svg>
+            </button>
+            <div className="bg-primary/20 text-primary flex h-10 w-10 items-center justify-center rounded-full font-semibold">
+              SM
+            </div>
+          </div>
         </div>
-        <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-          <Card className="xl:col-span-2">
-            <CardHeader className="flex flex-row items-center">
-              <div className="grid gap-2">
-                <CardTitle>Recent Bookings</CardTitle>
-                <CardDescription>
-                  Recent bookings from your customers.
-                </CardDescription>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        {/* Metrics Grid */}
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {/* Total Revenue */}
+          <div className="bg-card border-border hover:border-primary/50 rounded-xl border p-6 transition-colors">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Total Revenue
+                </p>
+                <h3 className="text-foreground mt-2 text-3xl font-bold">
+                  $45,231.89
+                </h3>
               </div>
-              <Button asChild size="sm" className="ml-auto gap-1">
-                <Link href="/dashboard/bookings" className="flex gap-2">
-                  View All
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead className="hidden xl:table-column">
-                      Service
-                    </TableHead>
-                    <TableHead className="hidden xl:table-column">
-                      Status
-                    </TableHead>
-                    <TableHead className="hidden xl:table-column">
-                      Date
-                    </TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentBookings.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        className="text-muted-foreground py-4 text-center"
+              <div className="bg-primary/10 rounded-lg p-3">
+                <DollarSign className="text-primary h-6 w-6" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <ArrowUpRight className="h-4 w-4 text-green-500" />
+              <span className="font-medium text-green-500">+20.1%</span>
+              <span className="text-muted-foreground">from last month</span>
+            </div>
+          </div>
+
+          {/* Total Bookings */}
+          <div className="bg-card border-border hover:border-primary/50 rounded-xl border p-6 transition-colors">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Total Bookings
+                </p>
+                <h3 className="text-foreground mt-2 text-3xl font-bold">
+                  +2,350
+                </h3>
+              </div>
+              <div className="bg-accent/10 rounded-lg p-3">
+                <Calendar className="text-accent h-6 w-6" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <ArrowUpRight className="h-4 w-4 text-green-500" />
+              <span className="font-medium text-green-500">+180.1%</span>
+              <span className="text-muted-foreground">from last month</span>
+            </div>
+          </div>
+
+          {/* Monthly Revenue */}
+          <div className="bg-card border-border hover:border-primary/50 rounded-xl border p-6 transition-colors">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Monthly Revenue
+                </p>
+                <h3 className="text-foreground mt-2 text-3xl font-bold">
+                  $12,500.00
+                </h3>
+              </div>
+              <div className="rounded-lg bg-blue-500/10 p-3">
+                <TrendingUp className="h-6 w-6 text-blue-500" />
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              This month's earnings
+            </p>
+          </div>
+
+          {/* Today's Bookings */}
+          <div className="bg-card border-border hover:border-primary/50 rounded-xl border p-6 transition-colors">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Today's Bookings
+                </p>
+                <h3 className="text-foreground mt-2 text-3xl font-bold">
+                  +573
+                </h3>
+              </div>
+              <div className="rounded-lg bg-purple-500/10 p-3">
+                <Users className="h-6 w-6 text-purple-500" />
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Appointments scheduled
+            </p>
+          </div>
+        </div>
+
+        {/* Charts Section */}
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Revenue Chart */}
+          <div className="bg-card border-border rounded-xl border p-6 lg:col-span-2">
+            <div className="mb-6">
+              <h3 className="text-foreground text-lg font-semibold">
+                Revenue Trend
+              </h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Last 6 months performance
+              </p>
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={revenueData}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--color-border)"
+                />
+                <XAxis dataKey="month" stroke="var(--color-muted-foreground)" />
+                <YAxis stroke="var(--color-muted-foreground)" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "var(--color-card)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="var(--color-primary)"
+                  strokeWidth={2}
+                  dot={{ fill: "var(--color-primary)", r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Weekly Bookings */}
+          <div className="bg-card border-border rounded-xl border p-6">
+            <div className="mb-6">
+              <h3 className="text-foreground text-lg font-semibold">
+                Weekly Bookings
+              </h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                This week's activity
+              </p>
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={bookingsData}>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--color-border)"
+                />
+                <XAxis dataKey="day" stroke="var(--color-muted-foreground)" />
+                <YAxis stroke="var(--color-muted-foreground)" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "var(--color-card)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Bar
+                  dataKey="bookings"
+                  fill="var(--color-accent)"
+                  radius={[8, 8, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Recent Bookings Table */}
+        <div className="bg-card border-border rounded-xl border p-6">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h3 className="text-foreground text-lg font-semibold">
+                Recent Bookings
+              </h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Latest customer appointments
+              </p>
+            </div>
+            <button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+              View All
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-border border-b">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Customer
+                  </th>
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Service
+                  </th>
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Date & Time
+                  </th>
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Amount
+                  </th>
+                  <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentBookings.map((booking) => (
+                  <tr
+                    key={booking.id}
+                    className="border-border hover:bg-secondary/50 border-b transition-colors"
+                  >
+                    <td className="px-4 py-4">
+                      <p className="text-foreground font-medium">
+                        {booking.customerName}
+                      </p>
+                    </td>
+                    <td className="text-foreground px-4 py-4">
+                      {booking.serviceName}
+                    </td>
+                    <td className="text-foreground px-4 py-4">
+                      <p>{booking.appointmentDate}</p>
+                      <p className="text-muted-foreground text-sm">
+                        {/* {booking?.time} */}
+                      </p>
+                    </td>
+                    <td className="text-foreground px-4 py-4 font-semibold">
+                      {booking.servicePrice}
+                    </td>
+                    <td className="px-4 py-4">
+                      {/* <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${
+                          booking.status === "Confirmed"
+                            ? "bg-green-500/20 text-green-400"
+                            : booking.status === "Pending"
+                              ? "bg-yellow-500/20 text-yellow-400"
+                              : "bg-blue-500/20 text-blue-400"
+                        }`}
                       >
-                        No recent bookings found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    recentBookings.map((booking) => (
-                      <TableRow key={booking.id}>
-                        <TableCell>
-                          <div className="font-medium">
-                            {booking.customerName}
-                          </div>
-                          <div className="text-muted-foreground hidden text-sm md:inline">
-                            {booking.customerEmail}
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden xl:table-column">
-                          {booking.serviceName ?? "Service"}
-                        </TableCell>
-                        <TableCell className="hidden xl:table-column">
-                          <Badge
-                            className="text-xs"
-                            variant={
-                              booking.status === "confirmed"
-                                ? "default"
-                                : booking.status === "cancelled"
-                                  ? "destructive"
-                                  : "outline"
-                            }
-                          >
-                            {booking.status.charAt(0).toUpperCase() +
-                              booking.status.slice(1)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                          {booking.appointmentDate}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          ${formatPrice(booking.servicePrice)}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Monthly Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-8">
-              <div className="flex items-center gap-4">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100">
-                  <DollarSign className="h-5 w-5 text-purple-600" />
-                </div>
-                <div className="grid gap-1">
-                  <p className="text-sm leading-none font-medium">Revenue</p>
-                  <p className="text-muted-foreground text-sm">
-                    This month&apos;s earnings
-                  </p>
-                </div>
-                <div className="ml-auto font-medium">
-                  $
-                  {stats?.revenue
-                    ? formatPrice(stats.revenue.currentMonth)
-                    : "0.00"}
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100">
-                  <Users className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="grid gap-1">
-                  <p className="text-sm leading-none font-medium">Bookings</p>
-                  <p className="text-muted-foreground text-sm">
-                    This month&apos;s appointments
-                  </p>
-                </div>
-                <div className="ml-auto font-medium">
-                  {stats?.bookings?.currentMonth ?? "0"}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                        {booking.status}
+                      </span> */}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

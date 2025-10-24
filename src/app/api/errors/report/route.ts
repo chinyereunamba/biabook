@@ -14,7 +14,7 @@ const errorReportSchema = z.object({
   sessionId: z.string().optional(),
   errorCode: z.string().optional(),
   severity: z.enum(["low", "medium", "high", "critical"]).default("medium"),
-  context: z.record(z.unknown()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
   breadcrumbs: z
     .array(
       z.object({
@@ -22,7 +22,7 @@ const errorReportSchema = z.object({
         category: z.string(),
         message: z.string(),
         level: z.enum(["info", "warning", "error"]).default("info"),
-        data: z.record(z.unknown()).optional(),
+        data: z.record(z.string(), z.unknown()).optional(),
       }),
     )
     .optional(),

@@ -46,6 +46,28 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [step, setStep] = useState(1);
+  const [businessData, setBusinessData] = useState({
+    name: "",
+    category: "",
+    description: "",
+    phone: "",
+    address: "",
+    website: "",
+  });
+  const [services, setServices] = useState([
+    { name: "", duration: "", price: "" },
+  ]);
+  const [availability, setAvailability] = useState({
+    monday: { enabled: true, start: "09:00", end: "17:00" },
+    tuesday: { enabled: true, start: "09:00", end: "17:00" },
+    wednesday: { enabled: true, start: "09:00", end: "17:00" },
+    thursday: { enabled: true, start: "09:00", end: "17:00" },
+    friday: { enabled: true, start: "09:00", end: "17:00" },
+    saturday: { enabled: false, start: "09:00", end: "17:00" },
+    sunday: { enabled: false, start: "09:00", end: "17:00" },
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   // Redirect if user is not logged in
   useEffect(() => {
@@ -70,26 +92,6 @@ export default function OnboardingPage() {
       </div>
     );
   }
-  const [businessData, setBusinessData] = useState({
-    name: "",
-    category: "",
-    description: "",
-    phone: "",
-    address: "",
-    website: "",
-  });
-  const [services, setServices] = useState([
-    { name: "", duration: "", price: "" },
-  ]);
-  const [availability, setAvailability] = useState({
-    monday: { enabled: true, start: "09:00", end: "17:00" },
-    tuesday: { enabled: true, start: "09:00", end: "17:00" },
-    wednesday: { enabled: true, start: "09:00", end: "17:00" },
-    thursday: { enabled: true, start: "09:00", end: "17:00" },
-    friday: { enabled: true, start: "09:00", end: "17:00" },
-    saturday: { enabled: false, start: "09:00", end: "17:00" },
-    sunday: { enabled: false, start: "09:00", end: "17:00" },
-  });
 
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
@@ -110,9 +112,6 @@ export default function OnboardingPage() {
     );
     setServices(updated);
   };
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   const handleNext = async () => {
     if (step < totalSteps) {

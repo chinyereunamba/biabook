@@ -13,16 +13,18 @@ export function trackWebVitals() {
     const entries = list.getEntries();
     const lastEntry = entries[entries.length - 1];
 
-    // Log LCP for monitoring
-    console.log("LCP:", lastEntry.startTime);
+    if (lastEntry) {
+      // Log LCP for monitoring
+      console.log("LCP:", lastEntry.startTime);
 
-    // Send to analytics if needed
-    if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", "web_vitals", {
-        name: "LCP",
-        value: Math.round(lastEntry.startTime),
-        event_category: "Web Vitals",
-      });
+      // Send to analytics if needed
+      if (typeof window !== "undefined" && (window as any).gtag) {
+        (window as any).gtag("event", "web_vitals", {
+          name: "LCP",
+          value: Math.round(lastEntry.startTime),
+          event_category: "Web Vitals",
+        });
+      }
     }
   });
 
@@ -35,15 +37,17 @@ export function trackWebVitals() {
   // Track First Input Delay (FID)
   const fidObserver = new PerformanceObserver((list) => {
     const entries = list.getEntries();
-    entries.forEach((entry) => {
-      console.log("FID:", entry.processingStart - entry.startTime);
+    entries.forEach((entry: any) => {
+      if (entry.processingStart && entry.startTime) {
+        console.log("FID:", entry.processingStart - entry.startTime);
 
-      if (typeof window !== "undefined" && (window as any).gtag) {
-        (window as any).gtag("event", "web_vitals", {
-          name: "FID",
-          value: Math.round(entry.processingStart - entry.startTime),
-          event_category: "Web Vitals",
-        });
+        if (typeof window !== "undefined" && (window as any).gtag) {
+          (window as any).gtag("event", "web_vitals", {
+            name: "FID",
+            value: Math.round(entry.processingStart - entry.startTime),
+            event_category: "Web Vitals",
+          });
+        }
       }
     });
   });

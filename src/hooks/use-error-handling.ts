@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 
 export interface ApiError {
@@ -297,7 +297,9 @@ export function useFormErrorHandling() {
         const match = suggestion.match(/^(\w+):\s*(.+)$/);
         if (match) {
           const [, field, message] = match;
-          errors[field] = message;
+          if (field && message) {
+            errors[field] = message;
+          }
         }
       });
 

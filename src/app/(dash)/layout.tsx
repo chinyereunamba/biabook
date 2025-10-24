@@ -9,15 +9,7 @@ export default function DashboardLayout({
 }) {
   return (
     <main className="bg-background flex min-h-screen">
-      {/* Desktop sidebar - fixed width */}
-      <div className="hidden md:block md:w-64 md:flex-shrink-0">
-        <Sidebar />
-      </div>
-      {/* Main content area */}
-      <div className="flex w-full flex-col">
-        <DashboardHeader />
-        <div className="flex-1 p-6">{children}</div>
-      </div>
+      {children}
     </main>
   );
 }
