@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ServiceManagement } from "@/components/application/services";
+import { LazyServiceManagement } from "@/components/application/services/lazy";
 import { useServices } from "@/lib/api/services";
 import type { ServiceFormData } from "@/components/application/services/service-form";
 import { RetryFeedback } from "@/components/ui/feedback-states";
@@ -53,7 +53,7 @@ export default function ServicesPage() {
 
   return (
     <div className="container mx-auto py-6">
-      <ServiceManagement
+      <LazyServiceManagement
         services={services}
         businessId="" // This will be handled by the API based on the authenticated user
         onCreateService={handleCreateService}

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
-import { AnalyticsDashboard } from "@/components/application/analytics/analytics-dashboard";
+import { LazyAnalyticsDashboard } from "@/components/application/analytics/lazy";
 import { DashboardHeader } from "@/components/application/dashboard/dashboard-header";
 import { DashboardShell } from "@/components/application/dashboard/dashboard-shell";
 
@@ -25,7 +25,7 @@ export default async function AnalyticsPage() {
         showExport={true}
       />
       <div className="grid gap-8">
-        <AnalyticsDashboard />
+        <LazyAnalyticsDashboard />
       </div>
     </DashboardShell>
   );

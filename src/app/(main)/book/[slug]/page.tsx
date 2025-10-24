@@ -4,36 +4,28 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import {
   ErrorFeedback,
   RetryFeedback,
   WarningFeedback,
 } from "@/components/ui/feedback-states";
 import { LoadingOverlay, Spinner } from "@/components/ui/loading-states";
-import { BusinessProfileComponent } from "@/components/application/booking/business-profile";
-
-import { ServiceGrid } from "@/components/application/booking/service-grid";
-import { Calendar } from "@/components/application/booking/calendar";
-import { TimeSlotGrid } from "@/components/application/booking/time-slot-grid";
 import {
-  CustomerForm,
-  type CustomerFormData,
-} from "@/components/application/booking/customer-form";
-import {
-  BookingConfirmation,
-  type BookingConfirmationData,
-} from "@/components/application/booking/booking-confirmation";
+  LazyBusinessProfile,
+  LazyServiceGrid,
+  LazyCalendar,
+  LazyTimeSlotGrid,
+  LazyCustomerForm,
+  LazyBookingConfirmation,
+} from "@/components/application/booking/lazy";
+import type { CustomerFormData } from "@/components/application/booking/customer-form";
+import type { BookingConfirmationData } from "@/components/application/booking/booking-confirmation";
 import { useBusiness } from "@/hooks/use-business";
 import { useAvailability } from "@/hooks/use-availability";
 import { useBooking, createBookingRequest } from "@/hooks/use-booking";
 import { toast } from "sonner";
 import Link from "next/link";
-
-interface BookingResponse {
-  appointment: BookingConfirmationData;
-  error?: string;
-}
 
 export default function BookingPage() {
   const params = useParams();
@@ -210,7 +202,7 @@ export default function BookingPage() {
               {/* Business Profile Sidebar */}
               <div className="lg:col-span-1">
                 <div className="sticky top-8">
-                  <BusinessProfileComponent
+                  <LazyBusinessProfile
                     business={business}
                     showSharing={true}
                     showContact={true}
@@ -229,7 +221,7 @@ export default function BookingPage() {
                     </p>
                   </CardHeader>
                   <CardContent>
-                    <ServiceGrid
+                    <LazyServiceGrid
                       services={business.services}
                       selectedServiceId={selectedServiceId}
                       onServiceSelect={handleServiceSelect}
@@ -328,7 +320,7 @@ export default function BookingPage() {
                   </div>
 
                   <div className="grid gap-6 md:grid-cols-2">
-                    <Calendar
+                    <LazyCalendar
                       selectedDate={selectedDate}
                       onDateSelect={handleDateSelect}
                       availableDates={
@@ -338,7 +330,7 @@ export default function BookingPage() {
                       }
                     />
 
-                    <TimeSlotGrid
+                    <LazyTimeSlotGrid
                       selectedDate={selectedDate}
                       selectedTime={selectedTime}
                       timeSlots={
@@ -443,7 +435,7 @@ export default function BookingPage() {
                     </Button>
                   </div>
 
-                  <CustomerForm
+                  <LazyCustomerForm
                     initialData={customerInfo}
                     onSubmit={handleBookingSubmit}
                     loading={bookingLoading}
@@ -457,7 +449,7 @@ export default function BookingPage() {
 
           {/* Step 4: Confirmation */}
           {step === 4 && bookingResult && (
-            <BookingConfirmation
+            <LazyBookingConfirmation
               booking={{
                 id: bookingResult.id,
                 confirmationNumber:
