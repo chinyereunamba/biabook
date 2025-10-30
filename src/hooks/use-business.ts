@@ -20,6 +20,7 @@ export interface BusinessProfile {
   location?: string | null;
   phone?: string | null;
   email?: string | null;
+  rating?: string;
   category: {
     id: string;
     name: string;

@@ -25,66 +25,33 @@ export function BusinessProfileComponent({
 }: BusinessProfileProps) {
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Business Header */}
-      <Card>
-        <CardContent>
-          <div className="items-start space-y-4">
-            <div className="flex items-center gap-4">
-              {/* Business Logo/Avatar */}
-              <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-purple-100">
-                <span className="text-2xl font-bold text-purple-600">
-                  {business.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
+      <div className="border-border bg-card rounded-xl border p-6">
+        <div className="from-primary/20 to-accent/20 mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-gradient-to-br">
+          {/* <span className="text-4xl">{business.image}</span> */}
+        </div>
 
-              {/* Business Info */}
-              <div className="flex">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {business.name}
-                  </h1>
-                </div>
-              </div>
-            </div>
-            <div className="min-w-0 flex-1"></div>
-            <div className="mt-1 flex items-center space-x-3">
-              <Badge variant="secondary">{business.category.name}</Badge>
-              <div className="flex items-center text-sm text-gray-500">
-                <Star className="mr-1 h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span>4.8 (124 reviews)</span>
-              </div>
-            </div>
+        <h1 className="text-foreground mb-2 text-2xl font-bold">
+          {business.name}
+        </h1>
 
-            {business.description && (
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                {business.description}
-              </p>
-            )}
-
-            {/* Contact Info */}
-            <div className="mt-4 space-y-2">
-              {business.location && (
-                <div className="flex items-center text-sm text-gray-500">
-                  <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
-                  <span>{business.location}</span>
-                </div>
-              )}
-              {business.phone && (
-                <div className="flex items-center text-sm text-gray-500">
-                  <Phone className="mr-2 h-4 w-4 flex-shrink-0" />
-                  <span>{business.phone}</span>
-                </div>
-              )}
-              {business.email && (
-                <div className="flex items-center text-sm text-gray-500">
-                  <Mail className="mr-2 h-4 w-4 flex-shrink-0" />
-                  <span>{business.email}</span>
-                </div>
-              )}
-            </div>
+        <div className="mb-4 flex items-center gap-2">
+          <span className="text-foreground font-semibold">
+            {business.rating}
+          </span>
+          <div className="flex gap-1">
+            {[...Array(5)].map((_, i) => (
+              <span key={i} className="text-accent">
+                ★
+              </span>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+          <span className="text-foreground/60 text-sm">
+            ({business.reviews ?? 0})
+          </span>
+        </div>
+
+        <p className="text-foreground/70 mb-4">{business.description}</p>
+      </div>
 
       {/* Contact Sharing Component */}
       {showContact && (

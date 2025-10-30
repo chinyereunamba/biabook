@@ -1,18 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  MapPin,
-  Star,
-} from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import type { BrowseBusiness } from "@/types/business";
+import { useRouter } from "next/navigation";
 
 export default function BrowseBusiness({
   businesses,
 }: {
   businesses: BrowseBusiness[];
 }) {
-
+  const router = useRouter();
   return (
     <div className="bg-background min-h-screen">
       {/* Results */}
@@ -72,7 +70,10 @@ export default function BrowseBusiness({
                     <span className="text-foreground font-semibold">
                       {business.priceRange}
                     </span>
-                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                    <Button
+                      onClick={() => router.push(`/book/${business.id}`)}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                    >
                       Book Now
                     </Button>
                   </div>

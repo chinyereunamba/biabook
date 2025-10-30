@@ -21,6 +21,8 @@ import {
   Phone,
   ExternalLink,
   QrCode,
+  MessageCircle,
+  MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +44,11 @@ export function SharingComponent({
   className = "",
 }: SharingProps) {
   const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const shareText =
     text || `Check out ${businessName || "this business"} on BookMe: ${url}`;
@@ -93,94 +100,48 @@ export function SharingComponent({
   };
 
   return (
-    <Card className={cn("border-green-200 bg-green-50", className)}>
-      <CardHeader>
-        <CardTitle className="flex items-center text-green-800">
-          <Share2 className="mr-2 h-5 w-5" />
-          Share This Business
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="mb-4 text-sm text-green-700">
-          Help others discover {businessName || "this business"} by sharing the
-          booking link
-        </p>
+    <div className="border-border bg-card rounded-xl border p-6">
+      <h3 className="text-foreground mb-4 flex items-center gap-2 font-semibold">
+        <Share2 className="text-primary h-5 w-5" />
+        Share This Business
+      </h3>
 
-        <div className="space-y-3">
-          {/* Quick Share Buttons */}
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={shareViaWhatsApp}
-              className="border-green-300 text-green-700 hover:bg-green-100"
-            >
-              <MessageSquare className="mr-2 h-4 w-4" />
-              WhatsApp
-            </Button>
+      <p className="text-foreground/70 mb-4 text-sm">
+        Help others discover {businessName || "this business"} by sharing the
+        booking link
+      </p>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={shareViaEmail}
-              className="border-green-300 text-green-700 hover:bg-green-100"
-            >
-              <Mail className="mr-2 h-4 w-4" />
-              Email
-            </Button>
+      <div className="space-y-2">
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-2 bg-transparent"
+          onClick={shareViaWhatsApp}
+        >
+          <MessageSquare className="h-4 w-4" />
+          WhatsApp
+        </Button>
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-2 bg-transparent"
+          onClick={shareViaEmail}
+        >
+          <Mail className="h-4 w-4" />
+          Email
+        </Button>
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-2 bg-transparent"
+          onClick={handleCopy}
+        >
+          <Copy className="h-4 w-4" />
+          {copied ? "Copied!" : "Copy Link"}
+        </Button>
+      </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={copyToClipboard}
-              className="border-green-300 text-green-700 hover:bg-green-100"
-            >
-              {copied ? (
-                <>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy Link
-                </>
-              )}
-            </Button>
-
-            {/* @ts-ignore */}
-            {navigator.share && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={shareViaNative}
-                className="border-green-300 text-green-700 hover:bg-green-100"
-              >
-                <Share2 className="mr-2 h-4 w-4" />
-                More
-              </Button>
-            )}
-          </div>
-
-          {/* URL Display */}
-          <div className="rounded-lg border border-green-200 bg-white p-3">
-            <div className="flex items-center justify-between">
-              <p className="mr-2 flex-1 truncate text-sm text-gray-600">
-                {url}
-              </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={copyToClipboard}
-                className="h-8 w-8 p-0"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="bg-muted mt-4 rounded-lg p-3">
+        <p className="text-foreground/60 text-xs break-all">{url}</p>
+      </div>
+    </div>
   );
 }
 
@@ -268,106 +229,51 @@ export function ContactSharingComponent({
   };
 
   return (
-    <Card className={cn("border-blue-200 bg-blue-50", className)}>
-      <CardHeader>
-        <CardTitle className="flex items-center text-blue-800">
-          <Phone className="mr-2 h-5 w-5" />
-          Contact {businessName}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="mb-4 text-sm text-blue-700">
-          Get in touch with {businessName} directly
-        </p>
+    <div className="border-border bg-card rounded-xl border p-6">
+      <h3 className="text-foreground mb-4 flex items-center gap-2 font-semibold">
+        <Phone className="text-primary h-5 w-5" />
+        Contact {businessName}
+      </h3>
 
-        <div className="space-y-3">
-          {/* Contact Methods */}
-          <div className="space-y-2">
-            {businessPhone && (
-              <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-white p-3">
-                <div className="flex items-center space-x-3">
-                  <Phone className="h-4 w-4 text-blue-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Phone</p>
-                    <p className="text-sm text-gray-600">{businessPhone}</p>
-                  </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={contactViaWhatsApp}
-                    className="border-green-300 text-green-700 hover:bg-green-100"
-                  >
-                    <MessageSquare className="mr-1 h-4 w-4" />
-                    WhatsApp
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={contactViaPhone}
-                    className="border-blue-300 text-blue-700 hover:bg-blue-100"
-                  >
-                    <Phone className="mr-1 h-4 w-4" />
-                    Call
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {businessEmail && (
-              <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-white p-3">
-                <div className="flex items-center space-x-3">
-                  <Mail className="h-4 w-4 text-blue-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Email</p>
-                    <p className="text-sm text-gray-600">{businessEmail}</p>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={contactViaEmail}
-                  className="border-blue-300 text-blue-700 hover:bg-blue-100"
-                >
-                  <Mail className="mr-1 h-4 w-4" />
-                  Email
-                </Button>
-              </div>
-            )}
-
-            {businessLocation && (
-              <div className="flex items-center space-x-3 rounded-lg border border-blue-200 bg-white p-3">
-                <ExternalLink className="h-4 w-4 text-blue-600" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Location</p>
-                  <p className="text-sm text-gray-600">{businessLocation}</p>
-                </div>
-              </div>
-            )}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Phone className="text-foreground/50 h-4 w-4" />
+            <span className="text-foreground text-sm">{businessPhone}</span>
           </div>
-
-          {/* WhatsApp Error Fallback */}
-          {showFallback && whatsappError && (
-            <WhatsAppFallbackComponent
-              businessName={businessName}
-              businessPhone={businessPhone}
-              businessEmail={businessEmail}
-              error={whatsappError}
-              onRetry={() => {
-                setWhatsappError(null);
-                setShowFallback(false);
-                contactViaWhatsApp();
-              }}
-              onDismiss={() => {
-                setWhatsappError(null);
-                setShowFallback(false);
-              }}
-              className="mt-3"
-            />
-          )}
+          <div className="gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="ml-auto"
+              onClick={contactViaWhatsApp}
+            >
+              <MessageSquare className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={contactViaPhone}>
+              <Phone className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="flex items-center gap-2">
+          <Mail className="text-foreground/50 h-4 w-4" />
+          <span className="text-foreground text-sm">{businessEmail}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto"
+            onClick={contactViaEmail}
+          >
+            <Mail className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <MapPin className="text-foreground/50 h-4 w-4" />
+          <span className="text-foreground text-sm">{businessLocation}</span>
+        </div>
+      </div>
+    </div>
   );
 }
