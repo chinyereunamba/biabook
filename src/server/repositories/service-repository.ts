@@ -236,6 +236,19 @@ export class ServiceRepository {
   }
 
   /**
+   * Get all services (for efficient bulk operations)
+   */
+  async findAll(includeInactive = false): Promise<Service[]> {
+    const conditions = includeInactive ? [] : [eq(services.isActive, true)];
+
+    return await db
+      .select()
+      .from(services)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(services.createdAt));
+  }
+
+  /**
    * Get active services count for a business
    */
   async getActiveServicesCount(businessId: string): Promise<number> {

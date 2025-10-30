@@ -12,3 +12,19 @@ export interface Business {
   createdAt: Date;
   updatedAt: Date | null;
 }
+
+export interface BrowseBusiness {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  categoryId: string;
+  location: string;
+  phone: string;
+  email: string;
+  services: string[];
+  serviceCount: number;
+  rating: number;
+  reviews: number;
+  priceRange: string;
+}

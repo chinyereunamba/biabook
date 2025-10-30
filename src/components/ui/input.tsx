@@ -21,7 +21,7 @@ const inputVariants = cva(
         // Mobile-first touch targets (minimum 44px height)
         sm: "h-8 px-3 py-1 text-xs",
         md: "h-9 px-3 py-1 text-sm",
-        lg: "h-10 px-4 py-2 text-base",
+        lg: "h-11 px-4 py-2 text-base",
       },
     },
     defaultVariants: {

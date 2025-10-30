@@ -24,6 +24,7 @@ declare module "next-auth" {
       id: string;
       isOnboarded?: boolean;
       needsOnboarding?: boolean;
+      role: "user" | "admin";
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];

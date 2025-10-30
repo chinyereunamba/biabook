@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export function Hero() {
   return (
@@ -32,8 +33,10 @@ export function Hero() {
                 size="lg"
                 className="bg-primary hover:bg-primary/90 text-primary-foreground group"
               >
-                Start Free Trial
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <Link href="/signup" className="flex items-center">
+                  Start Free Trial
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
               </Button>
               <Button
                 size="lg"

@@ -20,7 +20,7 @@ const buttonVariants = cva(
         ghost:
           "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-primary active:bg-neutral-200",
         outline:
-          "border border-neutral-300 bg-white text-neutral-700 shadow-sm hover:bg-neutral-50 hover:border-neutral-400 focus-visible:outline-primary active:bg-neutral-100",
+          "border border-neutral-300 bg-transparent text-neutral-700 shadow-sm hover:bg-neutral-50 hover:border-neutral-400 focus-visible:outline-primary active:bg-neutral-100",
         destructive:
           "bg-error-500 text-white shadow-sm hover:bg-error-600 focus-visible:outline-error-500 active:bg-error-700 disabled:bg-neutral-300 disabled:text-neutral-500",
         link: "text-primary underline-offset-4 hover:underline focus-visible:outline-primary p-0 h-auto",

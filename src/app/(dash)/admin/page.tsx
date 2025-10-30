@@ -72,10 +72,10 @@ const businesses = [
 
 export default function AdminDashboard() {
   return (
-    <div className="bg-background min-h-screen">
+    <div className="bg-background min-h-screen w-full">
       {/* Header */}
       <div className="border-border bg-card/50 sticky top-0 z-10 border-b backdrop-blur-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <div className="flex items-center justify-between px-6 py-4 w-full">
           <div>
             <h1 className="text-foreground text-2xl font-bold">
               Admin Dashboard
@@ -90,7 +90,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-8">
+      <div className="px-6 py-8">
         {/* Metrics Grid */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           <div className="bg-card border-border hover:border-primary/50 rounded-xl border p-6 transition-colors">

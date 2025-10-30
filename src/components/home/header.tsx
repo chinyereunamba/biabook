@@ -44,13 +44,13 @@ export function Header() {
               size="sm"
               className="text-foreground/70 hover:text-foreground"
             >
-              Sign In
+              <Link href={"/login"}>Sign In</Link>
             </Button>
             <Button
               size="sm"
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              Get Started
+              <Link href={"/signup"}>Get Started</Link>
             </Button>
           </div>
         </div>
