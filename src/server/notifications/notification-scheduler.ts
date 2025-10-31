@@ -394,7 +394,7 @@ export class NotificationScheduler {
         );
 
       case "booking_rescheduled":
-        return notificationService.sendBookingRescheduledToCustomer(
+        return notificationService.sendBookingNotificationToBusiness(
           appointment,
           service,
           business,

@@ -2,6 +2,11 @@ import "@/styles/globals.css";
 import { Geist } from "next/font/google";
 import { Providers } from "./providers";
 
+// Initialize server-side services
+if (typeof window === "undefined") {
+  import("@/server/init");
+}
+
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-sans",

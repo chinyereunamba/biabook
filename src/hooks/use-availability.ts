@@ -90,8 +90,21 @@ export function useAvailability({
           );
         }
 
-        const data: AvailabilityResponse = await response.json();
-        setAvailabilityData(data);
+        const responseData = await response.json();
+
+        // Handle both old and new API response formats
+        let availabilityData: AvailabilityResponse;
+        if (responseData.success && responseData.data) {
+          // New format: { success: true, data: { availability: [...] } }
+          availabilityData = { availability: responseData.data.availability };
+        } else if (responseData.availability) {
+          // Old format: { availability: [...] }
+          availabilityData = responseData;
+        } else {
+          throw new Error("Invalid response format");
+        }
+
+        setAvailabilityData(availabilityData);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to load availability";
@@ -119,14 +132,14 @@ export function useAvailability({
 
       try {
         const params = new URLSearchParams({
+          businessId,
           serviceId,
-          date,
+          appointmentDate: date,
           startTime,
-          endTime,
         });
 
         const response = await fetch(
-          `/api/businesses/${businessId}/availability/check?${params.toString()}`,
+          `/api/availability/check?${params.toString()}`,
         );
 
         if (!response.ok) {
@@ -134,8 +147,16 @@ export function useAvailability({
           return false;
         }
 
-        const data: CheckAvailabilityResponse = await response.json();
-        return data.available;
+        const responseData = await response.json();
+
+        // Handle both old and new API response formats
+        if (responseData.success !== undefined) {
+          // New format: { success: true, data: { available: boolean } }
+          return responseData.success && responseData.data?.available === true;
+        } else {
+          // Old format: { available: boolean }
+          return responseData.available === true;
+        }
       } catch (err) {
         console.error("Error checking slot availability:", err);
         return false;

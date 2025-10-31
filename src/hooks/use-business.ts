@@ -21,6 +21,7 @@ export interface BusinessProfile {
   phone?: string | null;
   email?: string | null;
   rating?: string;
+  reviews?: number;
   category: {
     id: string;
     name: string;

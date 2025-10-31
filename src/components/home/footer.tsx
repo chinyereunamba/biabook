@@ -1,5 +1,7 @@
 "use client";
 
+import { appConfig } from "@/utils/config";
+
 export function Footer() {
   return (
     <footer className="bg-foreground text-primary-foreground py-12">
@@ -10,7 +12,7 @@ export function Footer() {
               <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
                 <span className="text-primary-foreground font-bold">B</span>
               </div>
-              <span className="font-bold">BookMe</span>
+              <span className="font-bold">{appConfig.name}</span>
             </div>
             <p className="text-primary-foreground/70 text-sm">
               The easiest way for businesses to manage appointments and get
@@ -83,7 +85,7 @@ export function Footer() {
         </div>
 
         <div className="border-primary-foreground/20 text-primary-foreground/70 border-t pt-8 text-center text-sm">
-          <p>&copy; 2025 BookMe. All rights reserved.</p>
+          <p>&copy; 2025 {appConfig.name}. All rights reserved.</p>
         </div>
       </div>
     </footer>

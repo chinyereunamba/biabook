@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { appConfig } from "@/utils/config";
 
 export function Header() {
   return (
@@ -14,15 +15,15 @@ export function Header() {
                 B
               </span>
             </div>
-            <span className="text-foreground text-lg font-bold">BookMe</span>
+            <span className="text-foreground text-lg font-bold">{appConfig.name}</span>
           </div>
 
           <nav className="hidden items-center gap-8 md:flex">
             <Link
-              href="#"
+              href="/browse"
               className="text-foreground/70 hover:text-accent text-sm transition-colors"
             >
-              Services
+              Browse Businesses
             </Link>
             <Link
               href="#"

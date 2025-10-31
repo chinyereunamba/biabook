@@ -25,10 +25,10 @@ const rescheduleSchema = z.object({
 
 async function rescheduleBookingHandler(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const startTime = Date.now();
-  const { id } = params;
+  const { id } = await params;
   const context = {
     operation: "rescheduleBooking",
     path: `/api/bookings/${id}/reschedule`,
@@ -187,8 +187,8 @@ async function rescheduleBookingHandler(
 
       const businessForNotification = {
         ...appointmentData.business,
-        slug: appointmentData.business.slug ?? "",
-        ownerId: appointmentData.business.ownerId,
+        slug: appointmentData.business.name.toLowerCase().replace(/\s+/g, "-"),
+        userId: appointmentData.business.ownerId,
       };
 
       // Notify the business owner

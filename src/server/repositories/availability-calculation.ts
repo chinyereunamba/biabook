@@ -47,12 +47,15 @@ export class AvailabilityCalculationEngine {
       throw new Error("Business ID is required");
     }
 
+    // Limit days to prevent excessive calculations
+    const maxDays = Math.min(options.days || 7, 30);
+
     // Set default options
     const defaultOptions: Required<AvailabilityOptions> = {
-      slotDuration: serviceId ? await this.getServiceDuration(serviceId) : 60, // Default 60 minutes if no service specified
+      slotDuration: serviceId ? await this.getServiceDuration(serviceId) : 60,
       bufferTime: serviceId ? await this.getServiceBufferTime(serviceId) : 0,
       startDate: this.getTodayDateString(),
-      days: 30,
+      days: maxDays,
       startTime: "00:00",
       endTime: "23:59",
     };
@@ -64,21 +67,29 @@ export class AvailabilityCalculationEngine {
       throw new Error("Invalid start date format");
     }
 
-    // Get weekly availability
-    const weeklyAvailability =
-      await weeklyAvailabilityRepository.findByBusinessId(businessId, true);
+    // Get all data in parallel to reduce database calls
+    const endDate = this.addDaysToDate(config.startDate, config.days - 1)!;
+
+    const [weeklyAvailability, exceptions, existingAppointments, service] =
+      await Promise.all([
+        weeklyAvailabilityRepository.findByBusinessId(businessId, true),
+        availabilityExceptionRepository.findByBusinessIdAndDateRange(
+          businessId,
+          config.startDate,
+          endDate,
+        ),
+        this.getExistingAppointments(businessId, config.startDate, endDate),
+        serviceId ? serviceRepository.findById(serviceId) : null,
+      ]);
+
     if (weeklyAvailability.length === 0) {
-      throw new Error("No weekly availability set for this business");
+      return []; // Return empty array instead of throwing error
     }
 
-    // Get exceptions for the date range
-    const endDate = this.addDaysToDate(config.startDate, config.days - 1)!;
-    const exceptions =
-      await availabilityExceptionRepository.findByBusinessIdAndDateRange(
-        businessId,
-        config.startDate,
-        endDate,
-      );
+    // Validate service if provided
+    if (serviceId && !service) {
+      throw new Error("Service not found");
+    }
 
     // Generate date range
     const dateRange = generateDateRange(config.startDate, endDate);
@@ -129,20 +140,12 @@ export class AvailabilityCalculationEngine {
         date,
       );
 
-      // Filter out unavailable slots
-      const availableSlots = [];
-      for (const slot of generatedSlots) {
-        const { available } = await this.isTimeSlotAvailable(
-          businessId,
-          slot.date,
-          slot.startTime,
-          slot.endTime,
-          serviceId,
-        );
-        if (available) {
-          availableSlots.push(slot);
-        }
-      }
+      // Filter out unavailable slots using pre-fetched appointments
+      const availableSlots = this.filterAvailableSlots(
+        generatedSlots,
+        existingAppointments,
+        date,
+      );
 
       availabilitySlots.push({
         date,
@@ -436,6 +439,72 @@ export class AvailabilityCalculationEngine {
   }
 
   /**
+   * Get existing appointments for a date range (optimized single query)
+   */
+  private async getExistingAppointments(
+    businessId: string,
+    startDate: string,
+    endDate: string,
+  ) {
+    const { db } = await import("@/server/db");
+    const { appointments } = await import("@/server/db/schema");
+    const { and, eq, gte, lte, inArray } = await import("drizzle-orm");
+
+    return await db
+      .select({
+        appointmentDate: appointments.appointmentDate,
+        startTime: appointments.startTime,
+        endTime: appointments.endTime,
+      })
+      .from(appointments)
+      .where(
+        and(
+          eq(appointments.businessId, businessId),
+          gte(appointments.appointmentDate, startDate),
+          lte(appointments.appointmentDate, endDate),
+          inArray(appointments.status, ["pending", "confirmed"]),
+        ),
+      );
+  }
+
+  /**
+   * Filter available slots using pre-fetched appointments (no database calls)
+   */
+  private filterAvailableSlots(
+    slots: TimeSlot[],
+    existingAppointments: any[],
+    date: string,
+  ): TimeSlot[] {
+    const now = new Date();
+    const isToday = date === this.getTodayDateString();
+    const currentMinutes = isToday ? now.getHours() * 60 + now.getMinutes() : 0;
+
+    return slots
+      .filter((slot) => {
+        // Skip past time slots for today
+        if (isToday && timeStringToMinutes(slot.startTime) <= currentMinutes) {
+          return false;
+        }
+
+        // Check for conflicts with existing appointments
+        const hasConflict = existingAppointments.some(
+          (apt) =>
+            apt.appointmentDate === date &&
+            timeStringToMinutes(apt.startTime) <
+              timeStringToMinutes(slot.endTime) &&
+            timeStringToMinutes(apt.endTime) >
+              timeStringToMinutes(slot.startTime),
+        );
+
+        return !hasConflict;
+      })
+      .map((slot) => ({
+        ...slot,
+        available: true,
+      }));
+  }
+
+  /**
    * Get next available time slot for a service
    */
   async getNextAvailableSlot(
@@ -452,7 +521,7 @@ export class AvailabilityCalculationEngine {
       slotDuration: service.duration,
       bufferTime: service.bufferTime ?? 0,
       startDate: startDate ?? this.getTodayDateString(),
-      days: 30,
+      days: 7, // Limit to 7 days for next available slot
     };
 
     const availability = await this.calculateAvailability(
@@ -463,8 +532,9 @@ export class AvailabilityCalculationEngine {
 
     // Find the first available slot
     for (const day of availability) {
-      if (day.slots.length > 0) {
-        const firstSlot = day.slots[0];
+      const availableSlots = day.slots.filter((slot) => slot.available);
+      if (availableSlots.length > 0) {
+        const firstSlot = availableSlots[0];
         if (firstSlot) {
           return {
             date: day.date,

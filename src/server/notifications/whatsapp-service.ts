@@ -111,7 +111,12 @@ export class WhatsAppService {
     }
 
     // Format the phone number for WhatsApp (remove non-digits and ensure it starts with country code)
-    const phoneNumber = business.phone.replace(/\D/g, "");
+    let phoneNumber = business.phone.replace(/\D/g, "");
+
+    // Add country code if missing (assuming US numbers)
+    if (phoneNumber.length === 10) {
+      phoneNumber = "1" + phoneNumber;
+    }
 
     // Create the WhatsApp message using a template
     const message: WhatsAppMessage = {
@@ -165,7 +170,12 @@ export class WhatsAppService {
     }
 
     // Format the phone number for WhatsApp
-    const phoneNumber = business.phone.replace(/\D/g, "");
+    let phoneNumber = business.phone.replace(/\D/g, "");
+
+    // Add country code if missing (assuming US numbers)
+    if (phoneNumber.length === 10) {
+      phoneNumber = "1" + phoneNumber;
+    }
 
     // Create the WhatsApp message using a template
     const message: WhatsAppMessage = {
@@ -174,7 +184,7 @@ export class WhatsAppService {
       to: phoneNumber,
       type: "template",
       template: {
-        name: "an",
+        name: "booking_cancellation",
         language: { code: "en_US" },
         components: [
           {
@@ -209,7 +219,12 @@ export class WhatsAppService {
     }
 
     // Format the phone number for WhatsApp
-    const phoneNumber = business.phone.replace(/\D/g, "");
+    let phoneNumber = business.phone.replace(/\D/g, "");
+
+    // Add country code if missing (assuming US numbers)
+    if (phoneNumber.length === 10) {
+      phoneNumber = "1" + phoneNumber;
+    }
 
     // Create the WhatsApp message using a template
     const message: WhatsAppMessage = {

@@ -78,8 +78,17 @@ export function BookingRescheduleForm({ booking }: BookingRescheduleFormProps) {
         }
 
         const data = await response.json();
-        // Extract time slots from the availability structure
-        const availabilitySlots = data.availability || [];
+
+        // Handle both old and new API response formats
+        let availabilitySlots;
+        if (data.success && data.data) {
+          // New format: { success: true, data: { availability: [...] } }
+          availabilitySlots = data.data.availability || [];
+        } else {
+          // Old format: { availability: [...] }
+          availabilitySlots = data.availability || [];
+        }
+
         const daySlots = availabilitySlots.find(
           (slot: any) => slot.date === formattedDate,
         );
@@ -122,8 +131,12 @@ export function BookingRescheduleForm({ booking }: BookingRescheduleFormProps) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to reschedule booking");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error?.message ||
+            errorData.message ||
+            `Failed to reschedule booking (${response.status})`,
+        );
       }
 
       // Redirect to the booking details page

@@ -4,6 +4,7 @@ import { appointments, businesses, services } from "@/server/db/schema";
 import { eq, and, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { notificationScheduler } from "@/server/notifications/notification-scheduler";
+import { notificationService } from "@/server/notifications/notification-service";
 import { bookingConflictService } from "@/server/services/booking-conflict-service";
 
 import { bookingLogger } from "@/server/logging/booking-logger";
@@ -247,33 +248,42 @@ async function createBookingHandler(request: NextRequest) {
       phone: business.phone,
     };
 
-    // Schedule notifications for the new booking
+    // Send immediate notifications and schedule reminders
     try {
-      // Schedule confirmation notifications
-      await notificationScheduler.scheduleBookingConfirmation(
-        appointmentForScheduler,
-        service,
-        businessForScheduler,
-      );
+      // Send immediate confirmation notifications (don't wait for queue processing)
+      await Promise.allSettled([
+        // Send confirmation to customer immediately
+        notificationService.sendBookingConfirmationToCustomer(
+          appointmentForScheduler,
+          service,
+          businessForScheduler,
+        ),
+        // Send notification to business owner immediately
+        notificationService.sendBookingNotificationToBusiness(
+          appointmentForScheduler,
+          service,
+          businessForScheduler,
+        ),
+      ]);
 
-      // Schedule reminder notifications
+      // Schedule reminder notifications for later
       await notificationScheduler.scheduleBookingReminders(
         appointmentForScheduler,
         service,
         businessForScheduler,
       );
 
-      bookingLogger.info("Booking notifications scheduled successfully", {
+      bookingLogger.info("Booking notifications sent and reminders scheduled", {
         ...context,
         appointmentId: newAppointment.id,
       });
     } catch (error) {
       bookingLogger.warn(
-        "Failed to schedule booking notifications",
+        "Failed to send booking notifications",
         { ...context, appointmentId: newAppointment.id },
         { error: error instanceof Error ? error.message : String(error) },
       );
-      // Don't fail the booking creation if notification scheduling fails
+      // Don't fail the booking creation if notification sending fails
     }
 
     // Return the created appointment with business and service details

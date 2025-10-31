@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Phone } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import {
   ErrorFeedback,
   RetryFeedback,
@@ -98,44 +98,61 @@ export default function BookingPage() {
     setSelectedTime(""); // Reset time selection when date changes
   };
 
-  const handleTimeSelect = async (startTime: string, endTime: string) => {
-    // Check real-time availability before allowing selection
-    const isAvailable = await checkSlotAvailability(
-      selectedDate,
-      startTime,
-      endTime,
-    );
+  const handleTimeSelect = (startTime: string, endTime: string) => {
+    // Find the slot in current availability data
+    const selectedSlot = availabilityData?.availability
+      .find((day) => day.date === selectedDate)
+      ?.slots.find((slot) => slot.startTime === startTime);
 
-    if (isAvailable) {
+    // Only select if the slot is marked as available in current data
+    if (selectedSlot?.available) {
       setSelectedTime(startTime);
-      clearAvailabilityError(); // Clear any previous errors
+      clearAvailabilityError();
     } else {
-      // Refresh availability data if slot is no longer available
-      await refreshAvailability();
+      // If slot is not available, refresh data and show message
+      toast.error("Time slot unavailable", {
+        description: "This slot is no longer available. Refreshing...",
+      });
+      void refreshAvailability();
     }
   };
 
   const handleDateTimeConfirm = async () => {
     if (selectedDate && selectedTime) {
-      // Final availability check before proceeding
-      const selectedSlot = availabilityData?.availability
-        .find((day) => day.date === selectedDate)
-        ?.slots.find((slot) => slot.startTime === selectedTime);
+      // Show loading state
+      const loadingToast = toast.loading("Verifying availability...");
 
-      if (selectedSlot) {
-        const isStillAvailable = await checkSlotAvailability(
-          selectedDate,
-          selectedSlot.startTime,
-          selectedSlot.endTime,
-        );
+      try {
+        // Final availability check before proceeding to booking form
+        const selectedSlot = availabilityData?.availability
+          .find((day) => day.date === selectedDate)
+          ?.slots.find((slot) => slot.startTime === selectedTime);
 
-        if (isStillAvailable) {
-          setStep(3);
-        } else {
-          // Refresh availability and show error
-          await refreshAvailability();
-          setSelectedTime("");
+        if (selectedSlot) {
+          const isStillAvailable = await checkSlotAvailability(
+            selectedDate,
+            selectedSlot.startTime,
+            selectedSlot.endTime,
+          );
+
+          if (isStillAvailable) {
+            toast.dismiss(loadingToast);
+            setStep(3);
+          } else {
+            toast.dismiss(loadingToast);
+            toast.error("Time slot no longer available", {
+              description: "Please select a different time slot",
+            });
+            // Refresh availability and clear selection
+            await refreshAvailability();
+            setSelectedTime("");
+          }
         }
+      } catch (error) {
+        toast.dismiss(loadingToast);
+        toast.error("Error verifying availability", {
+          description: "Please try again",
+        });
       }
     }
   };

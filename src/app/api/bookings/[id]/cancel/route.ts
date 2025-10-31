@@ -9,10 +9,10 @@ import { bookingLogger } from "@/server/logging/booking-logger";
 
 async function cancelBookingHandler(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const startTime = Date.now();
-  const { id } = params;
+  const { id } = await params;
   const context = {
     operation: "cancelBooking",
     path: `/api/bookings/${id}/cancel`,

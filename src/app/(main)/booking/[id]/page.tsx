@@ -19,11 +19,6 @@ interface BookingPageProps {
 
 export default async function BookingDetailsPage({ params }: BookingPageProps) {
   const { id } = await params;
-  const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
   try {
     // Fetch the appointment with related service and business
     const [bookingData] = await db

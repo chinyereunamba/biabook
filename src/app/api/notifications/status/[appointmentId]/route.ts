@@ -10,10 +10,10 @@ import type { NotificationStatus } from "@/components/ui/notification-status";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { appointmentId: string } },
+  { params }: { params: Promise<{ appointmentId: string }> },
 ) {
   try {
-    const { appointmentId } = params;
+    const { appointmentId } = await params;
 
     if (!appointmentId) {
       return NextResponse.json(
