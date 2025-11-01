@@ -51,15 +51,18 @@ export async function GET() {
       },
       {
         id: "payment",
-        name: "Payment Gateway",
+        name: "Payment Gateway (Stripe)",
         description: "Process payments and handle transactions",
-        status: "disconnected", // No payment gateway configured yet
+        status: env.STRIPE_SECRET_KEY ? "connected" : "disconnected",
+        lastTested: env.STRIPE_SECRET_KEY
+          ? new Date().toISOString()
+          : undefined,
         config: {
           provider: "stripe",
-          publicKey: "",
-          secretKey: "",
-          webhookSecret: "",
-          enabled: false,
+          publicKey: env.STRIPE_PUBLIC_KEY || "",
+          secretKey: env.STRIPE_SECRET_KEY ? "••••••••••••••••" : "", // Masked for security
+          webhookSecret: env.STRIPE_WEBHOOK_SECRET ? "••••••••••••••••" : "", // Masked for security
+          enabled: !!env.STRIPE_SECRET_KEY,
         },
       },
     ];

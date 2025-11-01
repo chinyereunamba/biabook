@@ -15,8 +15,20 @@ export class BusinessRepository {
    * Get all businesses
    */
   async findAll(): Promise<Business[]> {
-    const result = await db.select().from(businesses);
-    return result;
+    try {
+      // Add timeout wrapper
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error("Database query timeout")), 15000);
+      });
+
+      const queryPromise = db.select().from(businesses);
+
+      const result = await Promise.race([queryPromise, timeoutPromise]);
+      return result;
+    } catch (error) {
+      console.error("Error in BusinessRepository.findAll:", error);
+      throw error;
+    }
   }
 
   /**

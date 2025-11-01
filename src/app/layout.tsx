@@ -7,10 +7,10 @@ if (typeof window === "undefined") {
   import("@/server/init");
 }
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+// const geist = Geist({
+//   subsets: ["latin"],
+//   variable: "--font-sans",
+// });
 
 export const metadata = {
   title: "BookMe - Simple Appointment Booking",
@@ -25,7 +25,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={geist.variable}>
+      <body
+        // className={geist.variable}
+      >
         <Providers>
           {/* <TRPCReactProvider cookies={cookies().toString()}> */}
           {children}

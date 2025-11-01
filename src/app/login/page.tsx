@@ -77,7 +77,7 @@ export default function LoginPage() {
                   <Button
                     variant="outline"
                     className="w-full border-gray-300"
-                    onClick={() => {
+                    onClick={async () => {
                       setIsLoading(true);
                       void signIn("google", {
                         callbackUrl: "/dashboard",

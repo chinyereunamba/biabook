@@ -121,6 +121,7 @@ export const authConfig = {
 
       return session;
     },
+
   },
 
   session: {

@@ -84,20 +84,30 @@ export default function AdminIntegrationsPage() {
     setTesting((prev) => ({ ...prev, [integrationId]: true }));
 
     try {
-      // Simulate API test
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch("/api/admin/integrations/test", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ integrationId }),
+      });
+
+      const result = await response.json();
 
       setIntegrations((prev) =>
         prev.map((integration) =>
           integration.id === integrationId
             ? {
                 ...integration,
-                status: "connected",
-                lastTested: new Date().toISOString(),
+                status: result.success ? "connected" : "error",
+                lastTested: result.timestamp,
               }
             : integration,
         ),
       );
+
+      // You could show a toast with result.message here
+      console.log(`Test result for ${integrationId}:`, result.message);
     } catch (error) {
       setIntegrations((prev) =>
         prev.map((integration) =>
@@ -106,6 +116,7 @@ export default function AdminIntegrationsPage() {
             : integration,
         ),
       );
+      console.error(`Test failed for ${integrationId}:`, error);
     } finally {
       setTesting((prev) => ({ ...prev, [integrationId]: false }));
     }
