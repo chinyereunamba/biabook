@@ -6,13 +6,17 @@ import {
   businesses,
   services,
   weeklyAvailability,
+  users,
+  categories,
 } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 
 describe("BookingConflictService", () => {
   const testBusinessId = "test-business-1";
   const testServiceId = "test-service-1";
-  const testDate = "2024-12-25"; // Future date
+  const testUserId = "test-user-1";
+  const testCategoryId = "salon";
+  const testDate = "2025-12-25"; // Future date
   const testStartTime = "10:00";
 
   beforeEach(async () => {
@@ -25,14 +29,29 @@ describe("BookingConflictService", () => {
       .delete(weeklyAvailability)
       .where(eq(weeklyAvailability.businessId, testBusinessId));
     await db.delete(businesses).where(eq(businesses.id, testBusinessId));
+    await db.delete(users).where(eq(users.id, testUserId));
+    await db.delete(categories).where(eq(categories.id, testCategoryId));
+
+    // Create test user
+    await db.insert(users).values({
+      id: testUserId,
+      name: "Test Owner",
+      email: "owner@test.com",
+    });
+
+    // Create test category
+    await db.insert(categories).values({
+      id: testCategoryId,
+      name: "Salon",
+    });
 
     // Create test business
     await db.insert(businesses).values({
       id: testBusinessId,
       name: "Test Business",
       slug: "test-business",
-      categoryId: "salon",
-      ownerId: "test-owner",
+      categoryId: testCategoryId,
+      ownerId: testUserId,
     });
 
     // Create test service
@@ -65,6 +84,8 @@ describe("BookingConflictService", () => {
       .delete(weeklyAvailability)
       .where(eq(weeklyAvailability.businessId, testBusinessId));
     await db.delete(businesses).where(eq(businesses.id, testBusinessId));
+    await db.delete(users).where(eq(users.id, testUserId));
+    await db.delete(categories).where(eq(categories.id, testCategoryId));
   });
 
   describe("validateBookingRequest", () => {
@@ -72,7 +93,7 @@ describe("BookingConflictService", () => {
       const result = await bookingConflictService.validateBookingRequest({
         businessId: testBusinessId,
         serviceId: testServiceId,
-        appointmentDate: "2024-12-23", // Monday
+        appointmentDate: "2025-12-22", // Monday
         startTime: testStartTime,
       });
 
@@ -88,7 +109,7 @@ describe("BookingConflictService", () => {
         customerName: "John Doe",
         customerEmail: "john@example.com",
         customerPhone: "1234567890",
-        appointmentDate: "2024-12-23",
+        appointmentDate: "2025-12-22",
         startTime: "10:00",
         endTime: "11:00",
         status: "confirmed",
@@ -98,7 +119,7 @@ describe("BookingConflictService", () => {
       const result = await bookingConflictService.validateBookingRequest({
         businessId: testBusinessId,
         serviceId: testServiceId,
-        appointmentDate: "2024-12-23",
+        appointmentDate: "2025-12-22",
         startTime: "10:30", // Overlaps with existing appointment
       });
 
@@ -130,7 +151,7 @@ describe("BookingConflictService", () => {
       const result = await bookingConflictService.validateBookingRequest({
         businessId: testBusinessId,
         serviceId: testServiceId,
-        appointmentDate: "2024-12-23", // Monday
+        appointmentDate: "2025-12-22", // Monday
         startTime: "08:00", // Before business hours (09:00-17:00)
       });
 
@@ -144,7 +165,7 @@ describe("BookingConflictService", () => {
       const result = await bookingConflictService.validateBookingRequest({
         businessId: testBusinessId,
         serviceId: testServiceId,
-        appointmentDate: "2024-12-24", // Tuesday - not available
+        appointmentDate: "2025-12-23", // Tuesday - not available
         startTime: testStartTime,
       });
 
@@ -176,7 +197,7 @@ describe("BookingConflictService", () => {
       const result = await bookingConflictService.validateBookingRequest({
         businessId: testBusinessId,
         serviceId: testServiceId,
-        appointmentDate: "2024-12-23",
+        appointmentDate: "2025-12-22",
         startTime: testStartTime,
       });
 
@@ -190,7 +211,7 @@ describe("BookingConflictService", () => {
       const isAvailable = await bookingConflictService.isTimeSlotAvailable(
         testBusinessId,
         testServiceId,
-        "2024-12-23", // Monday
+        "2025-12-22", // Monday
         testStartTime,
       );
 
@@ -205,7 +226,7 @@ describe("BookingConflictService", () => {
         customerName: "John Doe",
         customerEmail: "john@example.com",
         customerPhone: "1234567890",
-        appointmentDate: "2024-12-23",
+        appointmentDate: "2025-12-22",
         startTime: "10:00",
         endTime: "11:00",
         status: "confirmed",
@@ -215,7 +236,7 @@ describe("BookingConflictService", () => {
       const isAvailable = await bookingConflictService.isTimeSlotAvailable(
         testBusinessId,
         testServiceId,
-        "2024-12-23",
+        "2025-12-22",
         "10:00", // Same time as existing appointment
       );
 
@@ -228,7 +249,7 @@ describe("BookingConflictService", () => {
       const conflicts = await bookingConflictService.getConflicts(
         testBusinessId,
         testServiceId,
-        "2024-12-23", // Monday
+        "2025-12-22", // Monday
         testStartTime,
       );
 
@@ -239,7 +260,7 @@ describe("BookingConflictService", () => {
       const conflicts = await bookingConflictService.getConflicts(
         testBusinessId,
         testServiceId,
-        "2024-12-24", // Tuesday - not available
+        "2025-12-23", // Tuesday - not available
         testStartTime,
       );
 

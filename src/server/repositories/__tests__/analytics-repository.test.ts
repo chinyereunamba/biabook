@@ -1,17 +1,40 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { db } from "@/server/db";
-import { businesses, services, appointments } from "@/server/db/schema";
+import {
+  businesses,
+  services,
+  appointments,
+  users,
+  categories,
+} from "@/server/db/schema";
 import { analyticsRepository } from "../analytics-repository";
 
 describe("AnalyticsRepository", () => {
   const testBusinessId = "test-business-id";
   const testServiceId = "test-service-id";
+  const testUserId = "test-user-id";
+  const testCategoryId = "salon";
 
   beforeEach(async () => {
     // Clean up any existing test data
     await db.delete(appointments);
     await db.delete(services);
     await db.delete(businesses);
+    await db.delete(users);
+    await db.delete(categories);
+
+    // Insert test user
+    await db.insert(users).values({
+      id: testUserId,
+      name: "Test Owner",
+      email: "owner@test.com",
+    });
+
+    // Insert test category
+    await db.insert(categories).values({
+      id: testCategoryId,
+      name: "Salon",
+    });
 
     // Insert test business
     await db.insert(businesses).values({
@@ -19,8 +42,8 @@ describe("AnalyticsRepository", () => {
       name: "Test Business",
       slug: "test-business",
       description: "Test Description",
-      categoryId: "salon",
-      ownerId: "test-owner-id",
+      categoryId: testCategoryId,
+      ownerId: testUserId,
     });
 
     // Insert test service
@@ -38,6 +61,8 @@ describe("AnalyticsRepository", () => {
     await db.delete(appointments);
     await db.delete(services);
     await db.delete(businesses);
+    await db.delete(users);
+    await db.delete(categories);
   });
 
   describe("getBookingAnalytics", () => {

@@ -7,6 +7,7 @@ export default defineConfig({
     globals: true,
     mockReset: true,
     restoreMocks: true,
+    setupFiles: ["./src/test/setup.ts"],
   },
   resolve: {
     alias: {
