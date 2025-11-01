@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Save,
   RefreshCw,
@@ -32,58 +32,45 @@ interface Integration {
 }
 
 export default function AdminIntegrationsPage() {
-  const [integrations, setIntegrations] = useState<Integration[]>([
-    {
-      id: "whatsapp",
-      name: "WhatsApp Business API",
-      description: "Send booking notifications via WhatsApp",
-      icon: <MessageSquare className="h-6 w-6" />,
-      status: "connected",
-      lastTested: "2024-11-01T10:30:00Z",
-      config: {
-        apiUrl: "https://graph.facebook.com/v18.0",
-        phoneNumberId: "726629333595963",
-        accessToken:
-          "EAAIjyG0FipkBP4rGucyZA0JSZA1Pm3uoITGVt0iAfD0WsFLoLAuNGtjFvfJNjVzJVqSaJVZBxZATPkETrlPZC7ZAdzNHyFIQCaczaPAYYadoSvdjqkbK0SW2l0htrFoZByT3LKxLUuzSFvagUCSSuQZCI3cWfdkZADOnBS9EOCBIdLXhA96KEPZC5EiB8pUcs5ZA39TJFs6V0x8cKNtcZCSTZAiIbSCpSXbZBrkl1ldcuj",
-        businessAccountId: "2247211829061652",
-        enabled: true,
-      },
-    },
-    {
-      id: "email",
-      name: "Email Service (SMTP)",
-      description: "Send email notifications and confirmations",
-      icon: <Mail className="h-6 w-6" />,
-      status: "connected",
-      lastTested: "2024-11-01T09:15:00Z",
-      config: {
-        host: "smtp.gmail.com",
-        port: 587,
-        username: "chinyereunamba15@gmail.com",
-        password: "togdvdwxolwqvqac",
-        fromEmail: "chinyereunamba15@gmail.com",
-        enabled: true,
-      },
-    },
-    {
-      id: "payment",
-      name: "Payment Gateway",
-      description: "Process payments and handle transactions",
-      icon: <Key className="h-6 w-6" />,
-      status: "disconnected",
-      config: {
-        provider: "stripe",
-        publicKey: "",
-        secretKey: "",
-        webhookSecret: "",
-        enabled: false,
-      },
-    },
-  ]);
+  const [integrations, setIntegrations] = useState<Integration[]>([]);
 
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
   const [testing, setTesting] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch integrations from API
+  useEffect(() => {
+    const fetchIntegrations = async () => {
+      try {
+        const response = await fetch("/api/admin/integrations");
+        if (response.ok) {
+          const data = await response.json();
+          // Add icons to the integrations
+          const integrationsWithIcons = data.integrations.map(
+            (integration: any) => ({
+              ...integration,
+              icon:
+                integration.id === "whatsapp" ? (
+                  <MessageSquare className="h-6 w-6" />
+                ) : integration.id === "email" ? (
+                  <Mail className="h-6 w-6" />
+                ) : (
+                  <Key className="h-6 w-6" />
+                ),
+            }),
+          );
+          setIntegrations(integrationsWithIcons);
+        }
+      } catch (error) {
+        console.error("Failed to fetch integrations:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchIntegrations();
+  }, []);
 
   const toggleSecretVisibility = (integrationId: string, field: string) => {
     const key = `${integrationId}-${field}`;
@@ -144,11 +131,23 @@ export default function AdminIntegrationsPage() {
   const saveIntegrations = async () => {
     setSaving(true);
     try {
-      // Simulate API save
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Integrations saved:", integrations);
+      const response = await fetch("/api/admin/integrations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ integrations }),
+      });
+
+      if (response.ok) {
+        console.log("Integrations saved successfully");
+        // You could show a success toast here
+      } else {
+        throw new Error("Failed to save integrations");
+      }
     } catch (error) {
       console.error("Failed to save integrations:", error);
+      // You could show an error toast here
     } finally {
       setSaving(false);
     }
@@ -184,6 +183,17 @@ export default function AdminIntegrationsPage() {
     if (!timestamp) return "Never tested";
     return new Date(timestamp).toLocaleString();
   };
+
+  if (loading) {
+    return (
+      <div className="bg-background flex min-h-screen w-full items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="mx-auto mb-4 h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground">Loading integrations...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background min-h-screen w-full">
