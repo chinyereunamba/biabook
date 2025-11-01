@@ -124,6 +124,6 @@ export const authConfig = {
   },
 
   session: {
-    strategy: "database",
+    strategy: "database" as const,
   },
 };
