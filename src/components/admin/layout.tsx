@@ -14,7 +14,8 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
+// Auth removed
 
 export default function LayoutComponent({
   children,
@@ -32,12 +33,13 @@ export default function LayoutComponent({
   const [showProfile, setShowProfile] = useState(false);
   const [toggleMenu, setToggleMenu] = useState(false);
   const pathname = usePathname();
-  const { data: session } = useSession();
+  // Mock session data since auth is removed
+  const session = { user: { name: "Admin User", email: "admin@example.com" } };
 
   const menuClass = toggleMenu ? "hidden" : "";
 
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: "/login" });
+  const handleLogout =  () => {
+    signOut({ redirect: true });
   };
 
   return (
@@ -125,7 +127,7 @@ export default function LayoutComponent({
                 </div>
                 <div className={cn("flex flex-col", menuClass)}>
                   <p className="text-sm font-medium text-gray-900">
-                    {session?.user?.name || "Admin"}
+                    {session?.user?.name}
                   </p>
                   <p className="text-xs text-gray-500">Administrator</p>
                 </div>

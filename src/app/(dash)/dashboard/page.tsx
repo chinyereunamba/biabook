@@ -15,7 +15,6 @@ import {
 import { LoadingOverlay } from "@/components/ui/loading-states";
 
 import { toast } from "sonner";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import type { RecentBooking, Stats } from "@/types/dashboard";
 import {
@@ -33,24 +32,11 @@ import {
 export default function DashboardPage() {
   const [recentBookings, setRecentBookings] = useState<RecentBooking[]>([]);
   const [loading, setLoading] = useState(true);
-  const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Redirect admin users to admin dashboard
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session) {
-      router.push("/login");
-      return;
-    }
-
-    if (session.user?.role === "admin") {
-      console.log("Admin user detected, redirecting to admin dashboard");
-      router.push("/admin");
-      return;
-    }
-  }, [session, status, router]);
+  // Mock session data since auth is removed
+  const session = { user: { name: "User", email: "user@example.com" } };
+  const status = "authenticated";
 
   const revenueData = [
     { month: "Jan", revenue: 4000 },
@@ -76,26 +62,7 @@ export default function DashboardPage() {
     return (priceInCents / 100).toFixed(2);
   };
 
-  // Show loading while checking session or redirecting admin users
-  if (status === "loading" || session?.user?.role === "admin") {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin" />
-          <p className="text-muted-foreground">
-            {session?.user?.role === "admin"
-              ? "Redirecting to admin dashboard..."
-              : "Loading..."}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Redirect to login if not authenticated
-  if (!session) {
-    return null;
-  }
+  // Remove auth checks since auth is removed
 
   return (
     <div className="bg-background min-h-screen w-full">

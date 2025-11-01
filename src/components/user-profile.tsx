@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useSession, signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,26 +14,24 @@ import {
 import { LogOut, Settings, User } from "lucide-react";
 
 export default function UserProfile() {
-  const { data: session, status } = useSession();
+  // Mock user data since auth is removed
+  const session = {
+    user: {
+      name: "John Doe",
+      email: "john@example.com",
+      image: null,
+    },
+  };
+  const status = "authenticated";
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
-    await signOut({ callbackUrl: "/" });
+    // Redirect to home page
+    window.location.href = "/";
   };
 
-  if (status === "loading") {
-    return (
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200"></div>
-        <div className="h-4 w-24 animate-pulse rounded bg-gray-200"></div>
-      </div>
-    );
-  }
 
-  if (status === "unauthenticated" || !session?.user) {
-    return null;
-  }
 
   const userInitials = session.user.name
     ? session.user.name
