@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { appConfig } from "@/utils/config";
 
 export function Footer() {
@@ -71,14 +72,19 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-primary-foreground">
+                <Link href="/contact" className="hover:text-primary-foreground">
                   Contact
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary-foreground">
-                  Privacy
-                </a>
+                <Link href="/privacy" className="hover:text-primary-foreground">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="hover:text-primary-foreground">
+                  Terms of Service
+                </Link>
               </li>
             </ul>
           </div>

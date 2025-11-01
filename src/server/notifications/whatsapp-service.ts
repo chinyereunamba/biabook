@@ -55,9 +55,18 @@ export class WhatsAppService {
       this.accessToken
     );
 
+    // Check if WhatsApp is explicitly disabled
+    const isDisabled = process.env.DISABLE_WHATSAPP === "true";
+    if (isDisabled) {
+      console.log(
+        "WhatsApp notifications are disabled via DISABLE_WHATSAPP environment variable",
+      );
+      this.isConfigured = false;
+    }
+
     if (!this.isConfigured) {
       console.warn(
-        "WhatsApp API is not configured. WhatsApp messages will not be sent.",
+        "WhatsApp API is not configured or disabled. WhatsApp messages will not be sent.",
       );
     }
   }
@@ -67,11 +76,16 @@ export class WhatsAppService {
    */
   private async sendMessage(message: WhatsAppMessage): Promise<boolean> {
     if (!this.isConfigured) {
+      console.warn("WhatsApp service not configured, skipping message");
       return false;
     }
 
     try {
       const url = `${this.apiUrl}/${this.phoneNumberId}/messages`;
+
+      // Create AbortController for timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
       const response = await fetch(url, {
         method: "POST",
@@ -80,17 +94,40 @@ export class WhatsAppService {
           Authorization: `Bearer ${this.accessToken}`,
         },
         body: JSON.stringify(message),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("WhatsApp API error:", errorData);
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: "Unknown error" }));
+        console.error("WhatsApp API error:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
         return false;
       }
 
+      const responseData = await response
+        .json()
+        .catch(() => ({ success: true }));
+      console.log("WhatsApp message sent successfully:", responseData);
       return true;
     } catch (error) {
-      console.error("Failed to send WhatsApp message:", error);
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          console.error("WhatsApp API request timed out after 10 seconds");
+        } else if (error.message.includes("ETIMEDOUT")) {
+          console.error("WhatsApp API connection timed out");
+        } else {
+          console.error("Failed to send WhatsApp message:", error.message);
+        }
+      } else {
+        console.error("Failed to send WhatsApp message:", error);
+      }
       return false;
     }
   }

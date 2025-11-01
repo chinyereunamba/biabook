@@ -12,6 +12,17 @@ import {
 import { eq } from "drizzle-orm";
 import { env } from "@/env";
 
+// Validate required environment variables
+if (!env.AUTH_SECRET) {
+  throw new Error("AUTH_SECRET is required");
+}
+if (!env.AUTH_GOOGLE_ID) {
+  throw new Error("AUTH_GOOGLE_ID is required");
+}
+if (!env.AUTH_GOOGLE_SECRET) {
+  throw new Error("AUTH_GOOGLE_SECRET is required");
+}
+
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -44,6 +55,8 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authConfig = {
+  secret: env.AUTH_SECRET,
+  trustHost: true,
   pages: {
     signIn: "/login",
     error: "/auth/error",
@@ -51,13 +64,15 @@ export const authConfig = {
   debug: process.env.NODE_ENV === "development",
   logger: {
     error: (code, ...message) => {
-      console.error(code, ...message);
+      console.error("NextAuth Error:", code, ...message);
     },
     warn: (code, ...message) => {
-      console.warn(code, ...message);
+      console.warn("NextAuth Warning:", code, ...message);
     },
     debug: (code, ...message) => {
-      console.debug(code, ...message);
+      if (process.env.NODE_ENV === "development") {
+        console.debug("NextAuth Debug:", code, ...message);
+      }
     },
   },
 
@@ -71,6 +86,14 @@ export const authConfig = {
           access_type: "offline",
           response_type: "code",
         },
+      },
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+        };
       },
     }),
     /**
@@ -91,27 +114,37 @@ export const authConfig = {
   }),
   callbacks: {
     async signIn({ account, profile }) {
-      // Allow all Google accounts to sign in
-      if (account?.provider === "google") {
-        return !!(profile?.email_verified && profile?.email);
+      try {
+        // Allow all Google accounts to sign in
+        if (account?.provider === "google") {
+          return !!(profile?.email_verified && profile?.email);
+        }
+        return true;
+      } catch (error) {
+        console.error("SignIn callback error:", error);
+        return false;
       }
-
-      return true;
     },
     async session({ session, user }) {
-      const dbUser = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, user.id))
-        .then((res) => res[0]);
+      try {
+        const dbUser = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, user.id))
+          .then((res) => res[0]);
 
-      if (dbUser) {
-        session.user.id = dbUser.id;
-        session.user.isOnboarded = !!dbUser.isOnboarded;
-        session.user.needsOnboarding = !dbUser.isOnboarded;
+        if (dbUser) {
+          session.user.id = dbUser.id;
+          session.user.isOnboarded = !!dbUser.isOnboarded;
+          session.user.needsOnboarding = !dbUser.isOnboarded;
+          session.user.role = "user"; // Set default role
+        }
+
+        return session;
+      } catch (error) {
+        console.error("Session callback error:", error);
+        return session;
       }
-
-      return session;
     },
   },
   session: {

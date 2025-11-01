@@ -191,19 +191,35 @@ async function rescheduleBookingHandler(
         userId: appointmentData.business.ownerId,
       };
 
-      // Notify the business owner
-      await notificationService.sendBookingNotificationToBusiness(
-        updatedAppointment,
-        appointmentData.service,
-        businessForNotification,
-      );
-
-      // Send rescheduled email to the customer
-      await notificationService.sendBookingRescheduledToCustomer(
-        updatedAppointment,
-        appointmentData.service,
-        businessForNotification,
-      );
+      // Send notifications asynchronously (don't block the response)
+      Promise.allSettled([
+        notificationService.sendBookingNotificationToBusiness(
+          updatedAppointment,
+          appointmentData.service,
+          businessForNotification,
+        ),
+        notificationService.sendBookingRescheduledToCustomer(
+          updatedAppointment,
+          appointmentData.service,
+          businessForNotification,
+        ),
+      ])
+        .then((results) => {
+          results.forEach((result, index) => {
+            const notificationType = index === 0 ? "business" : "customer";
+            if (result.status === "rejected") {
+              console.error(
+                `Failed to send ${notificationType} notification:`,
+                result.reason,
+              );
+            } else {
+              console.log(`${notificationType} notification sent successfully`);
+            }
+          });
+        })
+        .catch((error) => {
+          console.error("Error in notification promises:", error);
+        });
 
       bookingLogger.info("Reschedule notifications sent successfully", {
         ...context,

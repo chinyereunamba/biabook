@@ -1,70 +1,42 @@
-import { NextRequest, NextResponse } from "next/server";
-import { whatsAppService } from "@/server/notifications/whatsapp-service";
+import { NextResponse } from "next/server";
+import { env } from "@/env";
 
-/**
- * Test WhatsApp configuration
- * GET /api/test/whatsapp?phone=1234567890
- */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const phone = searchParams.get("phone");
-
-    if (!phone) {
-      return NextResponse.json(
-        { error: "Phone number is required" },
-        { status: 400 },
-      );
-    }
-
-    // Create test appointment data
-    const testAppointment = {
-      id: "test-123",
-      customerName: "Test Customer",
-      customerEmail: "test@example.com",
-      customerPhone: phone,
-      appointmentDate: new Date(),
-      startTime: "10:00",
-      endTime: "11:00",
-      status: "confirmed" as const,
-      notes: "Test booking",
+    // Check WhatsApp configuration
+    const config = {
+      hasApiUrl: !!env.WHATSAPP_API_URL,
+      hasPhoneNumberId: !!env.WHATSAPP_PHONE_NUMBER_ID,
+      hasAccessToken: !!env.WHATSAPP_ACCESS_TOKEN,
+      isDisabled: process.env.DISABLE_WHATSAPP === "true",
+      apiUrl: env.WHATSAPP_API_URL
+        ? env.WHATSAPP_API_URL.substring(0, 30) + "..."
+        : "Not set",
     };
 
-    const testService = {
-      id: "service-123",
-      name: "Test Service",
-      duration: 60,
-      price: 5000, // $50.00
-    };
-
-    const testBusiness = {
-      id: "business-123",
-      name: "Test Business",
-      phone: phone,
-      email: "business@example.com",
-    };
-
-    // Try to send a test WhatsApp message
-    const result = await whatsAppService.sendNewBookingNotification(
-      testAppointment,
-      testService,
-      testBusiness,
-    );
+    const isConfigured =
+      config.hasApiUrl &&
+      config.hasPhoneNumberId &&
+      config.hasAccessToken &&
+      !config.isDisabled;
 
     return NextResponse.json({
-      success: result,
-      message: result
-        ? "WhatsApp test message sent successfully!"
-        : "WhatsApp message failed to send. Check your configuration and templates.",
-      phone: phone,
+      status: "success",
+      message: "WhatsApp configuration check",
+      data: {
+        isConfigured,
+        config,
+        recommendation: isConfigured
+          ? "WhatsApp is properly configured"
+          : "WhatsApp is not configured or disabled. Notifications will fall back to email.",
+      },
     });
   } catch (error) {
-    console.error("WhatsApp test error:", error);
     return NextResponse.json(
       {
-        success: false,
+        status: "error",
+        message: "Failed to check WhatsApp configuration",
         error: error instanceof Error ? error.message : "Unknown error",
-        message: "WhatsApp test failed",
       },
       { status: 500 },
     );

@@ -18,15 +18,38 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleMagicLink = (e: React.FormEvent) => {
+  const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowMagicLink(true);
-    console.log("Magic link sent to:", email);
+    setIsLoading(true);
+
+    try {
+      // TODO: Implement magic link functionality
+      // For now, just show the magic link sent state
+      setShowMagicLink(true);
+      console.log("Magic link sent to:", email);
+    } catch (error) {
+      console.error("Error sending magic link:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handlePasswordLogin = (e: React.FormEvent) => {
+  const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login:", { email, password });
+    setIsLoading(true);
+
+    try {
+      // TODO: Implement password-based authentication
+      // For now, redirect to Google OAuth as the primary method
+      await signIn("google", {
+        callbackUrl: "/dashboard",
+        redirect: true,
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const [isLoading, setIsLoading] = useState(false);
@@ -130,9 +153,19 @@ export default function LoginPage() {
                     <Button
                       type="submit"
                       className="bg-primary h-12 w-full hover:bg-purple-700"
+                      disabled={isLoading}
                     >
-                      Send magic link
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          Send magic link
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </>
+                      )}
                     </Button>
                   </form>
                 ) : (
@@ -192,8 +225,16 @@ export default function LoginPage() {
                     <Button
                       type="submit"
                       className="bg-primary h-12 w-full hover:bg-purple-700"
+                      disabled={isLoading}
                     >
-                      Sign in
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Signing in...
+                        </>
+                      ) : (
+                        "Sign in"
+                      )}
                     </Button>
                   </form>
                 )}
@@ -248,10 +289,5 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
-    // <main className="flex min-h-screen items-center justify-center">
-    //   <div className="flex w-90 flex-col gap-3">
-    //
-    //   </div>
-    // </main>
   );
 }
