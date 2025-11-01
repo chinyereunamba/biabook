@@ -8,10 +8,10 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
 
-    // Check if user is admin (temporarily disabled for testing)
-    // if (!session?.user || session.user.role !== "admin") {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    // Check if user is admin
+    if (!session?.user || session.user.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");

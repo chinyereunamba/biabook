@@ -22,7 +22,7 @@ export async function middleware(req: NextRequest) {
   // except if they're already on the onboarding page
   if (
     session?.user &&
-    !session.user.isOnboarded &&
+    !(session.user as any).isOnboarded &&
     !req.nextUrl.pathname.startsWith("/onboarding") &&
     !req.nextUrl.pathname.startsWith("/api/") &&
     !req.nextUrl.pathname.startsWith("/auth/")
@@ -36,10 +36,43 @@ export async function middleware(req: NextRequest) {
   // But allow access to the success page
   if (
     session?.user &&
-    session.user.isOnboarded &&
+    (session.user as any).isOnboarded &&
     req.nextUrl.pathname.startsWith("/onboarding") &&
     !req.nextUrl.pathname.startsWith("/onboarding/success")
   ) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // Admin user redirects
+  if (session?.user && (session.user as any)?.role === "admin") {
+    console.log("Middleware: Admin user detected", {
+      email: session.user.email,
+      role: (session.user as any)?.role,
+      pathname: req.nextUrl.pathname,
+    });
+
+    // Redirect admin users from regular dashboard to admin dashboard
+    if (req.nextUrl.pathname === "/dashboard") {
+      console.log("Middleware: Redirecting admin user to admin dashboard");
+      return NextResponse.redirect(new URL("/admin", req.url));
+    }
+  } else if (session?.user) {
+    console.log("Middleware: Regular user detected", {
+      email: session.user.email,
+      role: (session.user as any)?.role,
+      pathname: req.nextUrl.pathname,
+    });
+  }
+
+  // Non-admin users trying to access admin routes
+  if (
+    session?.user &&
+    (session.user as any).role !== "admin" &&
+    req.nextUrl.pathname.startsWith("/admin")
+  ) {
+    console.log(
+      "Middleware: Non-admin user trying to access admin, redirecting to dashboard",
+    );
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
@@ -55,6 +88,7 @@ export const config = {
     "/onboarding",
     "/onboarding/welcome",
     "/onboarding/success",
+    "/((?!api|_next/static|_next/image|favicon.ico|debug-session|admin-test).*)",
   ],
   // runtime: "nodejs", // ⬅️ THIS is critical!
 };

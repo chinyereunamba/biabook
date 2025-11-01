@@ -32,65 +32,37 @@ export default function AdminLogsPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [levelFilter, setLevelFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [filterLevel, setFilterLevel] = useState("all");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [logStats, setLogStats] = useState({
+    total: 0,
+    errors: 0,
+    warnings: 0,
+    success: 0,
+    info: 0,
+  });
 
   useEffect(() => {
     fetchLogs();
-  }, [levelFilter, categoryFilter]);
+  }, [filterLevel, filterCategory, searchTerm]);
 
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      // Mock data for now - in real app, this would come from API
-      const mockLogs: LogEntry[] = [
-        {
-          id: "1",
-          timestamp: new Date().toISOString(),
-          level: "info",
-          category: "Authentication",
-          message: "User logged in successfully",
-          details: "User authenticated via Google OAuth",
-          userId: "user-123",
-          userEmail: "john@example.com",
-        },
-        {
-          id: "2",
-          timestamp: new Date(Date.now() - 300000).toISOString(),
-          level: "success",
-          category: "Booking",
-          message: "New appointment created",
-          details: "Appointment ID: apt-456, Business: Hair Salon",
-          userId: "user-456",
-          userEmail: "sarah@example.com",
-        },
-        {
-          id: "3",
-          timestamp: new Date(Date.now() - 600000).toISOString(),
-          level: "warning",
-          category: "Payment",
-          message: "Payment processing delayed",
-          details: "Payment gateway response time exceeded 5 seconds",
-        },
-        {
-          id: "4",
-          timestamp: new Date(Date.now() - 900000).toISOString(),
-          level: "error",
-          category: "WhatsApp",
-          message: "Failed to send WhatsApp notification",
-          details: "Connection timeout after 10 seconds",
-        },
-        {
-          id: "5",
-          timestamp: new Date(Date.now() - 1200000).toISOString(),
-          level: "info",
-          category: "Business",
-          message: "New business registered",
-          details: "Business: Wellness Clinic, Owner: Dr. Smith",
-          userId: "user-789",
-          userEmail: "dr.smith@example.com",
-        },
-      ];
+      const params = new URLSearchParams({
+        ...(filterLevel !== "all" && { level: filterLevel }),
+        ...(filterCategory !== "all" && { category: filterCategory }),
+        ...(searchTerm && { search: searchTerm }),
+      });
+
+      const response = await fetch(`/api/admin/logs?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setLogs(data.logs);
+        setLogStats(data.stats);
+      } else {
+        console.error("Failed to fetch logs:", response.statusText);
+      }
       setLogs(mockLogs);
     } catch (error) {
       console.error("Failed to fetch logs:", error);
@@ -148,21 +120,16 @@ export default function AdminLogsPage() {
       log.details?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.userEmail?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesLevel = levelFilter === "all" || log.level === levelFilter;
+    const matchesLevel = filterLevel === "all" || log.level === filterLevel;
     const matchesCategory =
-      categoryFilter === "all" || log.category === categoryFilter;
+      filterCategory === "all" || log.category === filterCategory;
 
     return matchesSearch && matchesLevel && matchesCategory;
   });
 
   const categories = Array.from(new Set(logs.map((log) => log.category)));
-  const logCounts = {
-    total: logs.length,
-    info: logs.filter((l) => l.level === "info").length,
-    success: logs.filter((l) => l.level === "success").length,
-    warning: logs.filter((l) => l.level === "warning").length,
-    error: logs.filter((l) => l.level === "error").length,
-  };
+  // Use logStats from API instead of calculating locally
+  const logCounts = logStats;
 
   if (loading) {
     return (
@@ -301,8 +268,8 @@ export default function AdminLogsPage() {
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <select
-                    value={levelFilter}
-                    onChange={(e) => setLevelFilter(e.target.value)}
+                    value={filterLevel}
+                    onChange={(e) => setFilterLevel(e.target.value)}
                     className="bg-input border-border text-foreground rounded-lg border px-3 py-2 text-sm"
                   >
                     <option value="all">All Levels</option>
@@ -312,8 +279,8 @@ export default function AdminLogsPage() {
                     <option value="error">Error</option>
                   </select>
                   <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
                     className="bg-input border-border text-foreground rounded-lg border px-3 py-2 text-sm"
                   >
                     <option value="all">All Categories</option>

@@ -41,7 +41,10 @@ export const users = createTable("user", (d) => ({
   email: d.text({ length: 255 }).notNull(),
   emailVerified: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
   image: d.text({ length: 255 }),
-
+  role: d
+    .text("role", { enum: ["user", "admin"] })
+    .default("user")
+    .notNull(),
   isOnboarded: d
     .integer("is_onboarded", { mode: "boolean" })
     .default(false)
@@ -108,6 +111,32 @@ export const verificationTokens = createTable(
     expires: d.integer({ mode: "timestamp" }).notNull(),
   }),
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
+);
+
+export const authenticators = createTable(
+  "authenticator",
+  (d) => ({
+    credentialID: d.text("credentialID").notNull().unique(),
+    userId: d
+      .text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    providerAccountId: d.text("providerAccountId").notNull(),
+    credentialPublicKey: d.text("credentialPublicKey").notNull(),
+    counter: d.integer("counter").notNull(),
+    credentialDeviceType: d.text("credentialDeviceType").notNull(),
+    credentialBackedUp: d
+      .integer("credentialBackedUp", {
+        mode: "boolean",
+      })
+      .notNull(),
+    transports: d.text("transports"),
+  }),
+  (authenticator) => [
+    primaryKey({
+      columns: [authenticator.userId, authenticator.credentialID],
+    }),
+  ],
 );
 
 export const categories = createTable("categories", (d) => ({
