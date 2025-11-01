@@ -4,74 +4,103 @@ import { useEffect, useState } from "react";
 import {
   Search,
   MoreVertical,
-  UserPlus,
+  Building2,
   RefreshCw,
   Mail,
+  Phone,
+  MapPin,
   Calendar,
-  Building2,
+  TrendingUp,
+  Users,
+  Filter,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-interface User {
+interface Business {
   id: string;
   name: string;
-  email: string;
-  isOnboarded: boolean;
-  onboardedAt?: string;
+  ownerName: string;
+  ownerEmail: string;
+  categoryName: string;
+  location?: string;
+  phone?: string;
+  email?: string;
+  totalAppointments: number;
+  totalRevenue: number;
   createdAt: string;
-  businessCount: number;
-  appointmentCount: number;
 }
 
-interface UserSummary {
+interface BusinessSummary {
   total: number;
-  onboarded: number;
-  pending: number;
-  businessOwners: number;
+  active: number;
+  inactive: number;
+  totalRevenue: number;
 }
 
-export default function AdminUsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [summary, setSummary] = useState<UserSummary>({
+export default function AdminBusinessesPage() {
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [summary, setSummary] = useState<BusinessSummary>({
     total: 0,
-    onboarded: 0,
-    pending: 0,
-    businessOwners: 0,
+    active: 0,
+    inactive: 0,
+    totalRevenue: 0,
   });
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   useEffect(() => {
-    fetchUsers();
-  }, [filterStatus, searchTerm]);
+    fetchBusinesses();
+  }, [searchTerm, sortBy, sortOrder]);
 
-  const fetchUsers = async () => {
+  const fetchBusinesses = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
         limit: "50",
+        sortBy,
+        sortOrder,
         ...(searchTerm && { search: searchTerm }),
-        ...(filterStatus !== "all" && { status: filterStatus }),
       });
 
-      const response = await fetch(`/api/admin/users?${params}`);
+      const response = await fetch(`/api/admin/businesses?${params}`);
       if (response.ok) {
         const data = await response.json();
-        setUsers(data.users);
-        setSummary(data.summary);
-      } else if (response.status === 401) {
-        console.error("Unauthorized access to admin users");
+        setBusinesses(data.businesses || []);
+
+        // Calculate summary from the data
+        const total = data.businesses?.length || 0;
+        const totalRevenue =
+          data.businesses?.reduce(
+            (sum: number, b: Business) => sum + (b.totalRevenue || 0),
+            0,
+          ) || 0;
+
+        setSummary({
+          total,
+          active: total, // For now, assume all are active
+          inactive: 0,
+          totalRevenue,
+        });
       } else {
-        console.error("Failed to fetch users:", response.statusText);
+        console.error("Failed to fetch businesses:", response.statusText);
       }
     } catch (error) {
-      console.error("Failed to fetch users:", error);
+      console.error("Failed to fetch businesses:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(amount / 100);
   };
 
   const formatDate = (dateString: string) => {
@@ -82,25 +111,19 @@ export default function AdminUsersPage() {
     });
   };
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesFilter =
-      filterStatus === "all" ||
-      (filterStatus === "onboarded" && user.isOnboarded) ||
-      (filterStatus === "pending" && !user.isOnboarded);
-
-    return matchesSearch && matchesFilter;
-  });
+  const filteredBusinesses = businesses.filter(
+    (business) =>
+      business.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      business.ownerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      business.categoryName?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   if (loading) {
     return (
       <div className="bg-background flex min-h-screen w-full items-center justify-center">
         <div className="flex items-center space-x-2">
           <RefreshCw className="h-6 w-6 animate-spin" />
-          <span>Loading users...</span>
+          <span>Loading businesses...</span>
         </div>
       </div>
     );
@@ -113,123 +136,134 @@ export default function AdminUsersPage() {
         <div className="flex w-full items-center justify-between px-6 py-4">
           <div>
             <h1 className="text-foreground text-2xl font-bold">
-              User Management
+              Business Management
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Manage platform users and their accounts
+              Manage businesses and their performance on the platform
             </p>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm" onClick={fetchUsers}>
+            <Button variant="outline" size="sm" onClick={fetchBusinesses}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Button>
-            <Button size="sm">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add User
+            <Button variant="outline" size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              Export
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-8">
+      <div className="px-6 py-8">
         {/* Stats Cards */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
           <Card>
-            <CardContent className="">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">
-                    Total Users
+                    Total Businesses
                   </p>
                   <h3 className="text-foreground mt-2 text-2xl font-bold">
                     {summary.total}
                   </h3>
                 </div>
                 <div className="rounded-lg bg-blue-500/10 p-3">
-                  <UserPlus className="h-6 w-6 text-blue-500" />
+                  <Building2 className="h-6 w-6 text-blue-500" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">
-                    Onboarded
+                    Active Businesses
                   </p>
                   <h3 className="text-foreground mt-2 text-2xl font-bold">
-                    {summary.onboarded}
+                    {summary.active}
                   </h3>
                 </div>
                 <div className="rounded-lg bg-green-500/10 p-3">
-                  <Calendar className="h-6 w-6 text-green-500" />
+                  <TrendingUp className="h-6 w-6 text-green-500" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">
-                    Business Owners
+                    Total Revenue
                   </p>
                   <h3 className="text-foreground mt-2 text-2xl font-bold">
-                    {summary.businessOwners}
+                    {formatCurrency(summary.totalRevenue)}
                   </h3>
                 </div>
                 <div className="rounded-lg bg-purple-500/10 p-3">
-                  <Building2 className="h-6 w-6 text-purple-500" />
+                  <TrendingUp className="h-6 w-6 text-purple-500" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">
-                    Pending
+                    Avg Revenue
                   </p>
                   <h3 className="text-foreground mt-2 text-2xl font-bold">
-                    {summary.pending}
+                    {summary.total > 0
+                      ? formatCurrency(summary.totalRevenue / summary.total)
+                      : "$0.00"}
                   </h3>
                 </div>
                 <div className="rounded-lg bg-orange-500/10 p-3">
-                  <RefreshCw className="h-6 w-6 text-orange-500" />
+                  <Users className="h-6 w-6 text-orange-500" />
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Users Table */}
+        {/* Businesses Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>All Users ({filteredUsers.length})</span>
+              <span>All Businesses ({filteredBusinesses.length})</span>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
                     className="bg-input border-border text-foreground rounded-lg border px-3 py-2 text-sm"
                   >
-                    <option value="all">All Users</option>
-                    <option value="onboarded">Onboarded</option>
-                    <option value="pending">Pending</option>
+                    <option value="createdAt">Sort by Date</option>
+                    <option value="name">Sort by Name</option>
+                    <option value="appointments">Sort by Appointments</option>
+                    <option value="revenue">Sort by Revenue</option>
+                  </select>
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    className="bg-input border-border text-foreground rounded-lg border px-3 py-2 text-sm"
+                  >
+                    <option value="desc">Descending</option>
+                    <option value="asc">Ascending</option>
                   </select>
                 </div>
                 <div className="relative">
                   <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search users..."
+                    placeholder="Search businesses..."
                     className="bg-input border-border text-foreground placeholder-muted-foreground w-64 rounded-lg border py-2 pr-4 pl-10 text-sm"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -244,19 +278,22 @@ export default function AdminUsersPage() {
                 <thead>
                   <tr className="border-border border-b">
                     <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
-                      User
+                      Business
                     </th>
                     <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
-                      Status
+                      Owner
                     </th>
                     <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
-                      Businesses
+                      Category
                     </th>
                     <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
                       Appointments
                     </th>
                     <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
-                      Joined
+                      Revenue
+                    </th>
+                    <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
+                      Created
                     </th>
                     <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
                       Actions
@@ -264,47 +301,63 @@ export default function AdminUsersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map((user) => (
+                  {filteredBusinesses.map((business) => (
                     <tr
-                      key={user.id}
+                      key={business.id}
                       className="border-border hover:bg-secondary/50 border-b transition-colors"
                     >
                       <td className="px-4 py-4">
                         <div className="flex items-center space-x-3">
                           <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold">
-                            {user.name?.charAt(0)?.toUpperCase() || "U"}
+                            {business.name?.charAt(0)?.toUpperCase() || "B"}
                           </div>
                           <div>
                             <p className="text-foreground font-medium">
-                              {user.name || "Unknown"}
+                              {business.name}
                             </p>
-                            <p className="text-muted-foreground flex items-center text-sm">
-                              <Mail className="mr-1 h-3 w-3" />
-                              {user.email}
-                            </p>
+                            <div className="text-muted-foreground mt-1 flex items-center space-x-4 text-xs">
+                              {business.location && (
+                                <span className="flex items-center">
+                                  <MapPin className="mr-1 h-3 w-3" />
+                                  {business.location}
+                                </span>
+                              )}
+                              {business.phone && (
+                                <span className="flex items-center">
+                                  <Phone className="mr-1 h-3 w-3" />
+                                  {business.phone}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <Badge
-                          variant={user.isOnboarded ? "default" : "secondary"}
-                          className={
-                            user.isOnboarded
-                              ? "bg-green-500/20 text-green-700 hover:bg-green-500/30"
-                              : "bg-orange-500/20 text-orange-700 hover:bg-orange-500/30"
-                          }
-                        >
-                          {user.isOnboarded ? "Onboarded" : "Pending"}
+                        <div>
+                          <p className="text-foreground font-medium">
+                            {business.ownerName || "Unknown"}
+                          </p>
+                          {business.ownerEmail && (
+                            <p className="text-muted-foreground flex items-center text-sm">
+                              <Mail className="mr-1 h-3 w-3" />
+                              {business.ownerEmail}
+                            </p>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <Badge variant="outline">
+                          {business.categoryName || "Uncategorized"}
                         </Badge>
                       </td>
                       <td className="text-foreground px-4 py-4 font-medium">
-                        {user.businessCount || 0}
+                        {business.totalAppointments || 0}
                       </td>
-                      <td className="text-foreground px-4 py-4 font-medium">
-                        {user.appointmentCount || 0}
+                      <td className="text-foreground px-4 py-4 font-semibold">
+                        {formatCurrency(business.totalRevenue || 0)}
                       </td>
                       <td className="text-muted-foreground px-4 py-4 text-sm">
-                        {formatDate(user.createdAt)}
+                        {formatDate(business.createdAt)}
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center space-x-2">
@@ -322,10 +375,11 @@ export default function AdminUsersPage() {
               </table>
             </div>
 
-            {filteredUsers.length === 0 && !loading && (
+            {filteredBusinesses.length === 0 && !loading && (
               <div className="py-12 text-center">
+                <Building2 className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
                 <p className="text-muted-foreground">
-                  No users found matching your criteria.
+                  No businesses found matching your criteria.
                 </p>
               </div>
             )}
