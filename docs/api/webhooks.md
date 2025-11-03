@@ -309,10 +309,10 @@ curl -X POST https://your-endpoint.com/webhooks \
 ### Error Handling
 
 ```javascript
-app.post("/webhooks/bookme", (req, res) => {
+app.post("/webhooks/biabook", (req, res) => {
   try {
     // Verify signature
-    if (!verifyWebhook(req.body, req.headers["x-bookme-signature"], secret)) {
+    if (!verifyWebhook(req.body, req.headers["x-biabook-signature"], secret)) {
       return res.status(401).send("Invalid signature");
     }
 
