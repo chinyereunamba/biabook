@@ -10,6 +10,7 @@ import {
   timeStringToMinutes,
   minutesToTimeString,
 } from "./utils/availability-validation";
+import { availabilityCacheService } from "@/server/cache/availability-cache";
 
 export interface TimeSlot {
   date: string; // YYYY-MM-DD format
@@ -34,10 +35,40 @@ export interface AvailabilityOptions {
 }
 
 export class AvailabilityCalculationEngine {
+  private cachedCalculateAvailability: (
+    businessId: string,
+    serviceId?: string,
+    options?: AvailabilityOptions,
+  ) => Promise<AvailabilitySlot[]>;
+
+  constructor() {
+    // Create cached version of the calculation method
+    this.cachedCalculateAvailability =
+      availabilityCacheService.createCachedCalculation(
+        this.calculateAvailabilityInternal.bind(this),
+      );
+  }
+
   /**
-   * Calculate available time slots for a business and service
+   * Calculate available time slots for a business and service (with caching)
    */
   async calculateAvailability(
+    businessId: string,
+    serviceId?: string,
+    options: AvailabilityOptions = {},
+  ): Promise<AvailabilitySlot[]> {
+    // Use cached version for better performance
+    return await this.cachedCalculateAvailability(
+      businessId,
+      serviceId,
+      options,
+    );
+  }
+
+  /**
+   * Internal method for calculating availability (without caching)
+   */
+  private async calculateAvailabilityInternal(
     businessId: string,
     serviceId?: string,
     options: AvailabilityOptions = {},
@@ -546,6 +577,43 @@ export class AvailabilityCalculationEngine {
     }
 
     return null; // No available slots found
+  }
+
+  /**
+   * Invalidate cache for a business
+   */
+  async invalidateBusinessCache(businessId: string): Promise<void> {
+    await availabilityCacheService.invalidateBusinessCache(businessId);
+  }
+
+  /**
+   * Invalidate cache for a service
+   */
+  async invalidateServiceCache(
+    serviceId: string,
+    businessId: string,
+  ): Promise<void> {
+    await availabilityCacheService.invalidateServiceCache(
+      serviceId,
+      businessId,
+    );
+  }
+
+  /**
+   * Warm up cache for a business
+   */
+  async warmUpCache(businessId: string): Promise<void> {
+    await availabilityCacheService.warmUpCache(
+      businessId,
+      this.calculateAvailabilityInternal.bind(this),
+    );
+  }
+
+  /**
+   * Get cache statistics
+   */
+  async getCacheStats(businessId: string) {
+    return await availabilityCacheService.getCacheStats(businessId);
   }
 }
 

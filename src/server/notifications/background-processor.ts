@@ -83,12 +83,20 @@ class BackgroundNotificationProcessor {
 export const backgroundNotificationProcessor =
   new BackgroundNotificationProcessor();
 
-// Auto-start in production (only on server-side)
-if (typeof window === "undefined" && process.env.NODE_ENV === "production") {
+// Auto-start in production (only on server-side, not during build)
+if (
+  typeof window === "undefined" &&
+  process.env.NODE_ENV === "production" &&
+  !process.env.NEXT_PHASE // Don't run during Next.js build phase
+) {
   backgroundNotificationProcessor.start(1); // Process every minute
 }
 
-// Auto-start in development with longer interval
-if (typeof window === "undefined" && process.env.NODE_ENV === "development") {
+// Auto-start in development with longer interval (not during build)
+if (
+  typeof window === "undefined" &&
+  process.env.NODE_ENV === "development" &&
+  !process.env.NEXT_PHASE // Don't run during Next.js build phase
+) {
   backgroundNotificationProcessor.start(2); // Process every 2 minutes in dev
 }

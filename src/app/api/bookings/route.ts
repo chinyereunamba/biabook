@@ -10,6 +10,7 @@ import { bookingConflictService } from "@/server/services/booking-conflict-servi
 import { bookingLogger } from "@/server/logging/booking-logger";
 import { withErrorHandler } from "@/app/api/_middleware/error-handler";
 import { BookingErrors, toBookingError } from "@/server/errors/booking-errors";
+import { bookingPerformanceMonitor } from "@/server/monitoring/booking-performance-monitor";
 
 // Validation schema for booking creation
 const createBookingSchema = z.object({
@@ -47,6 +48,10 @@ async function createBookingHandler(request: NextRequest) {
     method: "POST",
   };
 
+  let businessId = "";
+  let success = false;
+  let errorMessage: string | undefined;
+
   try {
     const body = await request.json();
 
@@ -73,7 +78,7 @@ async function createBookingHandler(request: NextRequest) {
     }
 
     const {
-      businessId,
+      businessId: validatedBusinessId,
       serviceId,
       customerName,
       customerEmail,
@@ -83,6 +88,8 @@ async function createBookingHandler(request: NextRequest) {
       endTime: appointmentEndTime,
       notes,
     } = validationResult.data;
+
+    businessId = validatedBusinessId;
 
     // Verify business exists
     const business = await db.query.businesses.findFirst({
@@ -306,6 +313,11 @@ async function createBookingHandler(request: NextRequest) {
     };
 
     const duration = Date.now() - startTime;
+    success = true;
+
+    // Record successful booking for conversion tracking
+    bookingPerformanceMonitor.recordBookingAttempt(businessId, true);
+
     bookingLogger.logBookingOperation("createBooking", true, duration, {
       ...context,
       appointmentId: newAppointment.id,
@@ -321,6 +333,12 @@ async function createBookingHandler(request: NextRequest) {
   } catch (error) {
     const duration = Date.now() - startTime;
     const bookingError = toBookingError(error);
+    errorMessage = bookingError.message;
+
+    // Record failed booking attempt for conversion tracking
+    if (businessId) {
+      bookingPerformanceMonitor.recordBookingAttempt(businessId, false);
+    }
 
     bookingLogger.logBookingOperation(
       "createBooking",
@@ -331,6 +349,18 @@ async function createBookingHandler(request: NextRequest) {
     );
 
     throw bookingError;
+  } finally {
+    // Record performance metrics
+    if (businessId) {
+      const duration = Date.now() - startTime;
+      bookingPerformanceMonitor.recordOperation(
+        businessId,
+        "booking_create",
+        duration,
+        success,
+        errorMessage,
+      );
+    }
   }
 }
 

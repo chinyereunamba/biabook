@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { createAccessibleFormFieldProps } from "@/lib/accessibility";
+import { createAccessibleFormFieldProps } from "@/lib/accessibility-server";
 
 export interface FormFieldProps {
   label?: string;

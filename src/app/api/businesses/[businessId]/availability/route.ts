@@ -1,26 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import { availabilityCalculationEngine } from "@/server/repositories/availability-calculation";
+import { bookingPerformanceMonitor } from "@/server/monitoring/booking-performance-monitor";
 
-// Cache availability calculations for 5 minutes to avoid repeated calls
-const getCachedAvailability = unstable_cache(
-  async (
-    businessId: string,
-    serviceId: string | undefined,
-    options: { startDate?: string; days: number },
-  ) => {
-    return await availabilityCalculationEngine.calculateAvailability(
-      businessId,
-      serviceId,
-      options,
-    );
-  },
-  ["business-availability"], // cache key prefix
-  {
-    revalidate: 300, // cache for 5 minutes
-    tags: ["availability"], // allow manual cache invalidation
-  },
-);
+// The caching is now handled by the availability cache service
 
 /**
  * GET /api/businesses/[businessId]/availability
@@ -35,6 +18,10 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ businessId: string }> },
 ) {
+  const startTime = Date.now();
+  let success = false;
+  let errorMessage: string | undefined;
+
   try {
     const { businessId } = await params;
     const { searchParams } = new URL(request.url);
@@ -43,12 +30,16 @@ export async function GET(
     const startDate = searchParams.get("startDate") ?? undefined;
     const days = Math.min(parseInt(searchParams.get("days") ?? "7"), 30); // Limit to 30 days max
 
+    // Record availability view for conversion tracking
+    bookingPerformanceMonitor.recordAvailabilityView(businessId);
+
     // Validate required parameters
     if (!businessId?.trim()) {
+      errorMessage = "Business ID is required";
       return NextResponse.json(
         {
           success: false,
-          error: "Business ID is required",
+          error: errorMessage,
         },
         { status: 400 },
       );
@@ -56,10 +47,11 @@ export async function GET(
 
     // Validate days parameter
     if (days < 1) {
+      errorMessage = "Days must be at least 1";
       return NextResponse.json(
         {
           success: false,
-          error: "Days must be at least 1",
+          error: errorMessage,
         },
         { status: 400 },
       );
@@ -73,14 +65,16 @@ export async function GET(
 
     console.time(`availability-${businessId}`);
 
-    // Use cached availability calculation
-    const availability = await getCachedAvailability(
-      businessId,
-      serviceId,
-      options,
-    );
+    // Use cached availability calculation from the engine
+    const availability =
+      await availabilityCalculationEngine.calculateAvailability(
+        businessId,
+        serviceId,
+        options,
+      );
 
     console.timeEnd(`availability-${businessId}`);
+    success = true;
 
     return NextResponse.json({
       success: true,
@@ -96,6 +90,7 @@ export async function GET(
     });
   } catch (error) {
     console.error("Error fetching availability:", error);
+    errorMessage = error instanceof Error ? error.message : "Unknown error";
 
     // Handle specific error types
     if (error instanceof Error) {
@@ -126,6 +121,17 @@ export async function GET(
         error: "Failed to fetch availability",
       },
       { status: 500 },
+    );
+  } finally {
+    // Record performance metrics
+    const duration = Date.now() - startTime;
+    const { businessId } = await params;
+    bookingPerformanceMonitor.recordOperation(
+      businessId,
+      "availability_check",
+      duration,
+      success,
+      errorMessage,
     );
   }
 }

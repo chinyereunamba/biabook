@@ -1,6 +1,7 @@
 import { eq, and, desc, sql } from "drizzle-orm";
 import { db } from "@/server/db";
 import { services } from "@/server/db/schema";
+import { availabilityCacheService } from "@/server/cache/availability-cache";
 
 export type Service = typeof services.$inferSelect;
 
@@ -57,6 +58,9 @@ export class ServiceRepository {
     if (!service) {
       throw new Error("Failed to create service");
     }
+
+    // Invalidate cache after creating service (affects availability calculations)
+    await availabilityCacheService.invalidateBusinessCache(input.businessId);
 
     return service;
   }
@@ -187,6 +191,12 @@ export class ServiceRepository {
       throw new Error("Failed to update service");
     }
 
+    // Invalidate cache after updating service (affects availability calculations)
+    await availabilityCacheService.invalidateServiceCache(
+      input.id,
+      input.businessId,
+    );
+
     return updatedService;
   }
 
@@ -210,7 +220,14 @@ export class ServiceRepository {
       .where(and(eq(services.id, id), eq(services.businessId, businessId)))
       .returning();
 
-    return !!updatedService;
+    const success = !!updatedService;
+
+    // Invalidate cache after soft deleting service
+    if (success) {
+      await availabilityCacheService.invalidateServiceCache(id, businessId);
+    }
+
+    return success;
   }
 
   /**
@@ -232,7 +249,14 @@ export class ServiceRepository {
       .delete(services)
       .where(and(eq(services.id, id), eq(services.businessId, businessId)));
 
-    return result.rowsAffected > 0;
+    const success = result.rowsAffected > 0;
+
+    // Invalidate cache after hard deleting service
+    if (success) {
+      await availabilityCacheService.invalidateServiceCache(id, businessId);
+    }
+
+    return success;
   }
 
   /**

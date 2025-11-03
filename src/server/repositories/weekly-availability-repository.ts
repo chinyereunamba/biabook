@@ -7,6 +7,7 @@ import {
   isEndTimeAfterStartTime,
   isTimeOverlapping,
 } from "./utils/availability-validation";
+import { availabilityCacheService } from "@/server/cache/availability-cache";
 
 export type WeeklyAvailability = typeof weeklyAvailability.$inferSelect;
 
@@ -96,6 +97,9 @@ export class WeeklyAvailabilityRepository {
     if (!availability) {
       throw new Error("Failed to create weekly availability");
     }
+
+    // Invalidate cache after creating availability
+    await availabilityCacheService.invalidateBusinessCache(input.businessId);
 
     return availability;
   }
@@ -276,6 +280,9 @@ export class WeeklyAvailabilityRepository {
       throw new Error("Failed to update weekly availability");
     }
 
+    // Invalidate cache after updating availability
+    await availabilityCacheService.invalidateBusinessCache(input.businessId);
+
     return updatedAvailability;
   }
 
@@ -305,7 +312,14 @@ export class WeeklyAvailabilityRepository {
         ),
       );
 
-    return result.rowsAffected > 0;
+    const success = result.rowsAffected > 0;
+
+    // Invalidate cache after deleting availability
+    if (success) {
+      await availabilityCacheService.invalidateBusinessCache(businessId);
+    }
+
+    return success;
   }
 
   /**
@@ -320,7 +334,14 @@ export class WeeklyAvailabilityRepository {
       .delete(weeklyAvailability)
       .where(eq(weeklyAvailability.businessId, businessId));
 
-    return result.rowsAffected > 0;
+    const success = result.rowsAffected > 0;
+
+    // Invalidate cache after deleting all availability
+    if (success) {
+      await availabilityCacheService.invalidateBusinessCache(businessId);
+    }
+
+    return success;
   }
 
   /**
@@ -469,6 +490,9 @@ export class WeeklyAvailabilityRepository {
         .map((result) => result[0])
         .filter((item): item is WeeklyAvailability => item !== undefined);
     });
+
+    // Invalidate cache after bulk setting availability
+    await availabilityCacheService.invalidateBusinessCache(businessId);
 
     return result;
   }

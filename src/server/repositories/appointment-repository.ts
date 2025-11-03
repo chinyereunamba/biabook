@@ -23,6 +23,7 @@ import {
 // import { bookingConflictService } from "@/server/services/booking-conflict-service";
 import { BookingErrors } from "@/server/errors/booking-errors";
 import { bookingLogger, logExecution } from "@/server/logging/booking-logger";
+import { availabilityCacheService } from "@/server/cache/availability-cache";
 
 function toAppointmentWithDetails(
   result: AppointmentDetailWithDate | undefined | null,
@@ -218,6 +219,10 @@ export class AppointmentRepository {
         appointmentDate: new Date(appointment.appointmentDate),
       };
     });
+
+    // Invalidate cache after creating appointment (affects availability)
+    await availabilityCacheService.invalidateBusinessCache(data.businessId);
+
     return result;
   }
 
@@ -522,6 +527,11 @@ export class AppointmentRepository {
       // Don't fail the update if notification scheduling fails
     }
 
+    // Invalidate cache after updating appointment (affects availability)
+    await availabilityCacheService.invalidateBusinessCache(
+      appointment.businessId,
+    );
+
     return {
       ...updatedAppointment,
       appointmentDate: new Date(updatedAppointment.appointmentDate),
@@ -600,6 +610,11 @@ export class AppointmentRepository {
       // Don't fail the status update if notification scheduling fails
     }
 
+    // Invalidate cache after status update (affects availability)
+    await availabilityCacheService.invalidateBusinessCache(
+      appointmentWithDetails.businessId,
+    );
+
     return {
       ...updatedAppointment,
       appointmentDate: new Date(updatedAppointment.appointmentDate),
@@ -612,12 +627,24 @@ export class AppointmentRepository {
    * @returns True if deleted successfully
    */
   async delete(id: string): Promise<boolean> {
+    // Get appointment details before deletion for cache invalidation
+    const appointment = await this.getById(id);
+
     const result = await db
       .delete(appointments)
       .where(eq(appointments.id, id))
       .returning({ id: appointments.id });
 
-    return result.length > 0;
+    const success = result.length > 0;
+
+    // Invalidate cache after deleting appointment (affects availability)
+    if (success && appointment) {
+      await availabilityCacheService.invalidateBusinessCache(
+        appointment.businessId,
+      );
+    }
+
+    return success;
   }
 
   /**

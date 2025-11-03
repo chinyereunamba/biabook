@@ -2,7 +2,7 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { createAccessibleFormFieldProps } from "@/lib/accessibility";
+import { createAccessibleFormFieldProps } from "@/lib/accessibility-server";
 
 const inputVariants = cva(
   // Base mobile-first styles with touch-friendly targets

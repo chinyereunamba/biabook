@@ -6,6 +6,7 @@ import {
   isValidDateFormat,
   isEndTimeAfterStartTime,
 } from "./utils/availability-validation";
+import { availabilityCacheService } from "@/server/cache/availability-cache";
 
 export type AvailabilityException = typeof availabilityExceptions.$inferSelect;
 
@@ -83,6 +84,9 @@ export class AvailabilityExceptionRepository {
     if (!exception) {
       throw new Error("Failed to create availability exception");
     }
+
+    // Invalidate cache after creating exception
+    await availabilityCacheService.invalidateBusinessCache(input.businessId);
 
     return exception;
   }
@@ -271,6 +275,9 @@ export class AvailabilityExceptionRepository {
       throw new Error("Failed to update availability exception");
     }
 
+    // Invalidate cache after updating exception
+    await availabilityCacheService.invalidateBusinessCache(input.businessId);
+
     return updatedException;
   }
 
@@ -297,7 +304,14 @@ export class AvailabilityExceptionRepository {
         ),
       );
 
-    return result.rowsAffected > 0;
+    const success = result.rowsAffected > 0;
+
+    // Invalidate cache after deleting exception
+    if (success) {
+      await availabilityCacheService.invalidateBusinessCache(businessId);
+    }
+
+    return success;
   }
 
   /**
