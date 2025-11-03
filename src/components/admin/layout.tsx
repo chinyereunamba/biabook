@@ -14,8 +14,7 @@ import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
-// Auth removed
+import { useSession, signOut } from "next-auth/react";
 
 export default function LayoutComponent({
   children,
@@ -34,11 +33,11 @@ export default function LayoutComponent({
   const [toggleMenu, setToggleMenu] = useState(false);
   const pathname = usePathname();
   // Mock session data since auth is removed
-  const session = { user: { name: "Admin User", email: "admin@example.com" } };
-
+  // const session = { user: { name: "Admin User", email: "admin@example.com" } };
+  const { data: session } = useSession();
   const menuClass = toggleMenu ? "hidden" : "";
 
-  const handleLogout =  () => {
+  const handleLogout = () => {
     signOut({ redirect: true });
   };
 

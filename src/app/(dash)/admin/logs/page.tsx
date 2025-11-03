@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {
   Search,
   RefreshCw,
-  Filter,
   Download,
   AlertCircle,
   CheckCircle,
@@ -28,6 +27,44 @@ interface LogEntry {
   userEmail?: string;
 }
 
+// Mock data for when API is not available
+const mockLogs: LogEntry[] = [
+  {
+    id: "1",
+    timestamp: new Date().toISOString(),
+    level: "info",
+    category: "System",
+    message: "Application started successfully",
+    details: "Server initialized on port 3000",
+  },
+  {
+    id: "2",
+    timestamp: new Date(Date.now() - 300000).toISOString(),
+    level: "success",
+    category: "Booking",
+    message: "New appointment booked",
+    details: "Appointment ID: APT-001",
+    userEmail: "user@example.com",
+  },
+  {
+    id: "3",
+    timestamp: new Date(Date.now() - 600000).toISOString(),
+    level: "warning",
+    category: "Database",
+    message: "Connection pool running low",
+    details: "Current connections: 8/10",
+  },
+  {
+    id: "4",
+    timestamp: new Date(Date.now() - 900000).toISOString(),
+    level: "error",
+    category: "Payment",
+    message: "Payment processing failed",
+    details: "Transaction ID: TXN-12345",
+    userEmail: "customer@example.com",
+  },
+];
+
 export default function AdminLogsPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,8 +73,8 @@ export default function AdminLogsPage() {
   const [filterCategory, setFilterCategory] = useState("all");
   const [logStats, setLogStats] = useState({
     total: 0,
-    errors: 0,
-    warnings: 0,
+    error: 0,
+    warning: 0,
     success: 0,
     info: 0,
   });
@@ -62,10 +99,27 @@ export default function AdminLogsPage() {
         setLogStats(data.stats);
       } else {
         console.error("Failed to fetch logs:", response.statusText);
+        // Set mock data when API fails
+        setLogs(mockLogs);
+        setLogStats({
+          total: mockLogs.length,
+          error: mockLogs.filter((log) => log.level === "error").length,
+          warning: mockLogs.filter((log) => log.level === "warning").length,
+          success: mockLogs.filter((log) => log.level === "success").length,
+          info: mockLogs.filter((log) => log.level === "info").length,
+        });
       }
-      setLogs(mockLogs);
     } catch (error) {
       console.error("Failed to fetch logs:", error);
+      // Set mock data when API fails
+      setLogs(mockLogs);
+      setLogStats({
+        total: mockLogs.length,
+        error: mockLogs.filter((log) => log.level === "error").length,
+        warning: mockLogs.filter((log) => log.level === "warning").length,
+        success: mockLogs.filter((log) => log.level === "success").length,
+        info: mockLogs.filter((log) => log.level === "info").length,
+      });
     } finally {
       setLoading(false);
     }

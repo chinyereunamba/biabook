@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession, signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,27 +15,16 @@ import {
 import { LogOut, Settings, User } from "lucide-react";
 
 export default function UserProfile() {
-  // Mock user data since auth is removed
-  const session = {
-    user: {
-      name: "John Doe",
-      email: "john@example.com",
-      image: null,
-    },
-  };
-  const status = "authenticated";
+  const { data: session, status } = useSession();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
-    // Redirect to home page
-    window.location.href = "/";
+    await signOut({ callbackUrl: "/" });
   };
 
-
-
-  const userInitials = session.user.name
-    ? session.user.name
+  const userInitials = session?.user.name
+    ? session?.user.name
         .split(" ")
         .map((n) => n[0])
         .join("")
@@ -51,12 +41,12 @@ export default function UserProfile() {
         >
           <Avatar className="h-8 w-8">
             <AvatarImage
-              src={session.user.image ?? ""}
-              alt={session.user.name ?? "User"}
+              src={session?.user.image ?? ""}
+              alt={session?.user.name ?? "User"}
             />
             <AvatarFallback>{userInitials}</AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium">{session.user.name}</span>
+          <span className="text-sm font-medium">{session?.user.name}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

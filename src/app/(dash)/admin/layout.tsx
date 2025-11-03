@@ -29,11 +29,11 @@ export default function Layout({ children }: LayoutProps) {
       return;
     }
 
-    // For now, allow all authenticated users to access admin
-    // In production, you'd check: session.user.role !== "admin"
-    // if (session.user && session.user.role !== "admin") {
-    //   router.replace("/dashboard");
-    // }
+    // Check if user has admin role
+    if (session.user && session.user.role !== "admin") {
+      router.replace("/dashboard");
+      return;
+    }
   }, [session, status, router]);
 
   const navLinks = [
@@ -55,6 +55,11 @@ export default function Layout({ children }: LayoutProps) {
 
   if (!session) {
     return null; // Will redirect to login
+  }
+
+  // Don't render if not admin (will redirect to dashboard)
+  if (session.user?.role !== "admin") {
+    return null;
   }
 
   return <LayoutComponent navLinks={navLinks}>{children}</LayoutComponent>;

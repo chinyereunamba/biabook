@@ -36,9 +36,10 @@ export async function GET(request: NextRequest) {
         id: users.id,
         name: users.name,
         email: users.email,
+        role: users.role,
         isOnboarded: users.isOnboarded,
         onboardedAt: users.onboardedAt,
-        createdAt: users.createdAt,
+        emailVerified: users.emailVerified,
         businessCount: sql<number>`COALESCE(COUNT(DISTINCT ${businesses.id}), 0)`,
         appointmentCount: sql<number>`COALESCE(COUNT(DISTINCT ${appointments.id}), 0)`,
       })
@@ -49,9 +50,10 @@ export async function GET(request: NextRequest) {
         users.id,
         users.name,
         users.email,
+        users.role,
         users.isOnboarded,
         users.onboardedAt,
-        users.createdAt,
+        users.emailVerified,
       );
 
     // Apply where conditions
@@ -68,8 +70,8 @@ export async function GET(request: NextRequest) {
       usersQuery.where(eq(users.isOnboarded, false));
     }
 
-    // Apply sorting
-    usersQuery.orderBy(desc(users.createdAt));
+    // Apply sorting (use emailVerified as creation timestamp)
+    usersQuery.orderBy(desc(users.emailVerified));
 
     // Get total count for pagination
     const [totalCount] = await db.select({ count: count() }).from(users);
