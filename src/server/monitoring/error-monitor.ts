@@ -172,7 +172,7 @@ export class ErrorMonitor {
   private formatAlertMessage(alertType: string, metrics: ErrorMetrics): string {
     const timestamp = new Date().toISOString();
 
-    let message = `🚨 BookMe Alert: ${alertType}\n`;
+    let message = `🚨 BiaBook Alert: ${alertType}\n`;
     message += `Time: ${timestamp}\n\n`;
 
     switch (alertType) {

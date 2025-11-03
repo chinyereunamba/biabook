@@ -7,7 +7,7 @@ import { CustomerBookingDetails } from "@/components/application/booking/custome
 import { BookingRescheduledNotification } from "@/components/application/booking/booking-rescheduled-notification";
 
 export const metadata: Metadata = {
-  title: "Booking Details | BookMe",
+  title: "Booking Details | BiaBook",
   description: "View and manage your booking details",
 };
 

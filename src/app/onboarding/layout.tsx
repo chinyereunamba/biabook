@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Onboarding - BookMe",
-  description: "Set up your BookMe account",
+  title: "Onboarding - BiaBook",
+  description: "Set up your BiaBook account",
 };
 
 export default function OnboardingLayout({

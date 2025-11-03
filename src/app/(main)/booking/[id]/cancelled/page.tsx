@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Calendar, Home } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Booking Cancelled | BookMe",
+  title: "Booking Cancelled | BiaBook",
   description: "Your booking has been cancelled",
 };
 

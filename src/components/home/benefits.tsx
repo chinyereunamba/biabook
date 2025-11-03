@@ -38,7 +38,7 @@ export function Benefits() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-16 text-center">
           <h2 className="text-foreground mb-4 text-4xl font-bold md:text-5xl">
-            Why choose BookMe
+            Why choose BiaBook
           </h2>
           <p className="text-foreground/70 text-lg">
             Trusted by thousands of businesses worldwide

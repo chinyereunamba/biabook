@@ -13,7 +13,7 @@ export default function AccessibilityDemoPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
             <h1 className="text-2xl font-bold text-gray-900">
-              BookMe - Accessibility Demo
+              BiaBook - Accessibility Demo
             </h1>
             <nav role="navigation" aria-label="Main navigation">
               <ul className="flex space-x-6">
@@ -55,7 +55,7 @@ export default function AccessibilityDemoPage() {
             </h2>
             <p className="max-w-3xl text-lg text-gray-600">
               This page demonstrates the comprehensive accessibility features
-              implemented in the BookMe mobile-first UI design system. All
+              implemented in the BiaBook mobile-first UI design system. All
               components follow WCAG 2.1 AA guidelines and include proper ARIA
               attributes, keyboard navigation, and screen reader support.
             </p>
@@ -210,7 +210,7 @@ export default function AccessibilityDemoPage() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-gray-300">
-              BookMe Accessibility Demo - WCAG 2.1 AA Compliant
+              BiaBook Accessibility Demo - WCAG 2.1 AA Compliant
             </p>
             <p className="mt-2 text-sm text-gray-400">
               Built with comprehensive accessibility features for all users

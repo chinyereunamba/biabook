@@ -51,7 +51,7 @@ export function SharingComponent({
   };
 
   const shareText =
-    text || `Check out ${businessName || "this business"} on BookMe: ${url}`;
+    text || `Check out ${businessName || "this business"} on BiaBook: ${url}`;
 
   const copyToClipboard = async () => {
     try {

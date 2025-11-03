@@ -30,7 +30,7 @@ export default function SignupPage() {
         <div className="mb-8 text-center">
           <div className="mb-6 flex items-center justify-center space-x-2">
             <Calendar className="text-primary h-8 w-8" />
-            <span className="text-2xl font-bold text-gray-900">BookMe</span>
+            <span className="text-2xl font-bold text-gray-900">BiaBook</span>
           </div>
           <h1 className="mb-2 text-3xl font-bold text-gray-900">
             Create your account

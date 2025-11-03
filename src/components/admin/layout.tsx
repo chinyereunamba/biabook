@@ -69,7 +69,7 @@ export default function LayoutComponent({
                 <h3
                   className={cn("text-xl font-bold text-gray-900", menuClass)}
                 >
-                  BookMe
+                  BiaBook
                 </h3>
               </div>
               <button

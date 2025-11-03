@@ -231,7 +231,7 @@ export function ErrorRecovery({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => window.open("tel:+1-555-BOOKME", "_self")}
+                onClick={() => window.open("tel:+1-555-BIABOOK", "_self")}
                 className="flex items-center text-xs"
               >
                 <Phone className="mr-1 h-3 w-3" />
@@ -241,7 +241,7 @@ export function ErrorRecovery({
                 variant="ghost"
                 size="sm"
                 onClick={() =>
-                  window.open("mailto:support@bookme.com", "_self")
+                  window.open("mailto:support@biabook.com", "_self")
                 }
                 className="flex items-center text-xs"
               >

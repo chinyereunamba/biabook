@@ -1,6 +1,6 @@
-# BookMe API Documentation
+# BiaBook API Documentation
 
-This documentation covers all API endpoints for the BookMe appointment booking platform.
+This documentation covers all API endpoints for the BiaBook appointment booking platform.
 
 ## Base URL
 

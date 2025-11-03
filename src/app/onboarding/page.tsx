@@ -194,7 +194,7 @@ export default function OnboardingPage() {
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center space-x-2">
             <Calendar className="h-6 w-6 text-purple-600" />
-            <span className="text-xl font-bold text-gray-900">BookMe</span>
+            <span className="text-xl font-bold text-gray-900">BiaBook</span>
           </div>
           <Badge variant="secondary" className="bg-purple-50 text-purple-700">
             Setup Progress: {step}/{totalSteps}
@@ -561,7 +561,7 @@ export default function OnboardingPage() {
                 </h3>
                 <div className="flex items-center justify-center space-x-2 rounded-md border border-gray-200 bg-white p-3">
                   <span className="font-mono text-purple-600">
-                    bookme.com/book/
+                    biabook.com/book/
                     {businessData.name.toLowerCase().replace(/\s+/g, "-")}
                   </span>
                   <Button

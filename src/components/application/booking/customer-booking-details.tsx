@@ -201,9 +201,9 @@ export function CustomerBookingDetails({
       const icsContent = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
-        "PRODID:-//BookMe//Appointment//EN",
+        "PRODID:-//BiaBook//Appointment//EN",
         "BEGIN:VEVENT",
-        `UID:${booking.id}@bookme.app`,
+        `UID:${booking.id}@biabook.app`,
         `DTSTART:${startDateTime.toISOString().replace(/[-:]/g, "").split(".")[0]}Z`,
         `DTEND:${endDateTime.toISOString().replace(/[-:]/g, "").split(".")[0]}Z`,
         `SUMMARY:${title}`,

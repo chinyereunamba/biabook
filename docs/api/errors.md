@@ -1,6 +1,6 @@
 # Error Handling
 
-This document describes the error handling patterns and error codes used throughout the BookMe API.
+This document describes the error handling patterns and error codes used throughout the BiaBook API.
 
 ## Error Response Format
 

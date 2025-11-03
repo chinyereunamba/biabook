@@ -6,7 +6,7 @@ import { DashboardHeader } from "@/components/application/dashboard/dashboard-he
 import { DashboardShell } from "@/components/application/dashboard/dashboard-shell";
 
 export const metadata: Metadata = {
-  title: "Analytics | BookMe",
+  title: "Analytics | BiaBook",
   description: "View your business analytics and insights",
 };
 

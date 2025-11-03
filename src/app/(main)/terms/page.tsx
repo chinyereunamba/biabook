@@ -23,9 +23,9 @@ export default function TermsOfServicePage() {
                 1. Acceptance of Terms
               </h2>
               <p className="mb-4 text-gray-700">
-                Welcome to BookMe. These Terms of Service ("Terms") govern your
+                Welcome to BiaBook. These Terms of Service ("Terms") govern your
                 use of our appointment booking platform and related services
-                ("Service") operated by BookMe ("us," "we," or "our").
+                ("Service") operated by BiaBook ("us," "we," or "our").
               </p>
               <p className="text-gray-700">
                 By accessing or using our Service, you agree to be bound by
@@ -39,7 +39,7 @@ export default function TermsOfServicePage() {
                 2. Description of Service
               </h2>
               <p className="mb-4 text-gray-700">
-                BookMe is an online platform that connects customers with
+                BiaBook is an online platform that connects customers with
                 service businesses for appointment booking. Our Service
                 includes:
               </p>
@@ -129,7 +129,7 @@ export default function TermsOfServicePage() {
                   Refunds are subject to business policies and applicable laws
                 </li>
                 <li>
-                  BookMe may charge platform fees as disclosed during booking
+                  BiaBook may charge platform fees as disclosed during booking
                 </li>
               </ul>
             </section>
@@ -201,7 +201,7 @@ export default function TermsOfServicePage() {
               <p className="mb-4 text-gray-700">
                 The Service and its original content, features, and
                 functionality are and will remain the exclusive property of
-                BookMe and its licensors. The Service is protected by copyright,
+                BiaBook and its licensors. The Service is protected by copyright,
                 trademark, and other laws.
               </p>
               <p className="text-gray-700">
@@ -255,7 +255,7 @@ export default function TermsOfServicePage() {
                 10. Limitation of Liability
               </h2>
               <p className="text-gray-700">
-                In no event shall BookMe, nor its directors, employees,
+                In no event shall BiaBook, nor its directors, employees,
                 partners, agents, suppliers, or affiliates, be liable for any
                 indirect, incidental, special, consequential, or punitive
                 damages, including without limitation, loss of profits, data,
@@ -269,7 +269,7 @@ export default function TermsOfServicePage() {
                 11. Indemnification
               </h2>
               <p className="text-gray-700">
-                You agree to defend, indemnify, and hold harmless BookMe and its
+                You agree to defend, indemnify, and hold harmless BiaBook and its
                 licensee and licensors, and their employees, contractors,
                 agents, officers and directors, from and against any and all
                 claims, damages, obligations, losses, liabilities, costs or
@@ -324,7 +324,7 @@ export default function TermsOfServicePage() {
               </p>
               <div className="rounded-lg bg-gray-50 p-4">
                 <p className="text-gray-700">
-                  <strong>Email:</strong> legal@bookme.com
+                  <strong>Email:</strong> legal@biabook.com
                   <br />
                   <strong>Address:</strong> [Your Business Address]
                   <br />

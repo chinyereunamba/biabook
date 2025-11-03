@@ -3,7 +3,7 @@ import { BookingLookupForm } from "@/components/application/booking/booking-look
 import { BookingNavigation } from "@/components/application/booking/booking-navigation";
 
 export const metadata: Metadata = {
-  title: "Find Your Booking | BookMe",
+  title: "Find Your Booking | BiaBook",
   description: "Look up your booking details using your confirmation number",
 };
 

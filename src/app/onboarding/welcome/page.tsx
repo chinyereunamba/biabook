@@ -24,10 +24,10 @@ export default function WelcomePage() {
         <div className="mb-8 text-center">
           <div className="mb-6 flex items-center justify-center space-x-2">
             <Calendar className="text-primary h-8 w-8" />
-            <span className="text-2xl font-bold text-gray-900">BookMe</span>
+            <span className="text-2xl font-bold text-gray-900">BiaBook</span>
           </div>
           <h1 className="mb-2 text-3xl font-bold text-gray-900">
-            Welcome to BookMe, {session?.user?.name?.split(" ")[0]}!
+            Welcome to BiaBook, {session?.user?.name?.split(" ")[0]}!
           </h1>
           <p className="text-gray-600">
             Let&apos;s set up your booking system in just a few minutes

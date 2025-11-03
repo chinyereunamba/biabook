@@ -1,10 +1,10 @@
 # Webhooks
 
-BookMe supports webhooks to notify external systems about important events in real-time.
+BiaBook supports webhooks to notify external systems about important events in real-time.
 
 ## Overview
 
-Webhooks are HTTP POST requests sent to your specified endpoint URL when certain events occur. This allows you to integrate BookMe with your existing systems, CRM, or custom applications.
+Webhooks are HTTP POST requests sent to your specified endpoint URL when certain events occur. This allows you to integrate BiaBook with your existing systems, CRM, or custom applications.
 
 ## Configuration
 
@@ -24,7 +24,7 @@ Webhooks can be configured in the business dashboard under Settings > Integratio
 Each webhook includes a signature header for verification:
 
 ```
-X-BookMe-Signature: sha256=<signature>
+X-BiaBook-Signature: sha256=<signature>
 ```
 
 Verify the signature using your secret key:
@@ -282,7 +282,7 @@ Use the webhook testing tool in your dashboard to:
 ```bash
 curl -X POST https://your-endpoint.com/webhooks \
   -H "Content-Type: application/json" \
-  -H "X-BookMe-Signature: sha256=test_signature" \
+  -H "X-BiaBook-Signature: sha256=test_signature" \
   -d '{
     "event": "booking.created",
     "timestamp": "2025-10-31T15:30:00Z",

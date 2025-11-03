@@ -1,6 +1,6 @@
-# BookMe - Simple Appointment Booking
+# BiaBook - Simple Appointment Booking
 
-BookMe is an appointment booking platform designed for service businesses like salons, tutors, clinics, photographers, trainers, and spas. The platform allows customers to book appointments in 60 seconds without creating accounts and provides WhatsApp notifications for business owners.
+BiaBook is an appointment booking platform designed for service businesses like salons, tutors, clinics, photographers, trainers, and spas. The platform allows customers to book appointments in 60 seconds without creating accounts and provides WhatsApp notifications for business owners.
 
 ## Features
 
@@ -129,7 +129,7 @@ BookMe is an appointment booking platform designed for service businesses like s
 
 ## Authentication
 
-BookMe uses NextAuth.js v5 for authentication with the following features:
+BiaBook uses NextAuth.js v5 for authentication with the following features:
 
 - Google OAuth provider for sign-in
 - Session data includes user onboarding status
@@ -215,7 +215,7 @@ The project follows a modern Next.js App Router structure with route groups:
 
 ## Implementation Status
 
-Based on the comprehensive implementation plan, BookMe has achieved significant progress:
+Based on the comprehensive implementation plan, BiaBook has achieved significant progress:
 
 ### ✅ Completed (Tasks 1-8)
 
@@ -249,7 +249,7 @@ The system is production-ready for core booking functionality with ongoing impro
 
 ## Database Configuration
 
-BookMe supports both local SQLite databases and remote LibSQL databases via Turso:
+BiaBook supports both local SQLite databases and remote LibSQL databases via Turso:
 
 ### Local Development (SQLite)
 
@@ -280,7 +280,7 @@ The database connection is configured in `src/server/db/index.ts` using the `@li
 
    ```bash
    git clone https://github.com/yourusername/biabook.git
-   cd bookme
+   cd biabook
    ```
 
 2. Install dependencies:

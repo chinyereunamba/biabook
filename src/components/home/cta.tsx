@@ -10,7 +10,7 @@ export function CTA() {
           Ready to get started?
         </h2>
         <p className="text-primary-foreground/90 mb-8 text-lg">
-          Join thousands of businesses managing their appointments with BookMe
+          Join thousands of businesses managing their appointments with BiaBook
         </p>
         <div className="flex flex-col justify-center gap-4 sm:flex-row">
           <Button

@@ -24,9 +24,9 @@ import { Textarea } from "@/components/ui/textarea";
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({
     // Platform Settings
-    platformName: "BookMe",
+    platformName: "BiaBook",
     platformDescription: "The easiest way to book appointments",
-    supportEmail: "support@bookme.com",
+    supportEmail: "support@biabook.com",
     maxBusinessesPerUser: 5,
 
     // Notification Settings

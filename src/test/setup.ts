@@ -12,12 +12,12 @@ vi.mock("@/env", () => ({
     EMAIL_SERVER_PORT: "587",
     EMAIL_SERVER_USER: "test@example.com",
     EMAIL_SERVER_PASSWORD: "password123",
-    EMAIL_FROM: "noreply@bookme.example.com",
+    EMAIL_FROM: "noreply@biabook.example.com",
     WHATSAPP_API_URL: "https://graph.facebook.com/v18.0",
     WHATSAPP_PHONE_NUMBER_ID: "test-phone-id",
     WHATSAPP_BUSINESS_ACCOUNT_ID: "test-business-id",
     WHATSAPP_ACCESS_TOKEN: "test-access-token",
-    NEXT_PUBLIC_APP_URL: "https://bookme.example.com",
+    NEXT_PUBLIC_APP_URL: "https://biabook.example.com",
   },
 }));
 

@@ -22,7 +22,7 @@ const customAdapter = {
     // Admin emails - add your admin emails here
     const adminEmails = [
       "chinyereunamba15@gmail.com",
-      "admin@bookme.com",
+      "admin@biabook.com",
       // Add more admin emails as needed
     ];
 

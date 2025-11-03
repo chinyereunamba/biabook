@@ -1,6 +1,6 @@
 # Comprehensive Error Handling System
 
-This document describes the comprehensive error handling and monitoring system implemented for the BookMe appointment booking platform.
+This document describes the comprehensive error handling and monitoring system implemented for the BiaBook appointment booking platform.
 
 ## Overview
 
@@ -389,4 +389,4 @@ logger.setMaxLogs(1000);
 3. **Analyze error patterns**: Look for patterns in error data
 4. **Review user feedback**: Use user feedback to understand issues
 
-This comprehensive error handling system ensures that the BookMe platform provides a robust, user-friendly experience even when things go wrong, while providing developers with the tools they need to quickly identify and resolve issues.
+This comprehensive error handling system ensures that the BiaBook platform provides a robust, user-friendly experience even when things go wrong, while providing developers with the tools they need to quickly identify and resolve issues.

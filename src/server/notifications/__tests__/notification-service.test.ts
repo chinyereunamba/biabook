@@ -25,7 +25,7 @@ vi.mock("../email-templates", () => ({
 // Mock environment variables
 vi.mock("process", () => ({
   env: {
-    NEXT_PUBLIC_APP_URL: "https://bookme.example.com",
+    NEXT_PUBLIC_APP_URL: "https://biabook.example.com",
   },
 }));
 
@@ -89,8 +89,8 @@ describe("NotificationService", () => {
       appointment,
       service,
       business,
-      "https://bookme.example.com/booking/appt-123/cancel",
-      "https://bookme.example.com/booking/appt-123/reschedule",
+      "https://biabook.example.com/booking/appt-123/cancel",
+      "https://biabook.example.com/booking/appt-123/reschedule",
     );
     expect(emailService.sendEmail).toHaveBeenCalledWith({
       to: "john@example.com",
@@ -110,7 +110,7 @@ describe("NotificationService", () => {
     expect(emailTemplates.businessNewBookingEmail).toHaveBeenCalledWith(
       appointment,
       service,
-      "https://bookme.example.com/dashboard/bookings/appt-123",
+      "https://biabook.example.com/dashboard/bookings/appt-123",
     );
     expect(emailService.sendEmail).toHaveBeenCalledWith({
       to: "salon@example.com",
@@ -151,8 +151,8 @@ describe("NotificationService", () => {
       appointment,
       service,
       business,
-      "https://bookme.example.com/booking/appt-123/cancel",
-      "https://bookme.example.com/booking/appt-123/reschedule",
+      "https://biabook.example.com/booking/appt-123/cancel",
+      "https://biabook.example.com/booking/appt-123/reschedule",
     );
     expect(emailService.sendEmail).toHaveBeenCalledWith({
       to: "john@example.com",
@@ -173,7 +173,7 @@ describe("NotificationService", () => {
       appointment,
       service,
       business,
-      "https://bookme.example.com/booking/appt-123/cancel",
+      "https://biabook.example.com/booking/appt-123/cancel",
     );
     expect(emailService.sendEmail).toHaveBeenCalledWith({
       to: "john@example.com",

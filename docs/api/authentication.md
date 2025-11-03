@@ -1,6 +1,6 @@
 # Authentication
 
-BookMe uses NextAuth.js v5 for authentication with support for multiple providers and session management.
+BiaBook uses NextAuth.js v5 for authentication with support for multiple providers and session management.
 
 ## Overview
 
@@ -27,19 +27,19 @@ The authentication system supports:
 ```mermaid
 sequenceDiagram
     participant User
-    participant BookMe
+    participant BiaBook
     participant Google
     participant Database
 
-    User->>BookMe: Click "Sign in with Google"
-    BookMe->>Google: Redirect to OAuth
+    User->>BiaBook: Click "Sign in with Google"
+    BiaBook->>Google: Redirect to OAuth
     Google->>User: Show consent screen
     User->>Google: Grant permissions
-    Google->>BookMe: Redirect with auth code
-    BookMe->>Google: Exchange code for tokens
-    Google->>BookMe: Return access token & user info
-    BookMe->>Database: Create/update user
-    BookMe->>User: Set session cookie & redirect
+    Google->>BiaBook: Redirect with auth code
+    BiaBook->>Google: Exchange code for tokens
+    Google->>BiaBook: Return access token & user info
+    BiaBook->>Database: Create/update user
+    BiaBook->>User: Set session cookie & redirect
 ```
 
 ## Session Management

@@ -97,7 +97,7 @@ export function AnalyticsDashboard() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `bookme-analytics-${from}-to-${to}.csv`);
+    link.setAttribute("download", `biabook-analytics-${from}-to-${to}.csv`);
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();

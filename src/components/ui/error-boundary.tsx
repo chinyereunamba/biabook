@@ -94,7 +94,7 @@ export class ErrorBoundary extends Component<
   };
 
   handleContactSupport = () => {
-    window.location.href = "mailto:support@bookme.com";
+    window.location.href = "mailto:support@biabook.com";
   };
 
   handleCopyError = async () => {

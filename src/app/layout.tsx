@@ -13,7 +13,7 @@ if (typeof window === "undefined") {
 // });
 
 export const metadata = {
-  title: "BookMe - Simple Appointment Booking",
+  title: "BiaBook - Simple Appointment Booking",
   description: "Book appointments in 60 seconds with WhatsApp notifications",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };

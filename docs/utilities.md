@@ -1,6 +1,6 @@
-# BookMe Utility Functions
+# BiaBook Utility Functions
 
-This document provides information about the utility functions used in the BookMe application.
+This document provides information about the utility functions used in the BiaBook application.
 
 ## Business Utilities
 

@@ -5,7 +5,7 @@ import { Header } from "@/components/home/header";
 import { Footer } from "@/components/home/footer";
 
 export const metadata: Metadata = {
-  title: "BookMe - Effortless Appointment Scheduling",
+  title: "BiaBook - Effortless Appointment Scheduling",
   description: "The easiest way for clients to book your services online.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };

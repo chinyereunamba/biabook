@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { BookingRescheduleForm } from "@/components/application/booking/booking-reschedule-form";
 
 export const metadata: Metadata = {
-  title: "Reschedule Booking | BookMe",
+  title: "Reschedule Booking | BiaBook",
   description: "Reschedule your appointment",
 };
 

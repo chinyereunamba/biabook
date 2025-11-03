@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { CancelBookingForm } from "@/components/application/booking/cancel-booking-form";
 
 export const metadata: Metadata = {
-  title: "Cancel Booking | BookMe",
+  title: "Cancel Booking | BiaBook",
   description: "Cancel your booking",
 };
 

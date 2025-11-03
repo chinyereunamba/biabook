@@ -15,7 +15,7 @@ export function LegalLayout({ title, children }: LegalLayoutProps) {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
               <Calendar className="h-8 w-8 text-purple-600" />
-              <span className="text-2xl font-bold text-gray-900">BookMe</span>
+              <span className="text-2xl font-bold text-gray-900">BiaBook</span>
             </Link>
             <Link
               href="/"
@@ -57,7 +57,7 @@ export function LegalLayout({ title, children }: LegalLayoutProps) {
               </Link>
             </div>
             <p className="text-sm text-gray-500">
-              © 2025 BookMe. All rights reserved.
+              © 2025 BiaBook. All rights reserved.
             </p>
           </div>
         </div>

@@ -12,7 +12,7 @@ export default function ContactPage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
               <Calendar className="h-8 w-8 text-purple-600" />
-              <span className="text-2xl font-bold text-gray-900">BookMe</span>
+              <span className="text-2xl font-bold text-gray-900">BiaBook</span>
             </Link>
             <Link
               href="/"
@@ -45,7 +45,7 @@ export default function ContactPage() {
                 <Mail className="mt-1 h-6 w-6 text-purple-600" />
                 <div>
                   <h3 className="font-semibold text-gray-900">Email</h3>
-                  <p className="text-gray-600">support@bookme.com</p>
+                  <p className="text-gray-600">support@biabook.com</p>
                   <p className="text-sm text-gray-500">
                     We'll respond within 24 hours
                   </p>

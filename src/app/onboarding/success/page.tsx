@@ -68,7 +68,7 @@ export default function OnboardingSuccessPage() {
         <div className="mb-8 text-center">
           <div className="mb-6 flex items-center justify-center space-x-2">
             <Calendar className="text-primary h-8 w-8" />
-            <span className="text-2xl font-bold text-gray-900">BookMe</span>
+            <span className="text-2xl font-bold text-gray-900">BiaBook</span>
           </div>
         </div>
 
@@ -133,7 +133,7 @@ export default function OnboardingSuccessPage() {
                     navigator
                       .share({
                         title: "Book an appointment with me",
-                        text: "Book an appointment with me on BookMe",
+                        text: "Book an appointment with me on BiaBook",
                         url: bookingUrl,
                       })
                       .catch(() => {

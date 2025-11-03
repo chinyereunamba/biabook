@@ -23,13 +23,13 @@ export default function PrivacyPolicyPage() {
                 1. Introduction
               </h2>
               <p className="mb-4 text-gray-700">
-                Welcome to BookMe ("we," "our," or "us"). This Privacy Policy
+                Welcome to BiaBook ("we," "our," or "us"). This Privacy Policy
                 explains how we collect, use, disclose, and safeguard your
                 information when you use our appointment booking platform and
                 related services.
               </p>
               <p className="text-gray-700">
-                By using BookMe, you agree to the collection and use of
+                By using BiaBook, you agree to the collection and use of
                 information in accordance with this Privacy Policy.
               </p>
             </section>
@@ -189,7 +189,7 @@ export default function PrivacyPolicyPage() {
                 9. Children's Privacy
               </h2>
               <p className="text-gray-700">
-                BookMe is not intended for children under 13 years of age. We do
+                BiaBook is not intended for children under 13 years of age. We do
                 not knowingly collect personal information from children under
                 13.
               </p>
@@ -216,7 +216,7 @@ export default function PrivacyPolicyPage() {
               </p>
               <div className="rounded-lg bg-gray-50 p-4">
                 <p className="text-gray-700">
-                  <strong>Email:</strong> privacy@bookme.com
+                  <strong>Email:</strong> privacy@biabook.com
                   <br />
                   <strong>Address:</strong> [Your Business Address]
                   <br />

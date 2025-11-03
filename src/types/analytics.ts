@@ -1,5 +1,5 @@
 /**
- * Analytics data types for the BookMe application
+ * Analytics data types for the BiaBook application
  */
 
 export interface DateRangeFilter {

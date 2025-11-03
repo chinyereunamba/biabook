@@ -30,7 +30,7 @@ export default function DashboardHeader({
         </Button>
         <Link href="/dashboard" className="flex items-center gap-2 md:hidden">
           <Package2 className="text-primary h-6 w-6" />
-          <span className="text-lg font-semibold">BookMe</span>
+          <span className="text-lg font-semibold">BiaBook</span>
         </Link>
         <div>
           <h1 className="text-lg font-semibold">{heading}</h1>

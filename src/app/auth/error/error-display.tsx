@@ -37,7 +37,7 @@ export function ErrorDisplay() {
         <div className="mb-8 text-center">
           <div className="mb-6 flex items-center justify-center space-x-2">
             <Calendar className="h-8 w-8 text-purple-600" />
-            <span className="text-2xl font-bold text-gray-900">BookMe</span>
+            <span className="text-2xl font-bold text-gray-900">BiaBook</span>
           </div>
         </div>
 
