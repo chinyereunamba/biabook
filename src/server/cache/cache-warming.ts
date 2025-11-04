@@ -1,7 +1,5 @@
 import { availabilityCalculationEngine } from "@/server/repositories/availability-calculation";
 import { db } from "@/server/db";
-import { businesses, services } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
 
 /**
  * Cache warming utility for pre-populating availability cache

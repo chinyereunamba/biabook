@@ -4,7 +4,6 @@ import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cva, type VariantProps } from "class-variance-authority";
 
-// Import the utility function for class name merging
 import { cn } from "../../lib/utils";
 
 const radioVariants = cva(

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { unstable_cache } from "next/cache";
 import { availabilityCalculationEngine } from "@/server/repositories/availability-calculation";
 import { bookingPerformanceMonitor } from "@/server/monitoring/booking-performance-monitor";
 

@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { availabilityExceptionRepository } from "@/server/repositories/availability-exception-repository";
 import { auth } from "@/server/auth";
-// import { getCurrentUserBusiness } from "@/server/auth/helpers";
 
 // DELETE /api/businesses/:businessId/availability/exceptions/:exceptionId
 export async function DELETE(

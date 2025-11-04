@@ -15,6 +15,7 @@ import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { cookies } from "next/headers";
 
 export default function LayoutComponent({
   children,
@@ -32,13 +33,18 @@ export default function LayoutComponent({
   const [showProfile, setShowProfile] = useState(false);
   const [toggleMenu, setToggleMenu] = useState(false);
   const pathname = usePathname();
-  // Mock session data since auth is removed
-  // const session = { user: { name: "Admin User", email: "admin@example.com" } };
+
   const { data: session } = useSession();
   const menuClass = toggleMenu ? "hidden" : "";
 
-  const handleLogout = () => {
-    signOut({ redirect: true });
+  const handleLogout = async () => {
+    const cookiesStore = cookies();
+    cookieStore.delete("next-auth.session-token");
+    cookieStore.delete("__Secure-next-auth.session-token");
+    cookieStore.delete("next-auth.csrf-token");
+    sessionStorage.clear();
+    await signOut({ redirect: true, callbackUrl: "/login" });
+    return;
   };
 
   return (

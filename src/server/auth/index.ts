@@ -1,14 +1,15 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import Email from "next-auth/providers/email";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/server/db";
-import { eq } from "drizzle-orm";
 import {
   users,
   accounts,
   sessions,
   verificationTokens,
 } from "@/server/db/schema";
+import { sendWelcomeEmail, sendVerificationEmail } from "@/lib/email";
 
 // Create custom adapter to handle role assignment
 const customAdapter = {
@@ -22,14 +23,14 @@ const customAdapter = {
     // Admin emails - add your admin emails here
     const adminEmails = [
       "chinyereunamba15@gmail.com",
-      "admin@biabook.com",
+      "admin@biabook.app",
       // Add more admin emails as needed
     ];
 
     // Assign role based on email
     const role = adminEmails.includes(user.email) ? "admin" : "user";
 
-    const newUser = await db
+    const result = await db
       .insert(users)
       .values({
         id: crypto.randomUUID(),
@@ -39,8 +40,30 @@ const customAdapter = {
         image: user.image,
         role: role as "user" | "admin",
       })
-      .returning()
-      .then((res) => res[0]);
+      .returning();
+
+    const newUser = result[0];
+
+    if (!newUser) {
+      throw new Error("Failed to create user");
+    }
+
+    // Send welcome email to new user (only for OAuth users, not email verification users)
+    if (newUser.email && newUser.emailVerified) {
+      try {
+        await sendWelcomeEmail({
+          to: newUser.email,
+          name: newUser.name || undefined,
+        });
+        console.log(`Welcome email sent to ${newUser.email}`);
+      } catch (error) {
+        console.error(
+          `Failed to send welcome email to ${newUser.email}:`,
+          error,
+        );
+        // Don't throw error here to avoid blocking user creation
+      }
+    }
 
     return newUser;
   },
@@ -57,15 +80,39 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     }),
+    Email({
+      server: {
+        host: process.env.EMAIL_SERVER_HOST!,
+        port: Number(process.env.EMAIL_SERVER_PORT!),
+        auth: {
+          user: process.env.EMAIL_SERVER_USER!,
+          pass: process.env.EMAIL_SERVER_PASSWORD!,
+        },
+      },
+      from: process.env.EMAIL_FROM!,
+      async sendVerificationRequest({ identifier, url, provider }) {
+        // Send verification email
+        await sendVerificationEmail({
+          to: identifier,
+          verificationUrl: url,
+        });
+      },
+    }),
   ],
   callbacks: {
-    async signIn({ account, profile }: any) {
+    async signIn({ account, profile, user }: any) {
       if (account?.provider === "google") {
         if (!profile?.email_verified) {
           return false;
         }
         return true;
       }
+
+      // For email provider, allow sign in (verification is handled by NextAuth)
+      if (account?.provider === "email") {
+        return true;
+      }
+
       return true;
     },
 
@@ -76,9 +123,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.role = user.role || "user";
         session.user.isOnboarded = user.isOnboarded || false;
         session.user.needsOnboarding = !user.isOnboarded;
+        session.user.emailVerified = user.emailVerified;
       }
       return session;
     },
+  },
+  pages: {
+    signIn: "/auth/signin",
+    verifyRequest: "/auth/verify-request",
+    error: "/auth/error",
   },
   debug: true,
   logger: {

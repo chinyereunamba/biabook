@@ -13,14 +13,13 @@ import type {
   CreateAppointmentInput,
   UpdateAppointmentInput,
 } from "@/types/booking";
-// import { notificationService } from "@/server/notifications/notification-service";
+
 import { notificationScheduler } from "@/server/notifications/notification-scheduler";
 import {
   getDayOfWeekFromDate,
   timeStringToMinutes,
-  // isValidDateFormat,
 } from "./utils/availability-validation";
-// import { bookingConflictService } from "@/server/services/booking-conflict-service";
+
 import { BookingErrors } from "@/server/errors/booking-errors";
 import { bookingLogger, logExecution } from "@/server/logging/booking-logger";
 import { availabilityCacheService } from "@/server/cache/availability-cache";
