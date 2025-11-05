@@ -15,7 +15,9 @@ export function Header() {
                 B
               </span>
             </div>
-            <span className="text-foreground text-lg font-bold">{appConfig.name}</span>
+            <span className="text-foreground text-lg font-bold">
+              {appConfig.name}
+            </span>
           </div>
 
           <nav className="hidden items-center gap-8 md:flex">
@@ -41,17 +43,10 @@ export function Header() {
 
           <div className="flex items-center gap-2">
             <Button
-              variant="ghost"
-              size="sm"
-              className="text-foreground/70 hover:text-foreground"
-            >
-              <Link href={"/login"}>Sign In</Link>
-            </Button>
-            <Button
               size="sm"
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              <Link href={"/signup"}>Get Started</Link>
+              <Link href={"/login"}>Get Started</Link>
             </Button>
           </div>
         </div>
