@@ -13,7 +13,8 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { performCompleteLogout } from "@/lib/session-utils";
 
 export default function LayoutComponent({
   children,
@@ -36,8 +37,7 @@ export default function LayoutComponent({
   const menuClass = toggleMenu ? "hidden" : "";
 
   const handleLogout = async () => {
-    sessionStorage.clear();
-    await signOut({ redirect: true, callbackUrl: "/login" });
+    await performCompleteLogout("/login");
   };
 
   return (

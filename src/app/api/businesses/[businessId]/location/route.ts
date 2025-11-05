@@ -36,7 +36,7 @@ const updateServiceRadiusSchema = z.object({
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { businessId: string } },
+  { params }: { params: Promise<{ businessId: string }> },
 ) {
   try {
     const session = await auth();
@@ -47,7 +47,7 @@ export async function GET(
       );
     }
 
-    const { businessId } = params;
+    const { businessId } = await params;
     const location =
       await businessLocationRepository.getByBusinessId(businessId);
 
@@ -75,7 +75,7 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { businessId: string } },
+  { params }: { params: Promise<{ businessId: string }> },
 ) {
   try {
     const session = await auth();
@@ -86,7 +86,7 @@ export async function POST(
       );
     }
 
-    const { businessId } = params;
+    const { businessId } = await params;
     const body = await request.json();
     const locationData = updateLocationSchema.parse(body);
 
@@ -165,7 +165,7 @@ export async function POST(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { businessId: string } },
+  { params }: { params: Promise<{ businessId: string }> },
 ) {
   try {
     const session = await auth();
@@ -176,7 +176,7 @@ export async function PATCH(
       );
     }
 
-    const { businessId } = params;
+    const { businessId } = await params;
     const body = await request.json();
     const { serviceRadius } = updateServiceRadiusSchema.parse(body);
 
@@ -225,7 +225,7 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { businessId: string } },
+  { params }: { params: Promise<{ businessId: string }> },
 ) {
   try {
     const session = await auth();
@@ -236,7 +236,7 @@ export async function DELETE(
       );
     }
 
-    const { businessId } = params;
+    const { businessId } = await params;
     await businessLocationRepository.delete(businessId);
 
     return NextResponse.json({

@@ -72,6 +72,8 @@ const customAdapter = {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     strategy: "database",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
   secret: process.env.AUTH_SECRET!,
   adapter: customAdapter as any,
@@ -116,10 +118,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
 
-    async session({ session, user }: any) {
-      // Add role and other user data to session
+    async session({ session, user, token }: any) {
+      // Always fetch fresh user data from database
       if (session.user && user) {
         session.user.id = user.id;
+        session.user.email = user.email; // Ensure email is always fresh
+        session.user.name = user.name;
+        session.user.image = user.image;
         session.user.role = user.role || "user";
         session.user.isOnboarded = user.isOnboarded || false;
         session.user.needsOnboarding = !user.isOnboarded;
@@ -127,11 +132,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session;
     },
+
+    async jwt({ token, user, account }: any) {
+      // Clear token cache on new sign in
+      if (account && user) {
+        token.sub = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.picture = user.image;
+        token.role = user.role;
+      }
+      return token;
+    },
   },
   pages: {
     signIn: "/login",
     verifyRequest: "/verify-request",
     error: "/error",
+  },
+  events: {
+    async signOut({ session, token }) {
+      // Additional cleanup when user signs out
+      console.log("User signed out:", session?.user?.email);
+    },
+    async signIn({ user, account, profile, isNewUser }) {
+      // Log sign in events for debugging
+      console.log(
+        "User signed in:",
+        user.email,
+        "Provider:",
+        account?.provider,
+      );
+    },
   },
   debug: true,
   logger: {

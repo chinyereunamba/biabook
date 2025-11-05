@@ -11,7 +11,10 @@ import { useEffect } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <SessionProvider>
+    <SessionProvider
+      refetchInterval={5 * 60} // Refetch session every 5 minutes
+      refetchOnWindowFocus={true} // Refetch when window gains focus
+    >
       <ErrorBoundary
         componentName="RootLayout"
         showReportButton={true}

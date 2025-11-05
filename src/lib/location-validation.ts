@@ -261,6 +261,33 @@ export function sanitizeState(state: string): string {
 }
 
 /**
+ * Location error codes for different failure scenarios
+ */
+export enum LocationErrorCode {
+  GEOLOCATION_DENIED = "GEOLOCATION_DENIED",
+  GEOLOCATION_UNAVAILABLE = "GEOLOCATION_UNAVAILABLE",
+  GEOCODING_FAILED = "GEOCODING_FAILED",
+  INVALID_COORDINATES = "INVALID_COORDINATES",
+  OUTSIDE_SERVICE_AREA = "OUTSIDE_SERVICE_AREA",
+  TIMEZONE_DETECTION_FAILED = "TIMEZONE_DETECTION_FAILED",
+  MAP_LOADING_FAILED = "MAP_LOADING_FAILED",
+}
+
+/**
+ * Location-specific error class with fallback actions
+ */
+export class LocationError extends Error {
+  constructor(
+    public code: LocationErrorCode,
+    message: string,
+    public fallbackAction?: string,
+  ) {
+    super(message);
+    this.name = "LocationError";
+  }
+}
+
+/**
  * Creates a validation error with location context
  */
 export class LocationValidationError extends Error {
