@@ -1,6 +1,7 @@
 import { db } from "@/server/db";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 import { notificationQueue } from "@/server/db/schema";
+import { notificationLogger } from "./notification-logger";
 import type {
   NotificationType,
   NotificationStatus,
@@ -38,6 +39,8 @@ export class NotificationQueueService {
       "id" | "attempts" | "status" | "createdAt" | "updatedAt"
     >,
   ): Promise<string> {
+    const now = new Date();
+
     const [result] = await db
       .insert(notificationQueue)
       .values({
@@ -47,17 +50,26 @@ export class NotificationQueueService {
         recipientEmail: notification.recipientEmail,
         recipientPhone: notification.recipientPhone ?? undefined,
         payload: JSON.stringify(notification.payload),
-        scheduledFor: notification.scheduledFor,
+        scheduledFor: notification.scheduledFor, // Drizzle handles Date to timestamp conversion
         status: "pending",
         attempts: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       })
       .returning({ id: notificationQueue.id });
 
     if (!result) {
       throw new Error("Failed to enqueue notification");
     }
+
+    notificationLogger.logEnqueue(
+      notification.type,
+      notification.recipientType,
+      notification.recipientEmail,
+      notification.scheduledFor,
+      {
+        notificationId: result.id,
+        payload: notification.payload,
+      },
+    );
 
     return result.id;
   }
@@ -86,6 +98,11 @@ export class NotificationQueueService {
           ? JSON.parse(item.payload)
           : item.payload,
       type: item.type as NotificationType,
+      // Drizzle with mode: "timestamp" returns Date objects directly
+      scheduledFor: item.scheduledFor,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+      lastAttemptAt: item.lastAttemptAt,
     }));
   }
 
@@ -93,13 +110,18 @@ export class NotificationQueueService {
    * Mark a notification as processed
    */
   async markAsProcessed(id: string): Promise<void> {
+    const now = new Date();
+
     await db
       .update(notificationQueue)
       .set({
         status: "processed",
-        updatedAt: new Date(),
+        lastAttemptAt: now,
+        updatedAt: now,
       })
-      .where(sql`${notificationQueue.id} = ${id}`);
+      .where(eq(notificationQueue.id, id));
+
+    notificationLogger.logProcessingSuccess(id);
   }
 
   /**
@@ -109,7 +131,7 @@ export class NotificationQueueService {
     const [notification] = await db
       .select()
       .from(notificationQueue)
-      .where(sql`${notificationQueue.id} = ${id}`)
+      .where(eq(notificationQueue.id, id))
       .limit(1);
 
     if (!notification) {
@@ -118,30 +140,43 @@ export class NotificationQueueService {
 
     const attempts = notification.attempts + 1;
     const status = attempts >= 3 ? "failed" : "pending";
+    const now = new Date();
 
     await db
       .update(notificationQueue)
       .set({
         status,
         attempts,
-        lastAttemptAt: new Date(),
+        lastAttemptAt: now,
         error: error ?? null,
-        updatedAt: new Date(),
+        updatedAt: now,
       })
-      .where(sql`${notificationQueue.id} = ${id}`);
+      .where(eq(notificationQueue.id, id));
+
+    notificationLogger.logProcessingFailure(id, error || "Unknown error", {
+      status,
+      attempts,
+      maxAttempts: 3,
+    });
   }
 
   /**
    * Reschedule a notification for later
    */
   async reschedule(id: string, scheduledFor: Date): Promise<void> {
+    const now = new Date();
+
     await db
       .update(notificationQueue)
       .set({
-        scheduledFor,
-        updatedAt: new Date(),
+        scheduledFor: scheduledFor,
+        updatedAt: now,
       })
-      .where(sql`${notificationQueue.id} = ${id}`);
+      .where(eq(notificationQueue.id, id));
+
+    console.log(
+      `Notification ${id} rescheduled for ${scheduledFor.toISOString()}`,
+    );
   }
 
   /**
@@ -156,6 +191,7 @@ export class NotificationQueueService {
       )
       .returning({ id: notificationQueue.id });
 
+    console.log(`Cleaned up ${result.length} old notifications`);
     return result.length;
   }
 }

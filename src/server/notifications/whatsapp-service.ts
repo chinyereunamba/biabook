@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { notificationLogger } from "./notification-logger";
 import type { Appointment } from "@/types/appointment";
 import type { Service } from "@/types/service";
 import type { Business } from "@/types/business";
@@ -76,7 +77,11 @@ export class WhatsAppService {
    */
   private async sendMessage(message: WhatsAppMessage): Promise<boolean> {
     if (!this.isConfigured) {
-      console.warn("WhatsApp service not configured, skipping message");
+      notificationLogger.logWhatsAppAttempt(
+        message.to,
+        false,
+        "WhatsApp service not configured",
+      );
       return false;
     }
 
@@ -103,31 +108,34 @@ export class WhatsAppService {
         const errorData = await response
           .json()
           .catch(() => ({ error: "Unknown error" }));
-        console.error("WhatsApp API error:", {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
+
+        const errorMessage = `API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`;
+        notificationLogger.logWhatsAppAttempt(message.to, false, errorMessage);
         return false;
       }
 
       const responseData = await response
         .json()
         .catch(() => ({ success: true }));
-      console.log("WhatsApp message sent successfully:", responseData);
+
+      notificationLogger.logWhatsAppAttempt(message.to, true, undefined, {
+        messageId: responseData.messages?.[0]?.id,
+      });
       return true;
     } catch (error) {
+      let errorMessage = "Unknown error";
+
       if (error instanceof Error) {
         if (error.name === "AbortError") {
-          console.error("WhatsApp API request timed out after 10 seconds");
+          errorMessage = "Request timed out after 10 seconds";
         } else if (error.message.includes("ETIMEDOUT")) {
-          console.error("WhatsApp API connection timed out");
+          errorMessage = "Connection timed out";
         } else {
-          console.error("Failed to send WhatsApp message:", error.message);
+          errorMessage = error.message;
         }
-      } else {
-        console.error("Failed to send WhatsApp message:", error);
       }
+
+      notificationLogger.logWhatsAppAttempt(message.to, false, errorMessage);
       return false;
     }
   }

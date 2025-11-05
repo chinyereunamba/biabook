@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
 import { notificationQueue } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { NotificationStatus } from "@/components/ui/notification-status";
 
 /**
@@ -26,7 +26,9 @@ export async function GET(
     const notifications = await db
       .select()
       .from(notificationQueue)
-      .where(eq(notificationQueue.payload, JSON.stringify({ appointmentId })));
+      .where(
+        sql`json_extract(${notificationQueue.payload}, '$.appointmentId') = ${appointmentId}`,
+      );
 
     // Transform database records to UI format
     const notificationStatuses: NotificationStatus[] = notifications.map(

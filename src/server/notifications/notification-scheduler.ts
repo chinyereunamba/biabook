@@ -1,5 +1,6 @@
 import { notificationQueueService } from "./notification-queue";
 import { notificationService } from "./notification-service";
+import { notificationLogger } from "./notification-logger";
 import { db } from "@/server/db";
 import {
   appointments,
@@ -234,12 +235,27 @@ export class NotificationScheduler {
    * Process pending notifications
    */
   async processPendingNotifications(limit = 10): Promise<number> {
+    notificationLogger.info(
+      `Processing pending notifications (limit: ${limit})`,
+    );
+
     const pendingNotifications =
       await notificationQueueService.getPendingNotifications(limit);
     let processedCount = 0;
 
+    notificationLogger.info(
+      `Found ${pendingNotifications.length} pending notifications`,
+    );
+
     for (const notification of pendingNotifications) {
       try {
+        notificationLogger.logProcessingStart(notification.id!, {
+          type: notification.type,
+          recipientType: notification.recipientType,
+          recipientEmail: notification.recipientEmail,
+          attempts: notification.attempts,
+        });
+
         const { type, payload } = notification;
 
         // Get the appointment, service, and business data
@@ -303,17 +319,27 @@ export class NotificationScheduler {
           );
         }
       } catch (error) {
-        console.error(
-          `Error processing notification ${notification.id}:`,
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        notificationLogger.error(
+          `Error processing notification ${notification.id}`,
           error,
+          {
+            notificationId: notification.id,
+            type: notification.type,
+            recipientType: notification.recipientType,
+          },
         );
         await notificationQueueService.markAsFailed(
           notification.id!,
-          error instanceof Error ? error.message : "Unknown error",
+          errorMessage,
         );
       }
     }
 
+    notificationLogger.info(
+      `Processed ${processedCount}/${pendingNotifications.length} notifications successfully`,
+    );
     return processedCount;
   }
 
