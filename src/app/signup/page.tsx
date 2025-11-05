@@ -8,20 +8,81 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Mail, ArrowRight } from "lucide-react";
+import {
+  Calendar,
+  Mail,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  User,
+  Lock,
+} from "lucide-react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [showMagicLink, setShowMagicLink] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleMagicLink = (e: React.FormEvent) => {
     e.preventDefault();
     setShowMagicLink(true);
     // Handle magic link sending
     console.log("Magic link sent to:", email);
+  };
+
+  const handleCredentialsSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      // Register user
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+
+      // Sign in the user after successful registration
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        throw new Error("Failed to sign in after registration");
+      }
+
+      // Redirect to onboarding
+      router.push("/onboarding");
+    } catch (error) {
+      console.error("Signup error:", error);
+      setError(error instanceof Error ? error.message : "Registration failed");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,7 +101,7 @@ export default function SignupPage() {
 
         <Card className="border-gray-200 shadow-lg">
           <CardContent className="">
-            {!showMagicLink ? (
+            {!showMagicLink && !showPasswordForm ? (
               <div className="space-y-6">
                 {/* Google Sign-in - Primary CTA */}
                 <Button
@@ -112,13 +173,110 @@ export default function SignupPage() {
                   <button
                     type="button"
                     className="text-sm text-gray-500 underline hover:text-gray-700"
-                    onClick={() => {
-                      /* Show email/password form */
-                    }}
+                    onClick={() => setShowPasswordForm(true)}
                   >
                     Or sign up with email and password
                   </button>
                 </div>
+              </div>
+            ) : showPasswordForm ? (
+              <div className="space-y-6">
+                {/* Back button */}
+                <button
+                  type="button"
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowPasswordForm(false)}
+                >
+                  ← Back to options
+                </button>
+
+                {/* Error message */}
+                {error && (
+                  <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                    {error}
+                  </div>
+                )}
+
+                {/* Credentials Form */}
+                <form onSubmit={handleCredentialsSignup} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-gray-700">
+                      Full Name
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Enter your full name"
+                        className="h-12 border-gray-300 pl-10 focus:border-purple-500 focus:ring-purple-500"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email-creds" className="text-gray-700">
+                      Email address
+                    </Label>
+                    <div className="relative">
+                      <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                      <Input
+                        id="email-creds"
+                        type="email"
+                        placeholder="Enter your email"
+                        className="h-12 border-gray-300 pl-10 focus:border-purple-500 focus:ring-purple-500"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-gray-700">
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Create a password"
+                        className="h-12 border-gray-300 pr-10 pl-10 focus:border-purple-500 focus:ring-purple-500"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        minLength={8}
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Password must be at least 8 characters long
+                    </p>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="bg-primary h-12 w-full hover:bg-purple-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Creating account..." : "Create account"}
+                    {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+                  </Button>
+                </form>
               </div>
             ) : (
               <div className="space-y-4 text-center">

@@ -91,22 +91,24 @@ export class NotificationService {
     });
   }
   /**
-   * Send a booking confirmation email to the customer
+   * Send a booking confirmation email to the customer with timezone support
    */
   async sendBookingConfirmationToCustomer(
     appointment: Appointment,
     service: Service,
     business: Business,
+    businessTimezone?: string,
   ): Promise<boolean> {
     const cancellationUrl = `${BASE_URL}/booking/${appointment.id}/cancel`;
     const rescheduleUrl = `${BASE_URL}/booking/${appointment.id}/reschedule`;
 
-    const html = emailTemplates.bookingConfirmationEmail(
+    const html = await emailTemplates.bookingConfirmationEmail(
       appointment,
       service,
       business,
       cancellationUrl,
       rescheduleUrl,
+      businessTimezone,
     );
 
     return emailService.sendEmail({
@@ -179,22 +181,24 @@ export class NotificationService {
   }
 
   /**
-   * Send a booking reminder email to the customer
+   * Send a booking reminder email to the customer with timezone support
    */
   async sendBookingReminderToCustomer(
     appointment: Appointment,
     service: Service,
     business: Business,
+    businessTimezone?: string,
   ): Promise<boolean> {
     const cancellationUrl = `${BASE_URL}/booking/${appointment.id}/cancel`;
     const rescheduleUrl = `${BASE_URL}/booking/${appointment.id}/reschedule`;
 
-    const html = emailTemplates.bookingReminderEmail(
+    const html = await emailTemplates.bookingReminderEmail(
       appointment,
       service,
       business,
       cancellationUrl,
       rescheduleUrl,
+      businessTimezone,
     );
 
     return emailService.sendEmail({

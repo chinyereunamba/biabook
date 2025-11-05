@@ -1,75 +1,41 @@
 /**
  * Timezone detection and conversion service
- * Handles timezone operations for location-based booking system
+ * Handles timezone operations for location-based booking system with multiple provider support
  */
 
 import type { Coordinates, TimezoneService } from "@/types/location";
-import { LocationError, LocationErrorCode } from "@/types/location";
+import { LocationError, LocationErrorCode } from "@/lib/location-validation";
 import {
   validateCoordinates,
   isValidTimezone,
 } from "@/lib/location-validation";
+import { timezoneProviderManager } from "@/lib/timezone-providers";
 import { db } from "@/server/db";
 import { appointments, businessLocations } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 
 /**
- * Timezone service implementation
+ * Timezone service implementation with multiple provider support
  */
 class TimezoneServiceImpl implements TimezoneService {
-  private readonly apiKey: string | undefined;
-
-  constructor() {
-    this.apiKey = process.env.GOOGLE_MAPS_API_KEY;
-  }
-
   /**
-   * Detects timezone from coordinates using Google Timezone API
+   * Detects timezone from coordinates using available providers with fallback
    */
   async detectTimezone(coordinates: Coordinates): Promise<string> {
     const validatedCoordinates = validateCoordinates(coordinates);
 
-    if (!this.apiKey) {
-      throw new LocationError(
-        LocationErrorCode.TIMEZONE_DETECTION_FAILED,
-        "Google Maps API key not configured",
-        "Please configure GOOGLE_MAPS_API_KEY environment variable",
-      );
-    }
-
     try {
-      const url = new URL("https://maps.googleapis.com/maps/api/timezone/json");
-      url.searchParams.set(
-        "location",
-        `${validatedCoordinates.latitude},${validatedCoordinates.longitude}`,
-      );
-      url.searchParams.set(
-        "timestamp",
-        Math.floor(Date.now() / 1000).toString(),
-      );
-      url.searchParams.set("key", this.apiKey);
-
-      const response = await fetch(url.toString());
-      const data = await response.json();
-
-      if (data.status !== "OK") {
-        throw new LocationError(
-          LocationErrorCode.TIMEZONE_DETECTION_FAILED,
-          data.error_message || `Timezone detection failed: ${data.status}`,
-          "Unable to detect timezone",
+      const result =
+        await timezoneProviderManager.detectTimezoneWithFallback(
+          validatedCoordinates,
         );
-      }
 
-      const timezone = data.timeZoneId;
-      if (!isValidTimezone(timezone)) {
-        throw new LocationError(
-          LocationErrorCode.TIMEZONE_DETECTION_FAILED,
-          `Invalid timezone returned: ${timezone}`,
-          "Please try again",
-        );
-      }
+      // Log which provider was used for debugging/monitoring
+      console.log(
+        `Timezone detected using ${result.provider}: ${result.timezone}`,
+      );
 
-      return timezone;
+      return result.timezone;
     } catch (error) {
       if (error instanceof LocationError) {
         throw error;
@@ -78,9 +44,68 @@ class TimezoneServiceImpl implements TimezoneService {
       throw new LocationError(
         LocationErrorCode.TIMEZONE_DETECTION_FAILED,
         `Failed to detect timezone: ${error instanceof Error ? error.message : "Unknown error"}`,
-        "Please try again",
+        "Please try again or contact support",
       );
     }
+  }
+
+  /**
+   * Detects timezone using a specific provider
+   */
+  async detectTimezoneWithProvider(
+    coordinates: Coordinates,
+    providerName: string,
+  ): Promise<{
+    timezone: string;
+    provider: string;
+  }> {
+    const validatedCoordinates = validateCoordinates(coordinates);
+    const provider = timezoneProviderManager.getProvider(providerName);
+
+    if (!provider) {
+      throw new LocationError(
+        LocationErrorCode.TIMEZONE_DETECTION_FAILED,
+        `Unknown timezone provider: ${providerName}`,
+        "Please use a valid provider name",
+      );
+    }
+
+    if (!provider.isAvailable()) {
+      throw new LocationError(
+        LocationErrorCode.TIMEZONE_DETECTION_FAILED,
+        `Timezone provider ${providerName} is not available (missing API key or configuration)`,
+        "Please configure the provider or use a different one",
+      );
+    }
+
+    try {
+      const timezone = await provider.detectTimezone(validatedCoordinates);
+      return { timezone, provider: providerName };
+    } catch (error) {
+      if (error instanceof LocationError) {
+        throw error;
+      }
+
+      throw new LocationError(
+        LocationErrorCode.TIMEZONE_DETECTION_FAILED,
+        `Failed to detect timezone with ${providerName}: ${error instanceof Error ? error.message : "Unknown error"}`,
+        "Please try again or use a different provider",
+      );
+    }
+  }
+
+  /**
+   * Gets list of available timezone providers
+   */
+  getAvailableProviders(): Array<{ name: string; available: boolean }> {
+    const allProviders = ["google", "timezonedb", "worldtime"];
+    return allProviders.map((name) => {
+      const provider = timezoneProviderManager.getProvider(name);
+      return {
+        name,
+        available: provider ? provider.isAvailable() : false,
+      };
+    });
   }
 
   /**
@@ -288,4 +313,18 @@ export async function updateAppointmentTimezones(
   newTimezone: string,
 ): Promise<void> {
   return timezoneService.updateAppointmentTimezones(businessId, newTimezone);
+}
+
+export async function detectTimezoneWithProvider(
+  coordinates: Coordinates,
+  providerName: string,
+): Promise<{ timezone: string; provider: string }> {
+  return timezoneService.detectTimezoneWithProvider(coordinates, providerName);
+}
+
+export function getAvailableTimezoneProviders(): Array<{
+  name: string;
+  available: boolean;
+}> {
+  return timezoneService.getAvailableProviders();
 }

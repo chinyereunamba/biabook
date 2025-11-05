@@ -22,6 +22,7 @@ export interface BusinessProfile {
   email?: string | null;
   rating?: string;
   reviews?: number;
+  timezone?: string;
   category: {
     id: string;
     name: string;

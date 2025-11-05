@@ -19,6 +19,7 @@ import {
   LazyCustomerForm,
   LazyBookingConfirmation,
 } from "@/components/application/booking/lazy";
+import { TimezoneBookingSummary } from "@/components/application/booking/timezone-booking-summary";
 import type { CustomerFormData } from "@/components/application/booking/customer-form";
 import type { BookingConfirmationData } from "@/components/application/booking/booking-confirmation";
 import { useBusiness } from "@/hooks/use-business";
@@ -359,6 +360,8 @@ export default function BookingPage() {
                       loading={availabilityLoading}
                       error={availabilityError}
                       onRefresh={() => void refreshAvailability()}
+                      businessTimezone={business.timezone}
+                      businessName={business.name}
                     />
                   </div>
 
@@ -417,11 +420,17 @@ export default function BookingPage() {
                         <span>Duration:</span>
                         <span>{selectedService?.duration} minutes</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Date & Time:</span>
-                        <span>
-                          {selectedDate} at {selectedTime}
+                      <div className="space-y-2">
+                        <span className="text-sm font-medium">
+                          Date & Time:
                         </span>
+                        <TimezoneBookingSummary
+                          appointmentDate={selectedDate}
+                          appointmentTime={selectedTime}
+                          businessTimezone={business.timezone}
+                          businessName={business.name}
+                          compact={true}
+                        />
                       </div>
                       <div className="flex justify-between border-t pt-3 font-semibold">
                         <span>Total:</span>
@@ -485,6 +494,7 @@ export default function BookingPage() {
                   phone: business.phone ?? undefined,
                   email: business.email ?? undefined,
                   location: business.location ?? undefined,
+                  timezone: business.timezone ?? undefined,
                 },
                 service: {
                   id: selectedService!.id,

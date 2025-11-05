@@ -48,6 +48,15 @@ export const env = createEnv({
 
     // Google Maps API configuration
     GOOGLE_MAPS_API_KEY: z.string().optional(),
+
+    // LocationIQ API configuration
+    LOCATIONIQ_API_KEY: z.string().optional(),
+
+    // Timezone API configuration
+    TIMEZONE_PROVIDER: z
+      .enum(["google", "timezonedb", "worldtime", "auto"])
+      .default("auto"),
+    TIMEZONEDB_API_KEY: z.string().optional(),
   },
 
   /**
@@ -92,6 +101,13 @@ export const env = createEnv({
     GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
       process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+
+    // LocationIQ API configuration
+    LOCATIONIQ_API_KEY: process.env.LOCATIONIQ_API_KEY,
+
+    // Timezone API configuration
+    TIMEZONE_PROVIDER: process.env.TIMEZONE_PROVIDER,
+    TIMEZONEDB_API_KEY: process.env.TIMEZONEDB_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

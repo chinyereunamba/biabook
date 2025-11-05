@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import Email from "next-auth/providers/email";
+import Credentials from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/server/db";
 import {
@@ -9,7 +9,8 @@ import {
   sessions,
   verificationTokens,
 } from "@/server/db/schema";
-import { sendWelcomeEmail, sendVerificationEmail } from "@/lib/email";
+import { sendWelcomeEmail } from "@/lib/email";
+import { authenticateUser } from "@/lib/auth-utils";
 
 // Create custom adapter to handle role assignment
 const customAdapter = {
@@ -38,6 +39,7 @@ const customAdapter = {
         email: user.email,
         emailVerified: user.emailVerified,
         image: user.image,
+        password: user.password || null, // Handle password for credentials users
         role: role as "user" | "admin",
       })
       .returning();
@@ -82,22 +84,47 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     }),
-    Email({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST!,
-        port: Number(process.env.EMAIL_SERVER_PORT!),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER!,
-          pass: process.env.EMAIL_SERVER_PASSWORD!,
+
+    Credentials({
+      name: "credentials",
+      credentials: {
+        email: {
+          label: "Email",
+          type: "email",
+          placeholder: "your@email.com",
+        },
+        password: {
+          label: "Password",
+          type: "password",
         },
       },
-      from: process.env.EMAIL_FROM!,
-      async sendVerificationRequest({ identifier, url, provider }) {
-        // Send verification email
-        await sendVerificationEmail({
-          to: identifier,
-          verificationUrl: url,
-        });
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          const user = await authenticateUser(
+            credentials.email as string,
+            credentials.password as string,
+          );
+
+          if (!user) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            isOnboarded: user.isOnboarded,
+            emailVerified: user.emailVerified,
+          };
+        } catch (error) {
+          console.error("Authentication error:", error);
+          return null;
+        }
       },
     }),
   ],
@@ -110,8 +137,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return true;
       }
 
-      // For email provider, allow sign in (verification is handled by NextAuth)
-      if (account?.provider === "email") {
+      // For credentials provider, allow sign in (authentication is handled in authorize)
+      if (account?.provider === "credentials") {
         return true;
       }
 
@@ -151,9 +178,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: "/error",
   },
   events: {
-    async signOut({ session, token }) {
+    async signOut({ session, token }: any) {
       // Additional cleanup when user signs out
-      console.log("User signed out:", session?.user?.email);
+      console.log("User signed out:", session?.user?.email, token);
     },
     async signIn({ user, account, profile, isNewUser }) {
       // Log sign in events for debugging

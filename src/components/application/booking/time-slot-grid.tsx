@@ -2,10 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Calendar, RefreshCw, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Clock, Calendar, RefreshCw, AlertCircle, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAccessibility } from "@/hooks/use-accessibility";
 import { KEYBOARD_KEYS } from "@/lib/accessibility";
+import { getTimezoneAbbreviation } from "@/lib/timezone-utils";
 
 export interface TimeSlot {
   date: string;
@@ -22,6 +24,8 @@ interface TimeSlotGridProps {
   loading?: boolean;
   error?: string | null;
   onRefresh?: () => void;
+  businessTimezone?: string;
+  businessName?: string;
 }
 
 export function TimeSlotGrid({
@@ -32,6 +36,8 @@ export function TimeSlotGrid({
   loading = false,
   error = null,
   onRefresh,
+  businessTimezone,
+  businessName,
 }: TimeSlotGridProps) {
   const formatTime = (time: string): string => {
     const [hours, minutes] = time.split(":");
@@ -133,10 +139,21 @@ export function TimeSlotGrid({
             <CardTitle className="flex items-center space-x-2">
               <Clock className="h-5 w-5" />
               <span>Available Times</span>
+              {businessTimezone && (
+                <Badge variant="secondary" className="text-xs">
+                  <Globe className="mr-1 h-3 w-3" />
+                  {getTimezoneAbbreviation(businessTimezone)}
+                </Badge>
+              )}
             </CardTitle>
             {selectedDate && (
               <p className="text-sm text-gray-600">
                 {formatDate(selectedDate)}
+                {businessTimezone && businessName && (
+                  <span className="ml-2 text-xs text-blue-600">
+                    • Times shown in {businessName}'s timezone
+                  </span>
+                )}
               </p>
             )}
           </div>

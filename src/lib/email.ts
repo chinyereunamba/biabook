@@ -61,6 +61,7 @@ export async function sendVerificationEmail({
     // Send mail with defined transport object
     const info = await transporter.sendMail({
       from: `"BiaBook" <${process.env.EMAIL_FROM}>`,
+      sender: process.env.EMAIL_SERVER_USER,
       to: to,
       subject: "Confirm your email address - BiaBook",
       html: emailHtml,

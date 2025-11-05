@@ -8,6 +8,7 @@ import {
   SharingComponent,
   ContactSharingComponent,
 } from "@/components/ui/sharing";
+import { TimezoneAwareBooking } from "./timezone-aware-booking";
 import { useNotificationStatus } from "@/hooks/use-notification-status";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -22,6 +23,7 @@ import {
   MessageSquare,
   Copy,
   ExternalLink,
+  Globe,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -42,6 +44,7 @@ export interface BookingConfirmationData {
     phone?: string;
     email?: string;
     location?: string;
+    timezone?: string;
   };
   service: {
     id: string;
@@ -300,7 +303,7 @@ export function BookingConfirmation({
 
           {/* Appointment Details */}
           <div className="grid gap-4 md:grid-cols-2">
-            {/* Date & Time */}
+            {/* Date & Time with Timezone */}
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Calendar className="h-5 w-5 text-gray-400" />
@@ -323,6 +326,12 @@ export function BookingConfirmation({
                   <p className="text-xs text-gray-500">
                     ({booking.service.duration} minutes)
                   </p>
+                  {booking.business.timezone && (
+                    <div className="flex items-center gap-1 text-xs text-blue-600">
+                      <Globe className="h-3 w-3" />
+                      <span>Business timezone</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -342,6 +351,21 @@ export function BookingConfirmation({
               </div>
             </div>
           </div>
+
+          {/* Timezone-Aware Appointment Display */}
+          {booking.business.timezone && (
+            <div className="mt-6 border-t pt-4">
+              <TimezoneAwareBooking
+                appointmentDate={booking.appointmentDate}
+                appointmentTime={booking.startTime}
+                businessTimezone={booking.business.timezone}
+                businessName={booking.business.name}
+                businessLocation={booking.business.location}
+                showDetailed={false}
+                className="border-0 bg-gray-50 shadow-none"
+              />
+            </div>
+          )}
 
           {/* Customer Information */}
           <div className="mt-6 border-t pt-4">

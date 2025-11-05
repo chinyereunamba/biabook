@@ -1,221 +1,138 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useGeolocation } from "./use-geolocation";
-import type { Coordinates, Address, LocationError } from "@/types/location";
 
-export interface LocationSelection {
-  coordinates: Coordinates;
-  address?: Address;
-  zipCode?: string;
-  source: "geolocation" | "address" | "zipcode";
-  displayText: string;
+export interface LocationCoordinates {
+  latitude: number;
+  longitude: number;
 }
 
-export interface UseLocationSelectionOptions {
-  immediate?: boolean;
-  enableGeolocation?: boolean;
+export interface LocationSearchResult {
+  id: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  coordinates: LocationCoordinates;
+  displayName: string;
 }
 
-export interface UseLocationSelectionResult {
-  location: LocationSelection | null;
-  isLoading: boolean;
-  error: LocationError | null;
-  isGeolocationSupported: boolean;
-  permissionStatus: any;
-
-  // Actions
-  getCurrentLocation: () => Promise<void>;
-  selectLocation: (
-    coordinates: Coordinates,
-    address?: Address,
-    zipCode?: string,
-  ) => void;
-  clearLocation: () => void;
-  clearError: () => void;
-
-  // UI state helpers
-  showManualEntry: boolean;
-  canUseGeolocation: boolean;
+interface UseLocationSelectionResult {
+  selectedLocation: LocationCoordinates | null;
+  searchQuery: string;
+  searchResults: LocationSearchResult[];
+  isSearching: boolean;
+  selectLocation: (location: LocationCoordinates) => void;
+  searchByAddress: (address: string) => Promise<void>;
+  clearSelection: () => void;
+  setSearchQuery: (query: string) => void;
 }
 
-export function useLocationSelection(
-  options: UseLocationSelectionOptions = {},
-): UseLocationSelectionResult {
-  const { immediate = false, enableGeolocation = true } = options;
+export function useLocationSelection(): UseLocationSelectionResult {
+  const [selectedLocation, setSelectedLocation] =
+    useState<LocationCoordinates | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<LocationSearchResult[]>(
+    [],
+  );
+  const [isSearching, setIsSearching] = useState(false);
 
-  const [location, setLocation] = useState<LocationSelection | null>(null);
-  const [showManualEntry, setShowManualEntry] = useState(false);
+  const selectLocation = useCallback((location: LocationCoordinates) => {
+    setSelectedLocation(location);
+  }, []);
 
-  const {
-    coordinates: geoCoordinates,
-    error: geoError,
-    isLoading: geoLoading,
-    isSupported: isGeolocationSupported,
-    permissionStatus,
-    getCurrentLocation: getGeoLocation,
-    clearError: clearGeoError,
-    clearLocation: clearGeoLocation,
-  } = useGeolocation({
-    immediate: immediate && enableGeolocation,
-  });
+  const clearSelection = useCallback(() => {
+    setSelectedLocation(null);
+    setSearchQuery("");
+    setSearchResults([]);
+  }, []);
 
-  // Handle successful geolocation
-  if (geoCoordinates && !location) {
-    const geoLocation: LocationSelection = {
-      coordinates: geoCoordinates,
-      source: "geolocation",
-      displayText: "Current location",
-    };
-    setLocation(geoLocation);
-  }
+  // Mock geocoding function - in a real implementation, this would use a geocoding service
+  const searchByAddress = useCallback(
+    async (address: string): Promise<void> => {
+      setIsSearching(true);
+      setSearchQuery(address);
 
-  const getCurrentLocation = useCallback(async () => {
-    if (!enableGeolocation) {
-      setShowManualEntry(true);
-      return;
-    }
+      try {
+        // Mock implementation - in reality, you'd use Google Maps Geocoding API,
+        // Mapbox Geocoding API, or similar service
 
-    try {
-      await getGeoLocation();
-      setShowManualEntry(false);
-    } catch (error) {
-      console.warn("Geolocation failed, showing manual entry:", error);
-      setShowManualEntry(true);
-    }
-  }, [enableGeolocation, getGeoLocation]);
+        // For demonstration, we'll create mock results based on common patterns
+        const mockResults: LocationSearchResult[] = [];
 
-  const selectLocation = useCallback(
-    (coordinates: Coordinates, address?: Address, zipCode?: string) => {
-      let displayText: string;
-      let source: LocationSelection["source"];
+        // Check if it looks like a zip code
+        const zipMatch = address.match(/\b(\d{5}(-\d{4})?)\b/);
+        if (zipMatch) {
+          const zipCode = zipMatch[1];
+          // Mock coordinates for common zip codes (in real implementation, use geocoding service)
+          const mockZipCoordinates = getMockCoordinatesForZip(zipCode);
+          if (mockZipCoordinates) {
+            mockResults.push({
+              id: `zip-${zipCode}`,
+              address: "",
+              city: "Unknown City",
+              state: "Unknown State",
+              zipCode: zipCode,
+              coordinates: mockZipCoordinates,
+              displayName: `${zipCode} Area`,
+            });
+          }
+        }
 
-      if (address) {
-        displayText = `${address.address}, ${address.city}, ${address.state} ${address.zipCode}`;
-        source = "address";
-      } else if (zipCode) {
-        displayText = zipCode;
-        source = "zipcode";
-      } else {
-        displayText = "Selected location";
-        source = "geolocation";
+        // If no specific results, create a generic result
+        if (mockResults.length === 0) {
+          // In a real implementation, this would call a geocoding API
+          // For now, we'll throw an error to indicate geocoding is not implemented
+          throw new Error(
+            "Address geocoding not implemented. Please use your current location or provide coordinates directly.",
+          );
+        }
+
+        setSearchResults(mockResults);
+
+        // Auto-select the first result if there's only one
+        if (mockResults.length === 1 && mockResults[0]) {
+          setSelectedLocation(mockResults[0].coordinates);
+        }
+      } catch (error) {
+        console.error("Address search failed:", error);
+        setSearchResults([]);
+        throw error;
+      } finally {
+        setIsSearching(false);
       }
-
-      const newLocation: LocationSelection = {
-        coordinates,
-        address,
-        zipCode,
-        source,
-        displayText,
-      };
-
-      setLocation(newLocation);
-      setShowManualEntry(false);
-      clearGeoError();
     },
-    [clearGeoError],
+    [],
   );
 
-  const clearLocation = useCallback(() => {
-    setLocation(null);
-    clearGeoLocation();
-    setShowManualEntry(false);
-  }, [clearGeoLocation]);
-
-  const clearError = useCallback(() => {
-    clearGeoError();
-  }, [clearGeoError]);
-
-  const canUseGeolocation =
-    enableGeolocation &&
-    isGeolocationSupported &&
-    permissionStatus?.canRequest !== false;
-
   return {
-    location,
-    isLoading: geoLoading,
-    error: geoError,
-    isGeolocationSupported,
-    permissionStatus,
-
-    getCurrentLocation,
+    selectedLocation,
+    searchQuery,
+    searchResults,
+    isSearching,
     selectLocation,
-    clearLocation,
-    clearError,
-
-    showManualEntry: showManualEntry || (!canUseGeolocation && !location),
-    canUseGeolocation,
+    searchByAddress,
+    clearSelection,
+    setSearchQuery,
   };
 }
 
-// Hook for location-based business search
-export interface UseLocationSearchOptions {
-  autoSearch?: boolean;
-  defaultRadius?: number;
-}
-
-export interface UseLocationSearchResult extends UseLocationSelectionResult {
-  searchRadius: number;
-  setSearchRadius: (radius: number) => void;
-  searchLocation: LocationSelection | null;
-  isSearchReady: boolean;
-}
-
-export function useLocationSearch(
-  options: UseLocationSearchOptions = {},
-): UseLocationSearchResult {
-  const { autoSearch = false, defaultRadius = 25 } = options;
-
-  const [searchRadius, setSearchRadius] = useState(defaultRadius);
-
-  const locationSelection = useLocationSelection({
-    immediate: autoSearch,
-    enableGeolocation: true,
-  });
-
-  const isSearchReady = locationSelection.location !== null;
-  const searchLocation = locationSelection.location;
-
-  return {
-    ...locationSelection,
-    searchRadius,
-    setSearchRadius,
-    searchLocation,
-    isSearchReady,
+// Mock function to get coordinates for common zip codes
+// In a real implementation, this would be replaced with a proper geocoding service
+function getMockCoordinatesForZip(zipCode: string): LocationCoordinates | null {
+  const mockZipCodes: Record<string, LocationCoordinates> = {
+    // Major US cities for testing
+    "10001": { latitude: 40.7505, longitude: -73.9934 }, // NYC
+    "90210": { latitude: 34.0901, longitude: -118.4065 }, // Beverly Hills
+    "60601": { latitude: 41.8781, longitude: -87.6298 }, // Chicago
+    "94102": { latitude: 37.7749, longitude: -122.4194 }, // San Francisco
+    "33101": { latitude: 25.7617, longitude: -80.1918 }, // Miami
+    "75201": { latitude: 32.7767, longitude: -96.797 }, // Dallas
+    "98101": { latitude: 47.6062, longitude: -122.3321 }, // Seattle
+    "30301": { latitude: 33.749, longitude: -84.388 }, // Atlanta
+    "02101": { latitude: 42.3601, longitude: -71.0589 }, // Boston
+    "20001": { latitude: 38.9072, longitude: -77.0369 }, // Washington DC
   };
-}
 
-// Utility functions for working with location selections
-export function formatLocationForDisplay(location: LocationSelection): string {
-  return location.displayText;
-}
-
-export function getLocationCoordinates(
-  location: LocationSelection,
-): Coordinates {
-  return location.coordinates;
-}
-
-export function isLocationFromGeolocation(
-  location: LocationSelection,
-): boolean {
-  return location.source === "geolocation";
-}
-
-export function isLocationFromAddress(location: LocationSelection): boolean {
-  return location.source === "address";
-}
-
-export function isLocationFromZipCode(location: LocationSelection): boolean {
-  return location.source === "zipcode";
-}
-
-export function getLocationAddress(
-  location: LocationSelection,
-): Address | null {
-  return location.address || null;
-}
-
-export function getLocationZipCode(location: LocationSelection): string | null {
-  return location.zipCode || null;
+  return mockZipCodes[zipCode] || null;
 }

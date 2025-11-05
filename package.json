@@ -49,6 +49,7 @@
     "@types/leaflet": "^1.9.21",
     "@untitledui/icons": "^0.0.17",
     "@vercel/analytics": "^1.5.0",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -78,6 +79,7 @@
   "devDependencies": {
     "@next/bundle-analyzer": "^15.4.5",
     "@tailwindcss/postcss": "^4.1.11",
+    "@types/bcryptjs": "^3.0.0",
     "@types/node": "^20.14.10",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19.0.0",

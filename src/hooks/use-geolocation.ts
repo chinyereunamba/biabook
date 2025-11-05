@@ -1,259 +1,140 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  geolocationService,
-  type GeolocationOptions,
-  type LocationPermissionStatus,
-} from "@/lib/geolocation-service";
-import type { Coordinates } from "@/types/location";
-import { LocationError, LocationErrorCode } from "@/lib/location-validation";
+import { useState, useEffect, useCallback } from "react";
 
-export interface UseGeolocationOptions extends GeolocationOptions {
-  watch?: boolean;
-  immediate?: boolean;
+export interface GeolocationCoordinates {
+  latitude: number;
+  longitude: number;
 }
 
-export interface UseGeolocationResult {
-  coordinates: Coordinates | null;
-  error: LocationError | null;
-  isLoading: boolean;
-  isSupported: boolean;
-  permissionStatus: LocationPermissionStatus | null;
-  getCurrentLocation: () => Promise<void>;
-  requestPermission: () => Promise<boolean>;
+export interface GeolocationOptions {
+  enableHighAccuracy?: boolean;
+  timeout?: number;
+  maximumAge?: number;
+  autoRequest?: boolean;
+}
+
+interface UseGeolocationResult {
+  location: GeolocationCoordinates | null;
+  loading: boolean;
+  error: string | null;
+  requestLocation: () => Promise<void>;
+  hasPermission: boolean;
   clearError: () => void;
-  clearLocation: () => void;
 }
 
 export function useGeolocation(
-  options: UseGeolocationOptions = {},
+  options: GeolocationOptions = {},
 ): UseGeolocationResult {
+  const [location, setLocation] = useState<GeolocationCoordinates | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasPermission, setHasPermission] = useState(false);
+
   const {
-    watch = false,
-    immediate = false,
     enableHighAccuracy = true,
-    timeout = 15000,
-    maximumAge = 300000,
+    timeout = 10000,
+    maximumAge = 300000, // 5 minutes
+    autoRequest = false,
   } = options;
 
-  const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
-  const [error, setError] = useState<LocationError | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [permissionStatus, setPermissionStatus] =
-    useState<LocationPermissionStatus | null>(null);
-  const watchIdRef = useRef<number | null>(null);
-  const mountedRef = useRef(true);
-
-  const isSupported = geolocationService.isSupported();
-
-  // Check permission status on mount
-  useEffect(() => {
-    const checkPermissionStatus = async () => {
-      try {
-        const status = await geolocationService.getPermissionStatus();
-        if (mountedRef.current) {
-          setPermissionStatus(status);
-        }
-      } catch (err) {
-        console.warn("Failed to check permission status:", err);
-      }
-    };
-
-    checkPermissionStatus();
-  }, []);
-
-  // Get current location
-  const getCurrentLocation = useCallback(async () => {
-    if (!isSupported) {
-      const error = new Error("Geolocation is not supported") as LocationError;
-      error.code = LocationErrorCode.GEOLOCATION_UNAVAILABLE;
-      error.fallbackAction = "Please enter your location manually";
-      setError(error);
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const coords = await geolocationService.getCurrentLocation({
-        enableHighAccuracy,
-        timeout,
-        maximumAge,
-      });
-
-      if (mountedRef.current) {
-        setCoordinates(coords);
-        setError(null);
-      }
-    } catch (err) {
-      if (mountedRef.current) {
-        setError(err as LocationError);
-        setCoordinates(null);
-      }
-    } finally {
-      if (mountedRef.current) {
-        setIsLoading(false);
-      }
-    }
-  }, [isSupported, enableHighAccuracy, timeout, maximumAge]);
-
-  // Request permission
-  const requestPermission = useCallback(async (): Promise<boolean> => {
-    if (!isSupported) {
-      return false;
-    }
-
-    try {
-      const granted = await geolocationService.requestLocationPermission();
-
-      // Update permission status
-      const status = await geolocationService.getPermissionStatus();
-      if (mountedRef.current) {
-        setPermissionStatus(status);
-      }
-
-      return granted;
-    } catch (err) {
-      if (mountedRef.current) {
-        setError(err as LocationError);
-      }
-      return false;
-    }
-  }, [isSupported]);
-
-  // Watch position
-  const startWatching = useCallback(() => {
-    if (!isSupported || watchIdRef.current !== null) {
-      return;
-    }
-
-    const watchId = geolocationService.watchPosition(
-      (coords) => {
-        if (mountedRef.current) {
-          setCoordinates(coords);
-          setError(null);
-          setIsLoading(false);
-        }
-      },
-      (err) => {
-        if (mountedRef.current) {
-          setError(err);
-          setIsLoading(false);
-        }
-      },
-      {
-        enableHighAccuracy,
-        timeout,
-        maximumAge,
-      },
-    );
-
-    watchIdRef.current = watchId;
-  }, [isSupported, enableHighAccuracy, timeout, maximumAge]);
-
-  // Stop watching
-  const stopWatching = useCallback(() => {
-    if (watchIdRef.current !== null) {
-      geolocationService.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
-  }, []);
-
-  // Clear error
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
-  // Clear location
-  const clearLocation = useCallback(() => {
-    setCoordinates(null);
+  const requestLocation = useCallback(async (): Promise<void> => {
+    if (!navigator.geolocation) {
+      const errorMsg = "Geolocation is not supported by this browser";
+      setError(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    setLoading(true);
     setError(null);
-  }, []);
 
-  // Handle immediate location request
-  useEffect(() => {
-    if (immediate && isSupported) {
-      getCurrentLocation();
-    }
-  }, [immediate, isSupported, getCurrentLocation]);
+    return new Promise((resolve, reject) => {
+      const successCallback = (position: GeolocationPosition) => {
+        const coords = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
 
-  // Handle watching
-  useEffect(() => {
-    if (watch && isSupported) {
-      setIsLoading(true);
-      startWatching();
-    } else {
-      stopWatching();
-    }
+        setLocation(coords);
+        setHasPermission(true);
+        setLoading(false);
+        resolve();
+      };
 
-    return () => {
-      stopWatching();
-    };
-  }, [watch, isSupported, startWatching, stopWatching]);
+      const errorCallback = (error: GeolocationPositionError) => {
+        let errorMessage: string;
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      stopWatching();
-    };
-  }, [stopWatching]);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Location access denied by user";
+            setHasPermission(false);
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Location information is unavailable";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out";
+            break;
+          default:
+            errorMessage =
+              "An unknown error occurred while retrieving location";
+            break;
+        }
 
-  return {
-    coordinates,
-    error,
-    isLoading,
-    isSupported,
-    permissionStatus,
-    getCurrentLocation,
-    requestPermission,
-    clearError,
-    clearLocation,
-  };
-}
+        setError(errorMessage);
+        setLoading(false);
+        reject(new Error(errorMessage));
+      };
 
-// Hook for getting location with user-friendly error handling
-export function useGeolocationWithFallback() {
-  const [result, setResult] = useState<{
-    coordinates?: Coordinates;
-    error?: LocationError;
-    requiresManualEntry: boolean;
-    isLoading: boolean;
-  }>({
-    requiresManualEntry: false,
-    isLoading: false,
-  });
-
-  const getLocationWithFallback = useCallback(async () => {
-    setResult((prev) => ({ ...prev, isLoading: true }));
-
-    try {
-      const locationResult = await geolocationService.getLocationWithFallback();
-      setResult({
-        ...locationResult,
-        isLoading: false,
+      navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+        enableHighAccuracy,
+        timeout,
+        maximumAge,
       });
-    } catch (err) {
-      setResult({
-        error: err as LocationError,
-        requiresManualEntry: true,
-        isLoading: false,
-      });
-    }
-  }, []);
-
-  const clearResult = useCallback(() => {
-    setResult({
-      requiresManualEntry: false,
-      isLoading: false,
     });
-  }, []);
+  }, [enableHighAccuracy, timeout, maximumAge]);
+
+  // Check for existing permission status
+  useEffect(() => {
+    if (navigator.permissions) {
+      navigator.permissions
+        .query({ name: "geolocation" })
+        .then((result) => {
+          setHasPermission(result.state === "granted");
+
+          // Auto-request location if permission is already granted and autoRequest is true
+          if (result.state === "granted" && autoRequest && !location) {
+            requestLocation().catch(() => {
+              // Silently handle auto-request failures
+            });
+          }
+        })
+        .catch(() => {
+          // Permissions API not supported, try auto-request anyway if enabled
+          if (autoRequest && !location) {
+            requestLocation().catch(() => {
+              // Silently handle auto-request failures
+            });
+          }
+        });
+    } else if (autoRequest && !location) {
+      // Permissions API not supported, try auto-request anyway if enabled
+      requestLocation().catch(() => {
+        // Silently handle auto-request failures
+      });
+    }
+  }, [autoRequest, location, requestLocation]);
 
   return {
-    ...result,
-    getLocationWithFallback,
-    clearResult,
+    location,
+    loading,
+    error,
+    requestLocation,
+    hasPermission,
+    clearError,
   };
 }

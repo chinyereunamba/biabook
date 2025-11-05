@@ -2,6 +2,12 @@ import { type Appointment } from "@/types/appointment";
 import { type Service } from "@/types/service";
 import { type Business } from "@/types/business";
 import { formatDate, formatTime, formatCurrency } from "@/utils/format";
+import {
+  formatAppointmentTimeDisplay,
+  getTimezoneAbbreviation,
+  getUserTimezone,
+  convertAppointmentTimezones,
+} from "@/lib/timezone-utils";
 
 // Base template for all emails
 const baseTemplate = (content: string) => `
@@ -82,14 +88,68 @@ const baseTemplate = (content: string) => `
 </html>
 `;
 
-// Booking confirmation email
-export const bookingConfirmationEmail = (
+// Booking confirmation email with timezone support
+export const bookingConfirmationEmail = async (
   appointment: Appointment,
   service: Service,
   business: Business,
   cancellationUrl: string,
   rescheduleUrl: string,
+  businessTimezone?: string,
 ) => {
+  let timeDisplay = `${formatTime(appointment.startTime)} - ${formatTime(appointment.endTime)}`;
+  let timezoneInfo = "";
+
+  // If business has timezone information, show timezone-aware times
+  if (businessTimezone) {
+    try {
+      const customerTimezone = getUserTimezone();
+      const appointmentDateStr =
+        appointment.appointmentDate instanceof Date
+          ? appointment.appointmentDate.toISOString().split("T")[0]!
+          : appointment.appointmentDate;
+
+      const conversion = await convertAppointmentTimezones(
+        appointmentDateStr,
+        appointment.startTime,
+        businessTimezone,
+        customerTimezone,
+      );
+
+      const businessTimeDisplay = formatAppointmentTimeDisplay(
+        conversion.businessTime.date,
+        conversion.businessTime.time,
+        conversion.businessTime.timezone,
+        true,
+      );
+
+      timeDisplay = businessTimeDisplay;
+
+      // Show customer time if different
+      if (Math.abs(conversion.timezoneOffset) >= 1) {
+        const customerTimeDisplay = formatAppointmentTimeDisplay(
+          conversion.customerTime.date,
+          conversion.customerTime.time,
+          conversion.customerTime.timezone,
+          true,
+        );
+
+        timezoneInfo = `
+          <p><strong>Your Local Time:</strong> ${customerTimeDisplay}</p>
+          ${
+            conversion.businessTime.date !== conversion.customerTime.date
+              ? '<p style="color: #f59e0b;"><strong>Note:</strong> Due to timezone differences, this appointment is on a different date in your local time.</p>'
+              : ""
+          }
+        `;
+      }
+    } catch (error) {
+      console.error("Failed to convert timezone for email:", error);
+      // Fallback to basic time display
+      timeDisplay += ` (${getTimezoneAbbreviation(businessTimezone)})`;
+    }
+  }
+
   const content = `
     <h2>Booking Confirmation</h2>
     <p>Dear ${appointment.customerName},</p>
@@ -98,7 +158,8 @@ export const bookingConfirmationEmail = (
     <div class="details">
       <p><strong>Service:</strong> ${service.name}</p>
       <p><strong>Date:</strong> ${formatDate(appointment.appointmentDate)}</p>
-      <p><strong>Time:</strong> ${formatTime(appointment.startTime)} - ${formatTime(appointment.endTime)}</p>
+      <p><strong>Time:</strong> ${timeDisplay}</p>
+      ${timezoneInfo}
       <p><strong>Price:</strong> ${formatCurrency(service.price)}</p>
       <p><strong>Location:</strong> ${business.address ?? "Address not provided"}</p>
     </div>
@@ -141,14 +202,68 @@ export const bookingCancellationEmail = (
   return baseTemplate(content);
 };
 
-// Booking reminder email
-export const bookingReminderEmail = (
+// Booking reminder email with timezone support
+export const bookingReminderEmail = async (
   appointment: Appointment,
   service: Service,
   business: Business,
   cancellationUrl: string,
   rescheduleUrl: string,
+  businessTimezone?: string,
 ) => {
+  let timeDisplay = `${formatTime(appointment.startTime)} - ${formatTime(appointment.endTime)}`;
+  let timezoneInfo = "";
+
+  // If business has timezone information, show timezone-aware times
+  if (businessTimezone) {
+    try {
+      const customerTimezone = getUserTimezone();
+      const appointmentDateStr =
+        appointment.appointmentDate instanceof Date
+          ? appointment.appointmentDate.toISOString().split("T")[0]!
+          : appointment.appointmentDate;
+
+      const conversion = await convertAppointmentTimezones(
+        appointmentDateStr,
+        appointment.startTime,
+        businessTimezone,
+        customerTimezone,
+      );
+
+      const businessTimeDisplay = formatAppointmentTimeDisplay(
+        conversion.businessTime.date,
+        conversion.businessTime.time,
+        conversion.businessTime.timezone,
+        true,
+      );
+
+      timeDisplay = businessTimeDisplay;
+
+      // Show customer time if different
+      if (Math.abs(conversion.timezoneOffset) >= 1) {
+        const customerTimeDisplay = formatAppointmentTimeDisplay(
+          conversion.customerTime.date,
+          conversion.customerTime.time,
+          conversion.customerTime.timezone,
+          true,
+        );
+
+        timezoneInfo = `
+          <p><strong>Your Local Time:</strong> ${customerTimeDisplay}</p>
+          ${
+            conversion.businessTime.date !== conversion.customerTime.date
+              ? '<p style="color: #f59e0b;"><strong>Note:</strong> Due to timezone differences, this appointment is on a different date in your local time.</p>'
+              : ""
+          }
+        `;
+      }
+    } catch (error) {
+      console.error("Failed to convert timezone for email:", error);
+      // Fallback to basic time display
+      timeDisplay += ` (${getTimezoneAbbreviation(businessTimezone)})`;
+    }
+  }
+
   const content = `
     <h2>Booking Reminder</h2>
     <p>Dear ${appointment.customerName},</p>
@@ -157,7 +272,8 @@ export const bookingReminderEmail = (
     <div class="details">
       <p><strong>Service:</strong> ${service.name}</p>
       <p><strong>Date:</strong> ${formatDate(appointment.appointmentDate)}</p>
-      <p><strong>Time:</strong> ${formatTime(appointment.startTime)} - ${formatTime(appointment.endTime)}</p>
+      <p><strong>Time:</strong> ${timeDisplay}</p>
+      ${timezoneInfo}
       <p><strong>Location:</strong> ${business.address ?? "Address not provided"}</p>
     </div>
     

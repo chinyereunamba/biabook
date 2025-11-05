@@ -1,11 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
-import { appointments, businesses, services } from "@/server/db/schema";
+import {
+  appointments,
+  businesses,
+  services,
+  businessLocations,
+} from "@/server/db/schema";
 import { eq, and, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { notificationScheduler } from "@/server/notifications/notification-scheduler";
 import { notificationService } from "@/server/notifications/notification-service";
 import { bookingConflictService } from "@/server/services/booking-conflict-service";
+import { businessLocationRepository } from "@/server/repositories/business-location-repository";
+import { serviceRadiusValidationService } from "@/server/services/service-radius-validation";
 
 import { bookingLogger } from "@/server/logging/booking-logger";
 import { withErrorHandler } from "@/app/api/_middleware/error-handler";
@@ -38,6 +45,15 @@ const createBookingSchema = z.object({
     .string()
     .regex(/^\d{2}:\d{2}$/, "End time must be in HH:MM format"),
   notes: z.string().optional(),
+  // Optional customer location for service radius validation
+  customerLocation: z
+    .object({
+      latitude: z.number().min(-90).max(90),
+      longitude: z.number().min(-180).max(180),
+    })
+    .optional(),
+  // Flag to skip location validation (for businesses with unlimited service radius or customer override)
+  skipLocationValidation: z.boolean().optional().default(false),
 });
 
 async function createBookingHandler(request: NextRequest) {
@@ -87,11 +103,13 @@ async function createBookingHandler(request: NextRequest) {
       startTime: appointmentStartTime,
       endTime: appointmentEndTime,
       notes,
+      customerLocation,
+      skipLocationValidation,
     } = validationResult.data;
 
     businessId = validatedBusinessId;
 
-    // Verify business exists
+    // Verify business exists and get location/timezone info
     const business = await db.query.businesses.findFirst({
       where: eq(businesses.id, businessId),
     });
@@ -99,6 +117,81 @@ async function createBookingHandler(request: NextRequest) {
     if (!business) {
       bookingLogger.warn("Business not found", { ...context, businessId });
       throw BookingErrors.businessNotFound(businessId);
+    }
+
+    // Get business location and timezone information
+    const businessLocation =
+      await businessLocationRepository.getByBusinessId(businessId);
+
+    // Validate service radius if customer location is provided and validation is not skipped
+    if (customerLocation && !skipLocationValidation) {
+      try {
+        const locationValidation =
+          await serviceRadiusValidationService.validateBeforeBooking(
+            businessId,
+            customerLocation,
+          );
+
+        if (!locationValidation.canBook) {
+          bookingLogger.warn("Customer outside service area", {
+            ...context,
+            businessId,
+            customerLocation,
+            distance: locationValidation.distance,
+            serviceRadius: locationValidation.serviceRadius,
+          });
+
+          // Get alternative businesses to suggest
+          const alternatives =
+            await serviceRadiusValidationService.validateBookingLocation(
+              businessId,
+              customerLocation,
+              {
+                includeAlternatives: true,
+                maxAlternativeRadius: 50,
+                maxAlternatives: 5,
+              },
+            );
+
+          throw BookingErrors.validation(
+            locationValidation.message,
+            "customerLocation",
+            [
+              "You are outside the business's service area",
+              `Distance: ${locationValidation.distance} miles`,
+              locationValidation.serviceRadius
+                ? `Service radius: ${locationValidation.serviceRadius} miles`
+                : "Service radius: unlimited",
+              ...(alternatives.alternatives &&
+              alternatives.alternatives.length > 0
+                ? ["Consider booking with nearby alternatives"]
+                : []),
+            ],
+          );
+        }
+
+        bookingLogger.info("Location validation passed", {
+          ...context,
+          businessId,
+          distance: locationValidation.distance,
+          serviceRadius: locationValidation.serviceRadius,
+        });
+      } catch (error) {
+        // If it's already a BookingError, re-throw it
+        if (error instanceof Error && error.message.includes("outside")) {
+          throw error;
+        }
+
+        // Log location validation errors but don't fail the booking
+        bookingLogger.warn("Location validation failed", {
+          ...context,
+          businessId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+
+        // Continue with booking if location validation fails due to technical issues
+        // unless it's a clear service area violation
+      }
     }
 
     // Verify service exists and belongs to business
@@ -259,11 +352,12 @@ async function createBookingHandler(request: NextRequest) {
     try {
       // Send immediate confirmation notifications (don't wait for queue processing)
       await Promise.allSettled([
-        // Send confirmation to customer immediately
+        // Send confirmation to customer immediately with timezone info
         notificationService.sendBookingConfirmationToCustomer(
           appointmentForScheduler,
           service,
           businessForScheduler,
+          businessLocation?.timezone,
         ),
         // Send notification to business owner immediately
         notificationService.sendBookingNotificationToBusiness(
@@ -293,7 +387,7 @@ async function createBookingHandler(request: NextRequest) {
       // Don't fail the booking creation if notification sending fails
     }
 
-    // Return the created appointment with business and service details
+    // Return the created appointment with business and service details including timezone
     const appointmentWithDetails = {
       ...newAppointment,
       confirmationNumber: newAppointment.confirmationNumber,
@@ -303,6 +397,7 @@ async function createBookingHandler(request: NextRequest) {
         phone: business.phone,
         email: business.email,
         location: business.location,
+        timezone: businessLocation?.timezone,
       },
       service: {
         id: service.id,

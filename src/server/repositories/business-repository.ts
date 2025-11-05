@@ -1,10 +1,16 @@
 import { eq, and, desc } from "drizzle-orm";
 import { db } from "@/server/db";
-import { businesses, categories, services } from "@/server/db/schema";
+import {
+  businesses,
+  categories,
+  services,
+  businessLocations,
+} from "@/server/db/schema";
 
 export type Business = typeof businesses.$inferSelect;
 export type BusinessWithCategory = Business & {
   category: typeof categories.$inferSelect;
+  timezone?: string;
 };
 export type BusinessWithServices = BusinessWithCategory & {
   services: (typeof services.$inferSelect)[];
@@ -50,7 +56,7 @@ export class BusinessRepository {
   }
 
   /**
-   * Get a business by ID with category information
+   * Get a business by ID with category information and timezone
    */
   async findByIdWithCategory(id: string): Promise<BusinessWithCategory | null> {
     if (!id?.trim()) {
@@ -74,9 +80,14 @@ export class BusinessRepository {
           id: categories.id,
           name: categories.name,
         },
+        timezone: businessLocations.timezone,
       })
       .from(businesses)
       .leftJoin(categories, eq(businesses.categoryId, categories.id))
+      .leftJoin(
+        businessLocations,
+        eq(businesses.id, businessLocations.businessId),
+      )
       .where(eq(businesses.id, id))
       .limit(1);
 
@@ -88,6 +99,7 @@ export class BusinessRepository {
     return {
       ...business,
       category: business.category ?? { id: "", name: "Uncategorized" },
+      timezone: business.timezone ?? undefined,
     };
   }
 
