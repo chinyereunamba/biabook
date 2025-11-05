@@ -4,8 +4,6 @@ import Link from "next/link";
 export default function TermsOfServicePage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      
-
       {/* Content */}
       <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="rounded-lg bg-white p-8 shadow-sm">
@@ -201,8 +199,8 @@ export default function TermsOfServicePage() {
               <p className="mb-4 text-gray-700">
                 The Service and its original content, features, and
                 functionality are and will remain the exclusive property of
-                BiaBook and its licensors. The Service is protected by copyright,
-                trademark, and other laws.
+                BiaBook and its licensors. The Service is protected by
+                copyright, trademark, and other laws.
               </p>
               <p className="text-gray-700">
                 You may not reproduce, distribute, modify, create derivative
@@ -269,8 +267,8 @@ export default function TermsOfServicePage() {
                 11. Indemnification
               </h2>
               <p className="text-gray-700">
-                You agree to defend, indemnify, and hold harmless BiaBook and its
-                licensee and licensors, and their employees, contractors,
+                You agree to defend, indemnify, and hold harmless BiaBook and
+                its licensee and licensors, and their employees, contractors,
                 agents, officers and directors, from and against any and all
                 claims, damages, obligations, losses, liabilities, costs or
                 debt, and expenses (including but not limited to attorney's
@@ -324,11 +322,11 @@ export default function TermsOfServicePage() {
               </p>
               <div className="rounded-lg bg-gray-50 p-4">
                 <p className="text-gray-700">
-                  <strong>Email:</strong> legal@biabook.com
+                  <strong>Email:</strong> support@biabook.app
+                  {/* <br /> */}
+                  {/* <strong>Address:</strong> [Your Business Address] */}
                   <br />
-                  <strong>Address:</strong> [Your Business Address]
-                  <br />
-                  <strong>Phone:</strong> [Your Phone Number]
+                  <strong>Phone:</strong> +2349160341004
                 </p>
               </div>
             </section>

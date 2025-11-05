@@ -1,6 +1,5 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { createAccessibleFormFieldProps } from "@/lib/accessibility-server";
 
 export interface FormFieldProps {
   label?: string;
@@ -19,20 +18,23 @@ export function FormField({
   children,
   className,
 }: FormFieldProps) {
-  // Generate accessible IDs and props
-  const { fieldId, labelId, helpId, errorId, fieldProps, labelProps } =
-    createAccessibleFormFieldProps(label || "", {
-      required,
-      invalid: !!error,
-      helpText: helperText,
-      errorMessage: error,
-    });
+  // Use React's useId for consistent server/client ID generation
+  const baseId = React.useId();
+  const fieldId = `${baseId}-field`;
+  const labelId = `${baseId}-label`;
+  const helpId = helperText ? `${baseId}-help` : undefined;
+  const errorId = error ? `${baseId}-error` : undefined;
+
+  // Build describedBy string
+  const describedByParts: string[] = [];
+  if (helpId) describedByParts.push(helpId);
+  if (errorId) describedByParts.push(errorId);
 
   return (
     <div className={cn("w-full space-y-2", className)}>
       {label && (
         <label
-          {...labelProps}
+          id={labelId}
           htmlFor={fieldId}
           className="block text-sm leading-tight font-medium text-neutral-700"
         >
@@ -49,8 +51,14 @@ export function FormField({
         {React.cloneElement(
           children as React.ReactElement,
           {
-            ...fieldProps,
             id: fieldId,
+            "aria-labelledby": label ? labelId : undefined,
+            "aria-required": required,
+            "aria-invalid": !!error,
+            "aria-describedby":
+              describedByParts.length > 0
+                ? describedByParts.join(" ")
+                : undefined,
           } as any,
         )}
       </div>

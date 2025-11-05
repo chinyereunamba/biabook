@@ -2,7 +2,6 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { createAccessibleFormFieldProps } from "@/lib/accessibility-server";
 
 const inputVariants = cva(
   // Base mobile-first styles with touch-friendly targets
@@ -55,23 +54,26 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref,
   ) => {
+    // Use React's useId for consistent server/client ID generation
+    const baseId = React.useId();
+    const fieldId = `${baseId}-field`;
+    const labelId = `${baseId}-label`;
+    const helpId = helperText ? `${baseId}-help` : undefined;
+    const errorId = error ? `${baseId}-error` : undefined;
+
     // Use error variant if error is provided
     const inputVariant = error ? "error" : variant;
 
-    // Generate accessible IDs and props
-    const { fieldId, labelId, helpId, errorId, fieldProps, labelProps } =
-      createAccessibleFormFieldProps(label || "", {
-        required: props.required,
-        invalid: !!error,
-        helpText: helperText,
-        errorMessage: error,
-      });
+    // Build describedBy string
+    const describedByParts: string[] = [];
+    if (helpId) describedByParts.push(helpId);
+    if (errorId) describedByParts.push(errorId);
 
     return (
       <div className="w-full">
         {label && (
           <label
-            {...labelProps}
+            id={labelId}
             htmlFor={fieldId}
             className="mb-2 block text-sm font-medium text-neutral-700"
           >
@@ -85,7 +87,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative">
           <input
-            {...fieldProps}
             id={fieldId}
             type={type}
             data-slot="input"
@@ -95,6 +96,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               className,
             )}
             ref={ref}
+            aria-labelledby={label ? labelId : undefined}
+            aria-required={props.required}
+            aria-invalid={!!error}
+            aria-describedby={
+              describedByParts.length > 0
+                ? describedByParts.join(" ")
+                : undefined
+            }
             {...props}
           />
           {rightIcon && (

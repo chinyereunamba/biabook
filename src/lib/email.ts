@@ -27,7 +27,7 @@ export interface SendVerificationEmailParams {
 export async function sendWelcomeEmail({ to, name }: SendWelcomeEmailParams) {
   try {
     // Render the React email component to HTML
-    const emailHtml = render(WelcomeEmail({ name, email: to }));
+    const emailHtml = await render(WelcomeEmail({ name, email: to }));
 
     // Send mail with defined transport object
     const info = await transporter.sendMail({
@@ -54,7 +54,9 @@ export async function sendVerificationEmail({
 }: SendVerificationEmailParams) {
   try {
     // Render the React email component to HTML
-    const emailHtml = render(VerificationEmail({ verificationUrl, email: to }));
+    const emailHtml = await render(
+      VerificationEmail({ verificationUrl, email: to }),
+    );
 
     // Send mail with defined transport object
     const info = await transporter.sendMail({

@@ -336,6 +336,10 @@ export const businessesRelations = relations(businesses, ({ one, many }) => ({
   weeklyAvailability: many(weeklyAvailability),
   availabilityExceptions: many(availabilityExceptions),
   appointments: many(appointments),
+  location: one(businessLocations, {
+    fields: [businesses.id],
+    references: [businessLocations.businessId],
+  }),
 }));
 
 export const servicesRelations = relations(services, ({ one, many }) => ({
@@ -375,11 +379,104 @@ export const appointmentsRelations = relations(appointments, ({ one }) => ({
     fields: [appointments.serviceId],
     references: [services.id],
   }),
+  customerLocation: one(customerLocations, {
+    fields: [appointments.id],
+    references: [customerLocations.appointmentId],
+  }),
 }));
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
   businesses: many(businesses),
 }));
+
+// Location-related tables
+export const businessLocations = createTable(
+  "business_locations",
+  (d) => ({
+    id: d
+      .text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    businessId: d
+      .text("business_id")
+      .notNull()
+      .references(() => businesses.id, { onDelete: "cascade" }),
+    address: d.text("address").notNull(),
+    city: d.text("city").notNull(),
+    state: d.text("state").notNull(),
+    zipCode: d.text("zip_code").notNull(),
+    country: d.text("country").default("US").notNull(),
+    latitude: d.real("latitude").notNull(),
+    longitude: d.real("longitude").notNull(),
+    timezone: d.text("timezone").notNull(),
+    serviceRadius: d.integer("service_radius"), // in miles, NULL for unlimited
+    createdAt: d
+      .integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+    updatedAt: d
+      .integer("updated_at", { mode: "timestamp" })
+      .$onUpdate(() => new Date()),
+  }),
+  (t) => [
+    index("business_locations_business_id_idx").on(t.businessId),
+    // Spatial indexes for coordinate-based queries
+    index("business_locations_lat_idx").on(t.latitude),
+    index("business_locations_lng_idx").on(t.longitude),
+    index("business_locations_coords_idx").on(t.latitude, t.longitude),
+    index("business_locations_zip_idx").on(t.zipCode),
+  ],
+);
+
+export const customerLocations = createTable(
+  "customer_locations",
+  (d) => ({
+    id: d
+      .text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    appointmentId: d
+      .text("appointment_id")
+      .notNull()
+      .references(() => appointments.id, { onDelete: "cascade" }),
+    latitude: d.real("latitude"),
+    longitude: d.real("longitude"),
+    zipCode: d.text("zip_code"),
+    distanceToBusiness: d.real("distance_to_business"), // in miles
+    createdAt: d
+      .integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+  }),
+  (t) => [
+    index("customer_locations_appointment_id_idx").on(t.appointmentId),
+    index("customer_locations_zip_idx").on(t.zipCode),
+    index("customer_locations_coords_idx").on(t.latitude, t.longitude),
+  ],
+);
+
+export const locationCache = createTable(
+  "location_cache",
+  (d) => ({
+    id: d
+      .text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    addressHash: d.text("address_hash").notNull().unique(),
+    latitude: d.real("latitude").notNull(),
+    longitude: d.real("longitude").notNull(),
+    timezone: d.text("timezone").notNull(),
+    expiresAt: d.integer("expires_at", { mode: "timestamp" }).notNull(),
+    createdAt: d
+      .integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+  }),
+  (t) => [
+    index("location_cache_hash_idx").on(t.addressHash),
+    index("location_cache_expires_idx").on(t.expiresAt),
+  ],
+);
 
 export const notificationQueue = createTable(
   "notification_queue",
@@ -452,5 +549,25 @@ export const businessNotificationPreferences = createTable(
     updatedAt: d
       .integer("updated_at", { mode: "timestamp" })
       .$onUpdate(() => new Date()),
+  }),
+);
+// Location relations
+export const businessLocationsRelations = relations(
+  businessLocations,
+  ({ one }) => ({
+    business: one(businesses, {
+      fields: [businessLocations.businessId],
+      references: [businesses.id],
+    }),
+  }),
+);
+
+export const customerLocationsRelations = relations(
+  customerLocations,
+  ({ one }) => ({
+    appointment: one(appointments, {
+      fields: [customerLocations.appointmentId],
+      references: [appointments.id],
+    }),
   }),
 );

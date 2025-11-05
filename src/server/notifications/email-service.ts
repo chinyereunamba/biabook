@@ -1,5 +1,6 @@
 import * as nodemailer from "nodemailer";
 import { env } from "@/env";
+import { notificationLogger } from "./notification-logger";
 
 // Types for email service
 export interface EmailOptions {
@@ -45,7 +46,12 @@ export class EmailService {
   async sendEmail(options: EmailOptions): Promise<boolean> {
     try {
       if (!this.transporter) {
-        console.warn("Email transporter not configured. Email not sent.");
+        notificationLogger.logEmailAttempt(
+          options.to,
+          options.subject,
+          false,
+          "Email transporter not configured",
+        );
         return false;
       }
 
@@ -59,9 +65,17 @@ export class EmailService {
         text: options.text ?? options.html.replace(/<[^>]*>/g, ""), // Strip HTML tags for plain text
       });
 
+      notificationLogger.logEmailAttempt(options.to, options.subject, true);
       return true;
     } catch (error) {
-      console.error("Failed to send email:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      notificationLogger.logEmailAttempt(
+        options.to,
+        options.subject,
+        false,
+        errorMessage,
+      );
       return false;
     }
   }

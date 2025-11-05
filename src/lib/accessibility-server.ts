@@ -5,14 +5,24 @@
 
 import type { AriaAttributes } from "react";
 
-// Simple counter for generating unique IDs during SSR
-let idCounter = 0;
-
 /**
- * Generate a unique accessible ID (server-safe version)
+ * Generate a unique accessible ID using crypto.randomUUID (server-safe version)
+ * Falls back to timestamp-based ID if crypto is not available
  */
 export function generateAccessibleId(prefix: string = "field"): string {
-  return `${prefix}-${++idCounter}`;
+  try {
+    // Use crypto.randomUUID if available (Node.js 16+ and modern browsers)
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
+      return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
+    }
+  } catch (error) {
+    // Fallback if crypto is not available
+  }
+
+  // Fallback to timestamp + random for older environments
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).slice(2, 8);
+  return `${prefix}-${timestamp}-${random}`;
 }
 
 /**

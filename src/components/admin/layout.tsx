@@ -11,11 +11,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { cookies } from "next/headers";
 
 export default function LayoutComponent({
   children,
@@ -38,13 +36,8 @@ export default function LayoutComponent({
   const menuClass = toggleMenu ? "hidden" : "";
 
   const handleLogout = async () => {
-    const cookiesStore = cookies();
-    cookieStore.delete("next-auth.session-token");
-    cookieStore.delete("__Secure-next-auth.session-token");
-    cookieStore.delete("next-auth.csrf-token");
     sessionStorage.clear();
     await signOut({ redirect: true, callbackUrl: "/login" });
-    return;
   };
 
   return (

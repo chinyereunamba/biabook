@@ -71,11 +71,11 @@ export function Footer() {
                   Help Center
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <Link href="/contact" className="hover:text-primary-foreground">
                   Contact
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link href="/privacy" className="hover:text-primary-foreground">
                   Privacy Policy
