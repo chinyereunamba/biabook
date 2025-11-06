@@ -11,6 +11,7 @@ import {
 } from "@/server/db/schema";
 import { sendWelcomeEmail } from "@/lib/email";
 import { authenticateUser } from "@/lib/auth-utils";
+import { eq } from "drizzle-orm";
 
 // Create custom adapter to handle role assignment
 const customAdapter = {
@@ -153,20 +154,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     async session({ session, user, token }: any) {
       // Always fetch fresh user data from database
-     if (session.user && token) {
-       session.user.id = token.sub;
-       session.user.email = token.email;
-       session.user.name = token.name;
-       session.user.image = token.picture;
-       session.user.role = token.role || "user";
-       session.user.isOnboarded = token.isOnboarded ?? false;
-       session.user.needsOnboarding = !token.isOnboarded;
-       session.user.emailVerified = token.emailVerified ?? false;
-     }
+      if (session.user && token) {
+        session.user.id = token.sub;
+        session.user.email = token.email;
+        session.user.name = token.name;
+        session.user.image = token.picture;
+        session.user.role = token.role || "user";
+        session.user.isOnboarded = token.isOnboarded ?? false;
+        session.user.needsOnboarding = !token.isOnboarded;
+        session.user.emailVerified = token.emailVerified ?? false;
+      }
       return session;
     },
 
-    async jwt({ token, user, account }: any) {
+    async jwt({ token, user, account, trigger }: any) {
       // Clear token cache on new sign in
       if (account && user) {
         token.sub = user.id;
@@ -177,6 +178,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.isOnboarded = user.isOnboarded;
         token.emailVerified = user.emailVerified;
       }
+
+      // Refresh user data on update trigger (e.g., after onboarding)
+      if (trigger === "update" && token.sub) {
+        try {
+          const [updatedUser] = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, token.sub))
+            .limit(1);
+
+          if (updatedUser) {
+            token.isOnboarded = updatedUser.isOnboarded;
+            token.name = updatedUser.name;
+            token.role = updatedUser.role;
+          }
+        } catch (error) {
+          console.error("Error refreshing user data in JWT:", error);
+        }
+      }
+
       return token;
     },
   },

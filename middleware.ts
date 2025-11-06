@@ -64,12 +64,22 @@ export default auth((req: NextRequest & { auth: any }) => {
     }
   }
 
-  // Dashboard routes require authentication (already checked above)
-  if (pathname.startsWith("/dashboard")) {
-    // Check if user needs onboarding
-    if (!session.user.isOnboarded && pathname !== "/onboarding") {
+  // Handle onboarding flow
+  if (!session.user.isOnboarded) {
+    // Allow access to onboarding pages
+    if (pathname.startsWith("/onboarding")) {
+      return NextResponse.next();
+    }
+
+    // Redirect to onboarding for all other protected routes
+    if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
+  }
+
+  // If user is onboarded but trying to access onboarding, redirect to dashboard
+  if (session.user.isOnboarded && pathname.startsWith("/onboarding")) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   return NextResponse.next();

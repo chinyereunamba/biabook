@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
           success: true,
           businessId: business.id,
           slug,
-          redirectUrl: "/onboarding/success",
+          redirectUrl: "/dashboard",
         },
         { status: 201 },
       );

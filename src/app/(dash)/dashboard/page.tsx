@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { auth } from "@/server/auth";
 import {
   Activity,
   ArrowUpRight,
@@ -11,11 +9,6 @@ import {
   Calendar,
   TrendingUp,
 } from "lucide-react";
-
-import { LoadingOverlay } from "@/components/ui/loading-states";
-
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import type { RecentBooking, Stats } from "@/types/dashboard";
 import {
   Bar,
@@ -29,14 +22,10 @@ import {
   YAxis,
 } from "recharts";
 
-export default function DashboardPage() {
-  const [recentBookings, setRecentBookings] = useState<RecentBooking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+export default async function DashboardPage() {
+  const session = await auth();
 
-  // Mock session data since auth is removed
-  const session = { user: { name: "User", email: "user@example.com" } };
-  const status = "authenticated";
+  // Session is guaranteed to exist and be onboarded due to layout checks
 
   const revenueData = [
     { month: "Jan", revenue: 4000 },
@@ -57,12 +46,8 @@ export default function DashboardPage() {
     { day: "Sun", bookings: 15 },
   ];
 
-  // Format price from cents to dollars
-  const formatPrice = (priceInCents: number) => {
-    return (priceInCents / 100).toFixed(2);
-  };
-
-  // Remove auth checks since auth is removed
+  // Mock recent bookings data
+  const recentBookings: RecentBooking[] = [];
 
   return (
     <div className="bg-background min-h-screen w-full">
@@ -92,7 +77,7 @@ export default function DashboardPage() {
               </svg>
             </button>
             <div className="bg-primary/20 text-primary flex h-10 w-10 items-center justify-center rounded-full font-semibold">
-              SM
+              {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
             </div>
           </div>
         </div>

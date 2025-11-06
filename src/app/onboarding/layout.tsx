@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import OnboardingGuard from "@/components/auth/onboarding-guard";
 
 export const metadata: Metadata = {
   title: "Onboarding - BiaBook",
@@ -10,5 +11,9 @@ export default function OnboardingLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="min-h-screen bg-gray-50">{children}</div>;
+  return (
+    <OnboardingGuard requireOnboarded={false}>
+      <div className="min-h-screen bg-gray-50">{children}</div>
+    </OnboardingGuard>
+  );
 }

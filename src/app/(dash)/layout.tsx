@@ -1,3 +1,4 @@
+import OnboardingGuard from "@/components/auth/onboarding-guard";
 import Sidebar from "@/components/sidebar";
 import DashboardHeader from "@/components/dashboard-header";
 import React from "react";
@@ -8,8 +9,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="bg-background flex min-h-screen">
-      {children}
-    </main>
+    <OnboardingGuard requireOnboarded={true}>
+      <main className="bg-background flex min-h-screen">{children}</main>
+    </OnboardingGuard>
   );
 }

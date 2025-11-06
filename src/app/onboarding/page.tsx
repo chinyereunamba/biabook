@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,7 +45,7 @@ const BUSINESS_CATEGORIES = [
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { update } = useSession();
   const [step, setStep] = useState(1);
   const [businessData, setBusinessData] = useState({
     name: "",
@@ -69,58 +69,7 @@ export default function OnboardingPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
-
-  useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      if (status === "loading") return;
-
-      if (status === "unauthenticated") {
-        router.replace("/login");
-        return;
-      }
-
-      if (session?.user) {
-        try {
-          // Check if user has completed onboarding by checking for business and services
-          const response = await fetch("/api/user/onboarding-status");
-          const data = await response.json();
-
-          if (data.isOnboarded) {
-            router.replace("/dashboard");
-            return;
-          }
-        } catch (error) {
-          console.error("Error checking onboarding status:", error);
-          // If there's an error, fall back to session check
-          if (session.user.isOnboarded) {
-            router.replace("/dashboard");
-            return;
-          }
-        }
-      }
-
-      setIsCheckingOnboarding(false);
-    };
-
-    checkOnboardingStatus();
-  }, [status, session, router]);
-
-  // Show loading state while checking authentication and onboarding status
-  if (status === "loading" || isCheckingOnboarding) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
-          <p className="text-lg text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === "unauthenticated") {
-    return null;
-  }
+  // Auth and onboarding checks are now handled by the layout
 
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
@@ -199,7 +148,10 @@ export default function OnboardingPage() {
           }
         }
 
-        // Redirect to success page
+        // Update the session to reflect onboarding completion
+        await update();
+
+        // Redirect to dashboard
         router.push(data.redirectUrl || "/dashboard");
       } catch (err) {
         setError(
