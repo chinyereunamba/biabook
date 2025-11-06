@@ -171,7 +171,7 @@ export default function LayoutComponent({
       <div className="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white shadow-lg md:hidden">
         <div className="px-4 py-2">
           <ul className="flex justify-around">
-            {navLinks.slice(0, 5).map((link) => {
+            {navLinks.slice(0, 4).map((link) => {
               const isActive = pathname === link.link;
               return (
                 <li key={link.name}>
@@ -192,6 +192,15 @@ export default function LayoutComponent({
                 </li>
               );
             })}
+            <li>
+              <button
+                onClick={handleLogout}
+                className="flex flex-col items-center gap-1 rounded-lg px-3 py-2 text-red-600 transition-colors hover:bg-red-50"
+              >
+                <LogOut className="h-5 w-5" />
+                <span className="text-xs font-medium">Logout</span>
+              </button>
+            </li>
           </ul>
         </div>
       </div>

@@ -235,17 +235,9 @@ export class NotificationScheduler {
    * Process pending notifications
    */
   async processPendingNotifications(limit = 10): Promise<number> {
-    notificationLogger.info(
-      `Processing pending notifications (limit: ${limit})`,
-    );
-
     const pendingNotifications =
       await notificationQueueService.getPendingNotifications(limit);
     let processedCount = 0;
-
-    notificationLogger.info(
-      `Found ${pendingNotifications.length} pending notifications`,
-    );
 
     for (const notification of pendingNotifications) {
       try {
@@ -337,9 +329,6 @@ export class NotificationScheduler {
       }
     }
 
-    notificationLogger.info(
-      `Processed ${processedCount}/${pendingNotifications.length} notifications successfully`,
-    );
     return processedCount;
   }
 

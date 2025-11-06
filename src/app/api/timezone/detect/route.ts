@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "Invalid coordinates provided",
-          details: error.errors,
+          details: error.issues,
         },
         { status: 400 },
       );
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         {
           error: error.message,
           code: error.code,
-          userMessage: error.userMessage,
+          fallbackAction: error.fallbackAction,
         },
         { status: 400 },
       );

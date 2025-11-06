@@ -89,7 +89,7 @@ export default function SignInPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4">
         <Card className="w-full max-w-md border-0 shadow-xl">
-          <CardContent className="p-8">
+          <CardContent>
             <div className="space-y-6 text-center">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
                 <CheckCircle className="h-8 w-8 text-green-600" />
@@ -146,7 +146,7 @@ export default function SignInPage() {
         </div>
 
         <Card className="border-0 shadow-xl">
-          <CardContent className="space-y-6 p-8">
+          <CardContent className="space-y-6">
             {!showPasswordForm ? (
               <>
                 {/* Google Sign In */}
@@ -186,6 +186,131 @@ export default function SignInPage() {
                     </span>
                   </div>
                 </div>
+                {/* Credentials Sign In */}
+                <form onSubmit={handleCredentialsSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="email-creds"
+                      className="font-medium text-gray-700"
+                    >
+                      Email address
+                    </Label>
+                    <div className="relative">
+                      <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                      <Input
+                        id="email-creds"
+                        type="email"
+                        placeholder="Enter your email address"
+                        className="focus:border-primary focus:ring-primary h-12 border-gray-200 pl-10 transition-colors"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label
+                        htmlFor="password"
+                        className="font-medium text-gray-700"
+                      >
+                        Password
+                      </Label>
+                      <Link
+                        href="/forgot-password"
+                        className="text-primary hover:text-primary/80 text-sm font-medium"
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        className="h-12 border-gray-200 pr-10 pl-10 transition-colors"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-1/2 -right-3 -translate-y-1/2 transform text-gray-400 transition-colors hover:text-gray-600"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="h-12 w-full"
+                    disabled={isLoading || !email || !password}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
+                        Signing in...
+                      </div>
+                    ) : (
+                      "Sign in to your account"
+                    )}
+                  </Button>
+                </form>
+
+                <div className="text-center">
+                  <button
+                    type="button"
+                    className="text-primary hover:text-primary text-sm font-medium transition-colors"
+                    onClick={() => setShowPasswordForm(true)}
+                  >
+                    Sign in with email instead
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Back button */}
+                <button
+                  type="button"
+                  className="flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700"
+                  onClick={() => {
+                    setShowPasswordForm(false);
+                    setError("");
+                  }}
+                >
+                  <ArrowLeft className="mr-1 h-4 w-4" />
+                  Back to options
+                </button>
+
+                {/* Error message */}
+                {error && (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="h-4 w-4 text-red-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-2">{error}</div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Email Sign In */}
                 <form onSubmit={handleEmailSignIn} className="space-y-4">
@@ -228,132 +353,6 @@ export default function SignInPage() {
                     )}
                   </Button>
                 </form>
-
-                <div className="text-center">
-                  <button
-                    type="button"
-                    className="text-primary hover:text-primary text-sm font-medium transition-colors"
-                    onClick={() => setShowPasswordForm(true)}
-                  >
-                    Sign in with password instead
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                {/* Back button */}
-                <button
-                  type="button"
-                  className="flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700"
-                  onClick={() => {
-                    setShowPasswordForm(false);
-                    setError("");
-                  }}
-                >
-                  <ArrowLeft className="mr-1 h-4 w-4" />
-                  Back to options
-                </button>
-
-                {/* Error message */}
-                {error && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <svg
-                          className="h-4 w-4 text-red-400"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      <div className="ml-2">{error}</div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Credentials Sign In */}
-                <form onSubmit={handleCredentialsSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="email-creds"
-                      className="font-medium text-gray-700"
-                    >
-                      Email address
-                    </Label>
-                    <div className="relative">
-                      <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-                      <Input
-                        id="email-creds"
-                        type="email"
-                        placeholder="Enter your email address"
-                        className="focus:border-primary focus:ring-primary h-12 border-gray-200 pl-10 transition-colors"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label
-                        htmlFor="password"
-                        className="font-medium text-gray-700"
-                      >
-                        Password
-                      </Label>
-                      <Link
-                        href="/forgot-password"
-                        className="text-primary text-sm font-medium hover:text-primary/80"
-                      >
-                        Forgot password?
-                      </Link>
-                    </div>
-                    <div className="relative">
-                      <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        className="h-12 border-gray-200 pr-10 pl-10 transition-colors "
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                      />
-                      <button
-                        type="button"
-                        className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 transition-colors hover:text-gray-600"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="h-12 w-full "
-                    disabled={isLoading || !email || !password}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center">
-                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
-                        Signing in...
-                      </div>
-                    ) : (
-                      "Sign in to your account"
-                    )}
-                  </Button>
-                </form>
               </>
             )}
 
@@ -362,7 +361,7 @@ export default function SignInPage() {
                 Don't have an account?{" "}
                 <Link
                   href="/signup"
-                  className="font-medium text-primary transition-colors hover:text-primary/80"
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
                 >
                   Sign up for free
                 </Link>

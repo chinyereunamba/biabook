@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 const BUSINESS_CATEGORIES = [
   "Hair Salon",
@@ -68,21 +69,45 @@ export default function OnboardingPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
 
-  // Redirect if user is not logged in
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.replace("/login");
-    }
+    const checkOnboardingStatus = async () => {
+      if (status === "loading") return;
 
-    // If user is already onboarded, redirect to dashboard
-    if (session?.user?.isOnboarded) {
-      router.replace("/dashboard");
-    }
-  }, [session, status, router]);
+      if (status === "unauthenticated") {
+        router.replace("/login");
+        return;
+      }
 
-  // Show loading state while checking authentication
-  if (status === "loading") {
+      if (session?.user) {
+        try {
+          // Check if user has completed onboarding by checking for business and services
+          const response = await fetch("/api/user/onboarding-status");
+          const data = await response.json();
+
+          if (data.isOnboarded) {
+            router.replace("/dashboard");
+            return;
+          }
+        } catch (error) {
+          console.error("Error checking onboarding status:", error);
+          // If there's an error, fall back to session check
+          if (session.user.isOnboarded) {
+            router.replace("/dashboard");
+            return;
+          }
+        }
+      }
+
+      setIsCheckingOnboarding(false);
+    };
+
+    checkOnboardingStatus();
+  }, [status, session, router]);
+
+  // Show loading state while checking authentication and onboarding status
+  if (status === "loading" || isCheckingOnboarding) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -91,6 +116,10 @@ export default function OnboardingPage() {
         </div>
       </div>
     );
+  }
+
+  if (status === "unauthenticated") {
+    return null;
   }
 
   const totalSteps = 4;
@@ -184,6 +213,21 @@ export default function OnboardingPage() {
   const handleBack = () => {
     if (step > 1) {
       setStep(step - 1);
+    }
+  };
+
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async () => {
+    const bookingUrl = `https://biabook.app/book/${businessData.name.toLowerCase().replace(/\s+/g, "-")}`;
+    try {
+      await navigator.clipboard.writeText(bookingUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success("Link copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      toast.error("Failed to copy link");
     }
   };
 
@@ -561,15 +605,23 @@ export default function OnboardingPage() {
                 </h3>
                 <div className="flex items-center justify-center space-x-2 rounded-md border border-gray-200 bg-white p-3">
                   <span className="font-mono text-purple-600">
-                    biabook.com/book/
+                    https://biabook.app/book/
                     {businessData.name.toLowerCase().replace(/\s+/g, "-")}
                   </span>
                   <Button
                     size="sm"
                     variant="outline"
                     className="border-gray-300 bg-transparent"
+                    onClick={copyToClipboard}
                   >
-                    Copy
+                    {copied ? (
+                      <>
+                        <CheckCircle className="mr-1 h-3 w-3" />
+                        Copied!
+                      </>
+                    ) : (
+                      "Copy"
+                    )}
                   </Button>
                 </div>
               </div>

@@ -84,9 +84,7 @@ export class NotificationQueueService {
       .select()
       .from(notificationQueue)
       .where(
-        sql`${notificationQueue.status} = 'pending' AND 
-            ${notificationQueue.scheduledFor} <= ${now} AND
-            ${notificationQueue.attempts} < 3`,
+        sql`${notificationQueue.status} = 'pending' AND ${notificationQueue.scheduledFor} <= ${now} AND ${notificationQueue.attempts} < 3`,
       )
       .orderBy(notificationQueue.scheduledFor)
       .limit(limit);
@@ -186,8 +184,7 @@ export class NotificationQueueService {
     const result = await db
       .delete(notificationQueue)
       .where(
-        sql`${notificationQueue.status} = 'processed' AND 
-            ${notificationQueue.updatedAt} < ${olderThan}`,
+        sql`${notificationQueue.status} = 'processed' AND ${notificationQueue.updatedAt} < ${olderThan}`,
       )
       .returning({ id: notificationQueue.id });
 
