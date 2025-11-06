@@ -10,11 +10,12 @@ import {
   type LucideProps,
 } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { performCompleteLogout } from "@/lib/session-utils";
+import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
 
 export default function LayoutComponent({
   children,
@@ -32,6 +33,7 @@ export default function LayoutComponent({
   const [showProfile, setShowProfile] = useState(false);
   const [toggleMenu, setToggleMenu] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const { data: session } = useSession();
   const menuClass = toggleMenu ? "hidden" : "";
@@ -127,7 +129,9 @@ export default function LayoutComponent({
                   <p className="text-sm font-medium text-gray-900">
                     {session?.user?.name}
                   </p>
-                  <p className="text-xs text-gray-500">Administrator</p>
+                  <p className="text-xs text-gray-500">
+                    {session?.user?.email}
+                  </p>
                 </div>
               </div>
               <button

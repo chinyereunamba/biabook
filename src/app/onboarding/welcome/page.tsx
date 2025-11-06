@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, ArrowRight } from "lucide-react";
@@ -10,8 +10,60 @@ import Image from "next/image";
 
 export default function WelcomePage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
+
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      if (status === "loading") return;
+
+      if (status === "unauthenticated") {
+        router.replace("/login");
+        return;
+      }
+
+      if (session?.user) {
+        try {
+          // Check if user has already completed onboarding
+          const response = await fetch("/api/user/onboarding-status");
+          const data = await response.json();
+
+          if (data.isOnboarded) {
+            router.replace("/dashboard");
+            return;
+          }
+        } catch (error) {
+          console.error("Error checking onboarding status:", error);
+          // If there's an error, fall back to session check
+          if (session.user.isOnboarded) {
+            router.replace("/dashboard");
+            return;
+          }
+        }
+      }
+
+      setIsCheckingOnboarding(false);
+    };
+
+    checkOnboardingStatus();
+  }, [status, session, router]);
+
+  // Show loading state while checking authentication and onboarding status
+  if (status === "loading" || isCheckingOnboarding) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
+          <p className="text-lg text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return null;
+  }
 
   const handleContinue = () => {
     setIsLoading(true);

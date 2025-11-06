@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, ArrowLeft, RefreshCw, Calendar } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function CheckInboxPage() {
+function CheckInboxContent() {
   const [isResending, setIsResending] = useState(false);
   const [resent, setResent] = useState(false);
   const searchParams = useSearchParams();
@@ -151,5 +151,22 @@ export default function CheckInboxPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckInboxPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
+            <p className="text-lg text-gray-600">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <CheckInboxContent />
+    </Suspense>
   );
 }
