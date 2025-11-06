@@ -2,169 +2,213 @@ import { db } from "./index";
 import {
   users,
   businesses,
-  services,
   categories,
+  services,
   weeklyAvailability,
 } from "./schema";
 import { sql } from "drizzle-orm";
+import { randomUUID } from "crypto";
 
 const categoryData = [
-  { id: "all", name: "All Categories" },
   { id: "salon", name: "Hair Salons" },
-  { id: "education", name: "Tutoring" },
-  { id: "healthcare", name: "Healthcare" },
-  { id: "spa", name: "Spa & Wellness" },
   { id: "fitness", name: "Fitness" },
+  { id: "spa", name: "Spa & Wellness" },
+  { id: "healthcare", name: "Healthcare" },
 ];
 
-async function main() {
-  console.log("⏳ Seeding database...");
+const userData = [
+  { name: "Chinyere Okafor", email: "chinyere.okafor@example.com" },
+  { name: "Bolu Adeyemi", email: "bolu.adeyemi@example.com" },
+  { name: "Fatima Bello", email: "fatima.bello@example.com" },
+  { name: "Emeka Nwosu", email: "emeka.nwosu@example.com" },
+];
 
-  // Clean up existing data
-  await db.delete(services);
-  await db.delete(weeklyAvailability);
-  await db.delete(businesses);
-  await db.delete(users);
-  await db.delete(categories);
+const businessData = [
+  {
+    name: "Glow & Go Salon",
+    slug: "glow-go-salon",
+    categoryId: "salon",
+    description: "Modern hair salon specializing in styling and coloring.",
+    location: "123 Allen Avenue, Lagos, Nigeria",
+    phone: "+2348012345678",
+    email: "info@glowgosalon.com",
+  },
+  {
+    name: "Peak Performance Gym",
+    slug: "peak-performance-gym",
+    categoryId: "fitness",
+    description: "State-of-the-art gym with personal training services.",
+    location: "45 Murtala Mohammed Way, Abuja, Nigeria",
+    phone: "+2348023456789",
+    email: "contact@peakgym.ng",
+  },
+  {
+    name: "Serenity Spa & Wellness",
+    slug: "serenity-spa-wellness",
+    categoryId: "spa",
+    description:
+      "Relaxing spa offering massages, facials, and wellness treatments.",
+    location: "78 Aminu Kano Crescent, Kano, Nigeria",
+    phone: "+2348034567890",
+    email: "hello@serenityspa.com",
+  },
+  {
+    name: "WellCare Health Clinic",
+    slug: "wellcare-health-clinic",
+    categoryId: "healthcare",
+    description: "Affordable healthcare and medical services for families.",
+    location: "22 Enugu Road, Enugu, Nigeria",
+    phone: "+2348045678901",
+    email: "support@wellcareclinic.com",
+  },
+];
 
-  console.log("🧹 Cleaned up existing data.");
-
-  // Insert categories
+async function seedCategories() {
+  console.log("⏳ Seeding categories...");
   await db.insert(categories).values(categoryData).onConflictDoNothing();
-  console.log("🌱 Seeded categories.");
+  console.log(`🌱 Seeded ${categoryData.length} categories.`);
+}
 
-  // Create 4 users
-  const createdUsers = await db
+async function seedUsers() {
+  console.log("⏳ Seeding users...");
+
+  const usersToInsert = userData.map((u) => ({
+    id: randomUUID(),
+    name: u.name,
+    email: u.email,
+    emailVerified: new Date(), // Use Date object for timestamp
+    role: "user" as const,
+    isOnboarded: true,
+    onboardedAt: new Date(),
+  }));
+
+  // Actually insert into DB
+  const insertedUsers = await db
     .insert(users)
-    .values([
-      {
-        name: "Chinyere Okafor",
-        email: "chinyere.okafor@example.com",
-      },
-      {
-        name: "Bolu Adeyemi",
-        email: "bolu.adeyemi@example.com",
-      },
-      {
-        name: "Fatima Bello",
-        email: "fatima.bello@example.com",
-      },
-      {
-        name: "Emeka Nwosu",
-        email: "emeka.nwosu@example.com",
-      },
-    ])
+    .values(usersToInsert)
     .returning();
+  console.log(`🌱 Seeded ${insertedUsers.length} users.`);
 
-  console.log(`🌱 Seeded ${createdUsers.length} users.`);
+  return insertedUsers;
+}
 
-  if (createdUsers.length < 4) {
-    throw new Error("Failed to create users");
-  }
+async function seedBusinesses(
+  insertedUsers: Array<{ id: string; name: string | null; email: string }>,
+) {
+  console.log("⏳ Seeding realistic businesses...");
 
-  // Create 4 businesses, each owned by one of the users
-  const createdBusinesses = await db
-    .insert(businesses)
-    .values([
-      {
-        id: "biz1",
-        name: "Chinyere's Hair Haven",
-        slug: "chinyere-hair-haven",
-        categoryId: "salon",
-        description: "Premium hair care and styling.",
-        location: "Lagos, Nigeria",
-        phone: "+2348012345678",
-        email: "chinyere.hair@example.com",
-        ownerId: createdUsers[0]!.id,
-      },
-      {
-        id: "biz2",
-        name: "Bolu's Fitness Hub",
-        slug: "bolu-fitness-hub",
-        categoryId: "fitness",
-        description: "State-of-the-art gym and personal training.",
-        location: "Abuja, Nigeria",
-        phone: "+2348023456789",
-        email: "bolu.fitness@example.com",
-        ownerId: createdUsers[1]!.id,
-      },
-      {
-        id: "biz3",
-        name: "Fatima's Wellness Spa",
-        slug: "fatima-wellness-spa",
-        categoryId: "spa",
-        description: "Relax, rejuvenate, and refresh.",
-        location: "Kano, Nigeria",
-        phone: "+2348034567890",
-        email: "fatima.spa@example.com",
-        ownerId: createdUsers[2]!.id,
-      },
-      {
-        id: "biz4",
-        name: "Emeka's Health Clinic",
-        slug: "emeka-health-clinic",
-        categoryId: "healthcare",
-        description: "Affordable and accessible healthcare for all.",
-        location: "Enugu, Nigeria",
-        phone: "+2348045678901",
-        email: "emeka.clinic@example.com",
-        ownerId: createdUsers[3]!.id,
-      },
-    ])
-    .returning();
-
-  console.log(`🌱 Seeded ${createdBusinesses.length} businesses.`);
-
-  if (createdBusinesses.length < 4) {
-    throw new Error("Failed to create businesses");
-  }
-
-  // Create 4 services for each business
-  const allServices = [];
-  for (const business of createdBusinesses) {
-    for (let i = 1; i <= 4; i++) {
-      allServices.push({
-        businessId: business.id,
-        name: `Service ${i} for ${business.name}`,
-        description: `This is service number ${i} for ${business.name}.`,
-        duration: 30 + i * 15, // 45, 60, 75, 90 minutes
-        price: 5000 + i * 1000, // 6000, 7000, 8000, 9000 kobo
-        isActive: true,
-        bufferTime: 10,
-      });
+  const businessesToInsert = businessData.map((biz, index) => {
+    const owner = insertedUsers[index];
+    if (!owner) {
+      throw new Error(`No user found for business ${biz.name}`);
     }
+
+    return {
+      id: randomUUID(),
+      ...biz,
+      ownerId: owner.id,
+      createdAt: new Date(), // Use Date object for timestamp
+      updatedAt: new Date(),
+    };
+  });
+
+  const insertedBusinesses = await db
+    .insert(businesses)
+    .values(businessesToInsert)
+    .returning();
+  console.log(`🌱 Seeded ${insertedBusinesses.length} businesses!`);
+
+  return insertedBusinesses;
+}
+
+async function seedServices(
+  insertedBusinesses: { id: string; name: string }[],
+) {
+  console.log("⏳ Seeding services for each business...");
+  const allServices = [];
+
+  for (const biz of insertedBusinesses) {
+    allServices.push(
+      {
+        id: randomUUID(),
+        businessId: biz.id,
+        name: `${biz.name} Standard Service`,
+        description: `A standard service at ${biz.name}`,
+        duration: 60,
+        price: 5000, // in cents
+        isActive: true,
+        bufferTime: 15,
+        category: null,
+        createdAt: new Date(), // Use Date object for timestamp
+        updatedAt: new Date(),
+      },
+      {
+        id: randomUUID(),
+        businessId: biz.id,
+        name: `${biz.name} Premium Service`,
+        description: `A premium service at ${biz.name}`,
+        duration: 90,
+        price: 10000,
+        isActive: true,
+        bufferTime: 15,
+        category: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    );
   }
 
-  if (allServices.length > 0) {
-    await db.insert(services).values(allServices);
-    console.log(`🌱 Seeded ${allServices.length} services.`);
-  }
+  await db.insert(services).values(allServices);
+  console.log(`🌱 Seeded ${allServices.length} services.`);
+}
 
-  // Create weekly availability for each business (Mon-Fri, 9-5)
-  const allAvailabilities = [];
-  for (const business of createdBusinesses) {
+async function seedWeeklyAvailability(insertedBusinesses: { id: string }[]) {
+  console.log("⏳ Seeding weekly availability...");
+
+  const availabilities = [];
+
+  for (const biz of insertedBusinesses) {
+    // Monday to Friday 9AM-5PM
     for (let day = 1; day <= 5; day++) {
-      allAvailabilities.push({
-        businessId: business.id,
+      availabilities.push({
+        id: randomUUID(),
+        businessId: biz.id,
         dayOfWeek: day,
         startTime: "09:00",
         endTime: "17:00",
         isAvailable: true,
+        createdAt: new Date(), // Use Date object for timestamp
+        updatedAt: new Date(),
       });
     }
   }
 
-  if (allAvailabilities.length > 0) {
-    await db.insert(weeklyAvailability).values(allAvailabilities);
-    console.log(
-      `🌱 Seeded weekly availability for ${createdBusinesses.length} businesses.`
-    );
-  }
-
-  console.log("✅ Database seeded successfully!");
+  await db.insert(weeklyAvailability).values(availabilities);
+  console.log(
+    `🌱 Seeded weekly availability for ${insertedBusinesses.length} businesses.`,
+  );
 }
 
-main().catch((err) => {
-  console.error("❌ Seeding failed:", err);
-  process.exit(1);
-});
+async function main() {
+  try {
+    console.log("🧹 Cleaning up previous data...");
+    await db.delete(weeklyAvailability);
+    await db.delete(services);
+    await db.delete(businesses);
+    // await db.delete(users);
+    await db.delete(categories);
+
+    await seedCategories();
+    const insertedUsers = await seedUsers();
+    const insertedBusinesses = await seedBusinesses(insertedUsers);
+    await seedServices(insertedBusinesses);
+    await seedWeeklyAvailability(insertedBusinesses);
+
+    console.log("✅ Database seeded successfully!");
+  } catch (err) {
+    console.error("❌ Seeding failed:", err);
+    process.exit(1);
+  }
+}
+
+main();

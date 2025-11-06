@@ -75,7 +75,7 @@ const customAdapter = {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 10 * 24 * 60 * 60, // 10 days
     updateAge: 24 * 60 * 60, // 24 hours
   },
   secret: process.env.AUTH_SECRET!,

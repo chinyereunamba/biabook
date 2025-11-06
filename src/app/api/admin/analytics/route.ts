@@ -7,7 +7,7 @@ import {
   appointments,
   categories,
 } from "@/server/db/schema";
-import { eq, count, sql, desc, gte, and, isNotNull } from "drizzle-orm";
+import { eq, count, sql, desc, gte, and, isNotNull, lt } from "drizzle-orm";
 
 interface AnalyticsData {
   overview: {
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
       .where(
         and(
           gte(appointments.createdAt, previousRange.start),
-          gte(previousRange.end, appointments.createdAt),
+          lt(appointments.createdAt, previousRange.end),
         ),
       );
 
@@ -132,7 +132,7 @@ export async function GET(request: NextRequest) {
       .where(
         and(
           gte(businesses.createdAt, previousRange.start),
-          gte(previousRange.end, businesses.createdAt),
+          lt(businesses.createdAt, previousRange.end),
         ),
       );
 
@@ -149,31 +149,33 @@ export async function GET(request: NextRequest) {
 
     // Calculate growth percentages
     const revenueGrowth =
-      previousPeriodStats.totalRevenue > 0
-        ? ((currentPeriodStats.totalRevenue -
-            previousPeriodStats.totalRevenue) /
+      previousPeriodStats?.totalRevenue && previousPeriodStats.totalRevenue > 0
+        ? ((currentPeriodStats?.totalRevenue ||
+            0 - previousPeriodStats.totalRevenue) /
             previousPeriodStats.totalRevenue) *
           100
         : 0;
 
     const bookingsGrowth =
+      previousPeriodStats?.totalBookings &&
       previousPeriodStats.totalBookings > 0
-        ? ((currentPeriodStats.totalBookings -
+        ? (((currentPeriodStats?.totalBookings || 0) -
             previousPeriodStats.totalBookings) /
             previousPeriodStats.totalBookings) *
           100
         : 0;
 
-    const businessGrowth =
-      previousBusinessCount.total > 0
-        ? ((currentBusinessCount.total - previousBusinessCount.total) /
+    const businessGrowthPercent =
+      previousBusinessCount?.total && previousBusinessCount.total > 0
+        ? (((currentBusinessCount?.total || 0) - previousBusinessCount.total) /
             previousBusinessCount.total) *
           100
         : 0;
 
     const valueGrowth =
+      previousPeriodStats?.avgBookingValue &&
       previousPeriodStats.avgBookingValue > 0
-        ? ((currentPeriodStats.avgBookingValue -
+        ? (((currentPeriodStats?.avgBookingValue || 0) -
             previousPeriodStats.avgBookingValue) /
             previousPeriodStats.avgBookingValue) *
           100
@@ -249,7 +251,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate cumulative business counts
     let cumulativeBusinesses = 0;
-    const businessGrowth = businessGrowthData.map((item) => {
+    const businessGrowthChart = businessGrowthData.map((item) => {
       cumulativeBusinesses += item.businesses;
       return {
         month: new Date(item.month + "-01").toLocaleDateString("en-US", {
@@ -283,18 +285,18 @@ export async function GET(request: NextRequest) {
 
     const analyticsData: AnalyticsData = {
       overview: {
-        totalRevenue: currentPeriodStats.totalRevenue,
+        totalRevenue: currentPeriodStats?.totalRevenue || 0,
         revenueGrowth: Number(revenueGrowth.toFixed(1)),
-        totalBookings: currentPeriodStats.totalBookings,
+        totalBookings: currentPeriodStats?.totalBookings || 0,
         bookingsGrowth: Number(bookingsGrowth.toFixed(1)),
         activeBusinesses,
-        businessGrowth: Number(businessGrowth.toFixed(1)),
-        avgBookingValue: currentPeriodStats.avgBookingValue,
+        businessGrowth: Number(businessGrowthPercent.toFixed(1)),
+        avgBookingValue: currentPeriodStats?.avgBookingValue || 0,
         valueGrowth: Number(valueGrowth.toFixed(1)),
       },
       revenueByMonth,
       bookingsByCategory,
-      businessGrowth,
+      businessGrowth: businessGrowthChart,
       topPerformingBusinesses,
     };
 
