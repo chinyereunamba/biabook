@@ -67,6 +67,14 @@ export function LocationAwareBusinessList({
     onBusinessSelect?.(business);
   };
 
+  const handleMapBusinessSelect = (business: BusinessLocation) => {
+    // Find the full business data from our list
+    const fullBusiness = businesses.find((b) => b.id === business.id);
+    if (fullBusiness) {
+      handleBusinessSelect(fullBusiness);
+    }
+  };
+
   const handleBookNow = (businessId: string) => {
     router.push(`/book/${businessId}`);
   };
@@ -101,14 +109,14 @@ export function LocationAwareBusinessList({
     services: business.services?.map((s) => s.name) || [],
   }));
 
-  const mapCenter =
-    searchLocation ||
-    (businesses.length > 0
+  const mapCenter = searchLocation
+    ? { lat: searchLocation.latitude, lng: searchLocation.longitude }
+    : businesses.length > 0
       ? {
           lat: businesses[0]?.businessLocation.latitude || 0,
           lng: businesses[0]?.businessLocation.longitude || 0,
         }
-      : { lat: 40.7128, lng: -74.006 });
+      : { lat: 40.7128, lng: -74.006 };
 
   if (isLoading) {
     return (
@@ -191,10 +199,17 @@ export function LocationAwareBusinessList({
             businesses={mapBusinesses}
             center={mapCenter}
             zoom={searchRadius ? Math.max(8, 14 - Math.log2(searchRadius)) : 12}
-            onBusinessSelect={handleBusinessSelect}
+            onBusinessSelect={handleMapBusinessSelect}
             showUserLocation={!!searchLocation}
-            userLocation={searchLocation}
-            selectedBusinessId={selectedBusinessId}
+            userLocation={
+              searchLocation
+                ? {
+                    lat: searchLocation.latitude,
+                    lng: searchLocation.longitude,
+                  }
+                : undefined
+            }
+            selectedBusinessId={selectedBusinessId || undefined}
             className="h-full w-full"
           />
         </div>
@@ -217,10 +232,17 @@ export function LocationAwareBusinessList({
               zoom={
                 searchRadius ? Math.max(8, 14 - Math.log2(searchRadius)) : 12
               }
-              onBusinessSelect={handleBusinessSelect}
+              onBusinessSelect={handleMapBusinessSelect}
               showUserLocation={!!searchLocation}
-              userLocation={searchLocation}
-              selectedBusinessId={selectedBusinessId}
+              userLocation={
+                searchLocation
+                  ? {
+                      lat: searchLocation.latitude,
+                      lng: searchLocation.longitude,
+                    }
+                  : undefined
+              }
+              selectedBusinessId={selectedBusinessId || undefined}
               className="h-full w-full"
             />
           </div>

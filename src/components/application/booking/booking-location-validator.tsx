@@ -92,7 +92,6 @@ export function BookingLocationValidator({
     selectLocation,
     searchByAddress,
     clearSelection,
-    setSearchQuery,
   } = useLocationSelection();
 
   // Get the customer location (either from GPS or manual selection)
@@ -400,7 +399,7 @@ export function BookingLocationValidator({
         <AlternativeBusinesses
           alternatives={validationResult.alternatives}
           originalBusinessName={businessName}
-          customerLocation={customerLocation}
+          customerLocation={customerLocation || undefined}
           onBusinessSelect={handleAlternativeSelect}
         />
       )}

@@ -34,12 +34,11 @@ export function LocationPermissionRequest({
 }: LocationPermissionRequestProps) {
   const [isRequesting, setIsRequesting] = useState(false);
   const {
-    coordinates,
+    location: coordinates,
     error,
-    isSupported,
-    permissionStatus,
-    requestPermission,
-    getCurrentLocation,
+    loading,
+    requestLocation: getCurrentLocation,
+    hasPermission,
     clearError,
   } = useGeolocation();
 
@@ -54,10 +53,7 @@ export function LocationPermissionRequest({
     clearError();
 
     try {
-      const granted = await requestPermission();
-      if (granted) {
-        await getCurrentLocation();
-      }
+      await getCurrentLocation();
     } catch (err) {
       console.error("Failed to request location permission:", err);
     } finally {
@@ -70,25 +66,25 @@ export function LocationPermissionRequest({
     onManualEntryRequested();
   };
 
-  const getErrorMessage = (error: LocationError): string => {
-    switch (error.code) {
-      case "GEOLOCATION_DENIED":
-        return "Location access was denied. You can enable it in your browser settings or enter your location manually.";
-      case "GEOLOCATION_UNAVAILABLE":
-        return "Unable to determine your location. Please check your internet connection or enter your location manually.";
-      case "INVALID_COORDINATES":
-        return "Received invalid location data. Please try again or enter your location manually.";
-      default:
-        return (
-          error.message ||
-          "Unable to access your location. Please try again or enter your location manually."
-        );
+  const getErrorMessage = (error: string): string => {
+    if (error.includes("denied")) {
+      return "Location access was denied. You can enable it in your browser settings or enter your location manually.";
     }
+    if (error.includes("unavailable")) {
+      return "Unable to determine your location. Please check your internet connection or enter your location manually.";
+    }
+    if (error.includes("timeout")) {
+      return "Location request timed out. Please try again or enter your location manually.";
+    }
+    return (
+      error ||
+      "Unable to access your location. Please try again or enter your location manually."
+    );
   };
 
   const canRequestLocation =
-    isSupported && permissionStatus?.canRequest !== false;
-  const isLocationDenied = permissionStatus?.state === "denied";
+    typeof navigator !== "undefined" && "geolocation" in navigator;
+  const isLocationDenied = !hasPermission && error?.includes("denied");
 
   return (
     <Card className={className}>
@@ -107,7 +103,7 @@ export function LocationPermissionRequest({
           </Alert>
         )}
 
-        {!isSupported && (
+        {!canRequestLocation && (
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
@@ -197,12 +193,11 @@ export function LocationRequestButton({
   className,
 }: LocationRequestButtonProps) {
   const {
-    coordinates,
+    location: coordinates,
     error,
-    isLoading,
-    isSupported,
-    getCurrentLocation,
-    requestPermission,
+    loading: isLoading,
+    requestLocation: getCurrentLocation,
+    hasPermission,
   } = useGeolocation();
 
   // Handle successful location
@@ -212,19 +207,25 @@ export function LocationRequestButton({
 
   // Handle error
   if (error && onError) {
-    onError(error);
+    const locationError = new LocationError(
+      LocationErrorCode.GEOLOCATION_UNAVAILABLE,
+      error,
+    );
+    onError(locationError);
   }
 
   const handleClick = async () => {
-    if (!isSupported) {
-      const error = new Error("Geolocation is not supported") as LocationError;
-      error.code = LocationErrorCode.GEOLOCATION_UNAVAILABLE;
-      onError?.(error);
+    if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
+      const locationError = new LocationError(
+        LocationErrorCode.GEOLOCATION_UNAVAILABLE,
+        "Geolocation is not supported",
+      );
+      onError?.(locationError);
       return;
     }
 
     try {
-      await requestPermission();
+      await getCurrentLocation();
       await getCurrentLocation();
     } catch (err) {
       onError?.(err as LocationError);
@@ -234,7 +235,7 @@ export function LocationRequestButton({
   return (
     <Button
       onClick={handleClick}
-      disabled={isLoading || !isSupported}
+      disabled={isLoading || !canRequestLocation}
       variant={variant}
       size={size}
       className={className}

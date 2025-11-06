@@ -50,14 +50,15 @@ const customAdapter = {
       throw new Error("Failed to create user");
     }
 
-    // Send welcome email to new user (only for OAuth users, not email verification users)
-    if (newUser.email && newUser.emailVerified) {
+    // Send welcome email to new user (only for OAuth users who are already verified)
+    // For credentials users, welcome email is sent after email verification
+    if (newUser.email && newUser.emailVerified && !newUser.password) {
       try {
         await sendWelcomeEmail({
           to: newUser.email,
           name: newUser.name || undefined,
         });
-        console.log(`Welcome email sent to ${newUser.email}`);
+        console.log(`Welcome email sent to ${newUser.email} (OAuth)`);
       } catch (error) {
         console.error(
           `Failed to send welcome email to ${newUser.email}:`,
@@ -73,7 +74,7 @@ const customAdapter = {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
-    strategy: "database",
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 24 * 60 * 60, // 24 hours
   },
@@ -113,6 +114,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
+          // Check if email is verified for credentials users
+          if (!user.emailVerified) {
+            throw new Error("Please verify your email before signing in");
+          }
+
           return {
             id: user.id,
             name: user.name,
@@ -147,16 +153,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     async session({ session, user, token }: any) {
       // Always fetch fresh user data from database
-      if (session.user && user) {
-        session.user.id = user.id;
-        session.user.email = user.email; // Ensure email is always fresh
-        session.user.name = user.name;
-        session.user.image = user.image;
-        session.user.role = user.role || "user";
-        session.user.isOnboarded = user.isOnboarded || false;
-        session.user.needsOnboarding = !user.isOnboarded;
-        session.user.emailVerified = user.emailVerified;
-      }
+     if (session.user && token) {
+       session.user.id = token.sub;
+       session.user.email = token.email;
+       session.user.name = token.name;
+       session.user.image = token.picture;
+       session.user.role = token.role || "user";
+       session.user.isOnboarded = token.isOnboarded ?? false;
+       session.user.needsOnboarding = !token.isOnboarded;
+       session.user.emailVerified = token.emailVerified ?? false;
+     }
       return session;
     },
 
@@ -168,6 +174,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.name = user.name;
         token.picture = user.image;
         token.role = user.role;
+        token.isOnboarded = user.isOnboarded;
+        token.emailVerified = user.emailVerified;
       }
       return token;
     },

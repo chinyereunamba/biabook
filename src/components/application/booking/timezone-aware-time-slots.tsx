@@ -258,7 +258,7 @@ export function TimezoneAwareTimeSlots({
             return (
               <Button
                 key={slot.startTime}
-                variant={isSelected ? "default" : "outline"}
+                variant={isSelected ? "primary" : "outline"}
                 onClick={() => onTimeSelect(slot.startTime, slot.endTime)}
                 className={cn(
                   "flex h-auto flex-col items-center justify-center p-3",

@@ -2,11 +2,12 @@ import nodemailer from "nodemailer";
 import { render } from "@react-email/components";
 import { WelcomeEmail } from "@/components/emails/welcome-email";
 import { VerificationEmail } from "@/components/emails/verification-email";
+import { emailVerificationEmail } from "@/server/notifications/email-templates";
 
 // Create reusable transporter object using SMTP transport
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVER_HOST,
-  port: parseInt(process.env.EMAIL_SERVER_PORT || "587"),
+  port: parseInt(process.env.EMAIL_SERVER_PORT || "587", 10),
   secure: false, // true for 465, false for other ports
   auth: {
     user: process.env.EMAIL_SERVER_USER,
@@ -53,10 +54,22 @@ export async function sendVerificationEmail({
   verificationUrl,
 }: SendVerificationEmailParams) {
   try {
-    // Render the React email component to HTML
-    const emailHtml = await render(
-      VerificationEmail({ verificationUrl, email: to }),
-    );
+    // Use both React email component and HTML template as fallback
+    let emailHtml: string;
+
+    try {
+      // Try to render the React email component first
+      emailHtml = await render(
+        VerificationEmail({ verificationUrl, email: to }),
+      );
+    } catch (renderError) {
+      console.warn(
+        "Failed to render React email component, using HTML template:",
+        renderError,
+      );
+      // Fallback to HTML template
+      emailHtml = emailVerificationEmail("", to, verificationUrl);
+    }
 
     // Send mail with defined transport object
     const info = await transporter.sendMail({

@@ -53,7 +53,7 @@ export async function createUserWithCredentials(
       email,
       password: hashedPassword,
       role: role as "user" | "admin",
-      emailVerified: null, // Will be verified later
+      emailVerified: null, // Will be verified via email confirmation
     })
     .returning();
 
@@ -85,6 +85,10 @@ export async function authenticateUser(email: string, password: string) {
   }
 
   const foundUser = user[0];
+
+  if (!foundUser) {
+    return null;
+  }
 
   // Check if user has a password (credentials user)
   if (!foundUser.password) {

@@ -145,7 +145,7 @@ export function useLocationAwareBooking(
         const errorMessage =
           err instanceof Error ? err.message : "Failed to validate location";
         setValidationError(errorMessage);
-        throw err;
+        throw new Error(errorMessage);
       } finally {
         setValidationLoading(false);
       }
@@ -153,7 +153,7 @@ export function useLocationAwareBooking(
     [options],
   );
 
-  // Enhanced booking submission with location validation
+  // Enhanced submit booking with location validation
   const submitBooking = useCallback(
     async (
       bookingData: LocationAwareBookingRequest,

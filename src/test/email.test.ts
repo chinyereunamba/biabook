@@ -1,12 +1,12 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { sendWelcomeEmail } from "@/lib/email";
+import nodemailer from "nodemailer";
 
-// Mock nodemailer
+// Get the mocked transport object
+const mockSendMail = vi.fn();
 vi.mock("nodemailer", () => ({
   createTransport: vi.fn(() => ({
-    sendMail: vi.fn().mockResolvedValue({
-      messageId: "test-message-id",
-    }),
+    sendMail: mockSendMail,
   })),
 }));
 
@@ -16,31 +16,43 @@ vi.mock("@react-email/components", () => ({
 }));
 
 describe("Email Service", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("should send welcome email successfully", async () => {
+    // Arrange
+    mockSendMail.mockResolvedValue({ messageId: "test-message-id" });
+
+    // Act
     const result = await sendWelcomeEmail({
       to: "test@example.com",
       name: "Test User",
     });
 
+    // Assert
     expect(result.success).toBe(true);
     expect(result.messageId).toBe("test-message-id");
+    expect(nodemailer.createTransport).toHaveBeenCalled();
+    expect(mockSendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "test@example.com",
+        subject: expect.stringContaining("Welcome to BiaBook"),
+      }),
+    );
   });
 
   it("should handle email sending errors gracefully", async () => {
-    // Mock nodemailer to throw an error
-    const nodemailer = await import("nodemailer");
-    const mockTransporter = {
-      sendMail: vi.fn().mockRejectedValue(new Error("SMTP Error")),
-    };
-    vi.mocked(nodemailer.createTransport).mockReturnValue(
-      mockTransporter as any,
-    );
+    // Arrange
+    mockSendMail.mockRejectedValue(new Error("SMTP Error"));
 
+    // Act
     const result = await sendWelcomeEmail({
       to: "test@example.com",
       name: "Test User",
     });
 
+    // Assert
     expect(result.success).toBe(false);
     expect(result.error).toBe("SMTP Error");
   });

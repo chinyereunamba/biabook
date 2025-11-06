@@ -313,15 +313,29 @@ describe("Coordinate Utils", () => {
     });
 
     it("should throw for invalid latitude", () => {
-      expect(() => validateCoordinateBounds(91, -74.006)).toThrow(
-        LocationValidationError,
-      );
+      let error: any;
+      try {
+        validateCoordinateBounds(91, -74.006);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toBeDefined();
+      expect(error).toBeInstanceOf(LocationValidationError);
+      expect(error.field).toBe("latitude");
+      expect(error.value).toBe(91);
     });
 
     it("should throw for invalid longitude", () => {
-      expect(() => validateCoordinateBounds(40.7128, 181)).toThrow(
-        LocationValidationError,
-      );
+      let error: any;
+      try {
+        validateCoordinateBounds(40.7128, 181);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toBeDefined();
+      expect(error).toBeInstanceOf(LocationValidationError);
+      expect(error.field).toBe("longitude");
+      expect(error.value).toBe(181);
     });
   });
 });

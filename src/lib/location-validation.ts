@@ -291,13 +291,16 @@ export class LocationError extends Error {
  * Creates a validation error with location context
  */
 export class LocationValidationError extends Error {
-  constructor(
-    message: string,
-    public field: string,
-    public value: unknown,
-  ) {
+  field: string;
+  value: unknown;
+
+  constructor(message: string, field: string, value: unknown) {
     super(`Location validation error for ${field}: ${message}`);
     this.name = "LocationValidationError";
+    this.field = field;
+    this.value = value;
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, LocationValidationError.prototype);
   }
 }
 

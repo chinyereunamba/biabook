@@ -15,12 +15,12 @@ import {
 } from "@/components/application/location-selector";
 import {
   useLocationSelection,
-  type LocationSelection,
+  type LocationCoordinates,
 } from "@/hooks/use-location-selection";
 
 export function GeolocationExample() {
   const [selectedLocation, setSelectedLocation] =
-    useState<LocationSelection | null>(null);
+    useState<LocationCoordinates | null>(null);
   const [showSelector, setShowSelector] = useState(false);
 
   const handleLocationSelected = (location: LocationSelection) => {
@@ -99,14 +99,12 @@ export function GeolocationExample() {
 // Hook usage example
 export function GeolocationHookExample() {
   const {
-    location,
-    isLoading,
+    selectedLocation,
+    isSearching,
     error,
-    canUseGeolocation,
-    getCurrentLocation,
     selectLocation,
-    clearLocation,
-    showManualEntry,
+    clearSelection,
+    searchByAddress,
   } = useLocationSelection();
 
   return (
@@ -136,13 +134,13 @@ export function GeolocationHookExample() {
 
         {error && (
           <div className="rounded-lg bg-red-50 p-3 text-red-700 dark:bg-red-900/20 dark:text-red-300">
-            <strong>Error:</strong> {error.message}
+            <strong>Error:</strong> {error}
           </div>
         )}
 
-        {location && (
+        {selectedLocation && (
           <div className="rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
-            <LocationDisplay location={location} showBadge={true} />
+            <LocationDisplay location={selectedLocation} showBadge={true} />
           </div>
         )}
 
@@ -156,21 +154,16 @@ export function GeolocationHookExample() {
           <Button
             variant="outline"
             onClick={() =>
-              selectLocation(
-                { latitude: 40.7128, longitude: -74.006 },
-                {
-                  address: "123 Main St",
-                  city: "New York",
-                  state: "NY",
-                  zipCode: "10001",
-                  country: "US",
-                },
-              )
+              selectLocation({ latitude: 40.7128, longitude: -74.006 })
             }
           >
             Set Example Location
           </Button>
-          <Button variant="ghost" onClick={clearLocation} disabled={!location}>
+          <Button
+            variant="ghost"
+            onClick={clearSelection}
+            disabled={!selectedLocation}
+          >
             Clear
           </Button>
         </div>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createUserWithCredentials } from "@/lib/auth-utils";
+import { sendVerificationEmail } from "@/lib/email";
 import { z } from "zod";
 
 const registerSchema = z.object({
@@ -22,10 +23,29 @@ export async function POST(request: NextRequest) {
       validatedData.name,
     );
 
+    // Send verification email
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const verificationUrl = `${baseUrl}/api/auth/verify-email?token=${encodeURIComponent(user.id)}&email=${encodeURIComponent(user.email)}`;
+
+    try {
+      await sendVerificationEmail({
+        to: user.email,
+        verificationUrl,
+      });
+      console.log(`Verification email sent to ${user.email}`);
+    } catch (error) {
+      console.error(
+        `Failed to send verification email to ${user.email}:`,
+        error,
+      );
+      // Don't fail registration if email fails
+    }
+
     return NextResponse.json(
       {
         success: true,
-        message: "User created successfully",
+        message:
+          "User created successfully. Please check your email to verify your account.",
         user: {
           id: user.id,
           name: user.name,
@@ -43,7 +63,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           message: "Validation error",
-          errors: error.errors,
+          errors: error.issues,
         },
         { status: 400 },
       );

@@ -13,6 +13,7 @@ import { notificationService } from "@/server/notifications/notification-service
 import { bookingConflictService } from "@/server/services/booking-conflict-service";
 import { businessLocationRepository } from "@/server/repositories/business-location-repository";
 import { serviceRadiusValidationService } from "@/server/services/service-radius-validation";
+import { customerLocationService } from "@/server/services/customer-location-service";
 
 import { bookingLogger } from "@/server/logging/booking-logger";
 import { withErrorHandler } from "@/app/api/_middleware/error-handler";
@@ -54,6 +55,17 @@ const createBookingSchema = z.object({
     .optional(),
   // Flag to skip location validation (for businesses with unlimited service radius or customer override)
   skipLocationValidation: z.boolean().optional().default(false),
+  // Location tracking consent and data
+  locationTracking: z
+    .object({
+      hasConsent: z.boolean().default(false),
+      zipCode: z
+        .string()
+        .regex(/^\d{5}(?:-\d{4})?$/)
+        .optional(),
+      calculateDistance: z.boolean().default(true),
+    })
+    .optional(),
 });
 
 async function createBookingHandler(request: NextRequest) {
@@ -105,6 +117,7 @@ async function createBookingHandler(request: NextRequest) {
       notes,
       customerLocation,
       skipLocationValidation,
+      locationTracking,
     } = validationResult.data;
 
     businessId = validatedBusinessId;
@@ -347,6 +360,36 @@ async function createBookingHandler(request: NextRequest) {
       description: business.description,
       phone: business.phone,
     };
+
+    // Track customer location if consent is provided
+    if (locationTracking?.hasConsent) {
+      try {
+        await customerLocationService.trackCustomerLocation(
+          newAppointment.id,
+          businessId,
+          {
+            hasConsent: locationTracking.hasConsent,
+            coordinates: customerLocation,
+            zipCode: locationTracking.zipCode,
+            calculateDistance: locationTracking.calculateDistance ?? true,
+          },
+        );
+
+        bookingLogger.info("Customer location tracked successfully", {
+          ...context,
+          appointmentId: newAppointment.id,
+          hasCoordinates: !!customerLocation,
+          hasZipCode: !!locationTracking.zipCode,
+        });
+      } catch (error) {
+        // Don't fail the booking if location tracking fails
+        bookingLogger.warn("Failed to track customer location", {
+          ...context,
+          appointmentId: newAppointment.id,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
 
     // Send immediate notifications and schedule reminders
     try {

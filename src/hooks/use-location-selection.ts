@@ -22,10 +22,11 @@ interface UseLocationSelectionResult {
   searchQuery: string;
   searchResults: LocationSearchResult[];
   isSearching: boolean;
+  error: string | null;
   selectLocation: (location: LocationCoordinates) => void;
   searchByAddress: (address: string) => Promise<void>;
   clearSelection: () => void;
-  setSearchQuery: (query: string) => void;
+  clearError: () => void;
 }
 
 export function useLocationSelection(): UseLocationSelectionResult {
@@ -36,56 +37,45 @@ export function useLocationSelection(): UseLocationSelectionResult {
     [],
   );
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const selectLocation = useCallback((location: LocationCoordinates) => {
     setSelectedLocation(location);
+    setError(null);
   }, []);
 
   const clearSelection = useCallback(() => {
     setSelectedLocation(null);
     setSearchQuery("");
     setSearchResults([]);
+    setError(null);
   }, []);
 
-  // Mock geocoding function - in a real implementation, this would use a geocoding service
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  // Mock geocoding service - in a real implementation, this would use a service like Google Maps Geocoding API
   const searchByAddress = useCallback(
     async (address: string): Promise<void> => {
+      if (!address.trim()) {
+        setError("Please enter an address");
+        return;
+      }
+
       setIsSearching(true);
+      setError(null);
       setSearchQuery(address);
 
       try {
-        // Mock implementation - in reality, you'd use Google Maps Geocoding API,
-        // Mapbox Geocoding API, or similar service
+        // Mock implementation - in reality, you'd call a geocoding service
+        // For now, we'll simulate some common locations or zip codes
+        const mockResults = await mockGeocodeAddress(address);
 
-        // For demonstration, we'll create mock results based on common patterns
-        const mockResults: LocationSearchResult[] = [];
-
-        // Check if it looks like a zip code
-        const zipMatch = address.match(/\b(\d{5}(-\d{4})?)\b/);
-        if (zipMatch) {
-          const zipCode = zipMatch[1];
-          // Mock coordinates for common zip codes (in real implementation, use geocoding service)
-          const mockZipCoordinates = getMockCoordinatesForZip(zipCode);
-          if (mockZipCoordinates) {
-            mockResults.push({
-              id: `zip-${zipCode}`,
-              address: "",
-              city: "Unknown City",
-              state: "Unknown State",
-              zipCode: zipCode,
-              coordinates: mockZipCoordinates,
-              displayName: `${zipCode} Area`,
-            });
-          }
-        }
-
-        // If no specific results, create a generic result
         if (mockResults.length === 0) {
-          // In a real implementation, this would call a geocoding API
-          // For now, we'll throw an error to indicate geocoding is not implemented
-          throw new Error(
-            "Address geocoding not implemented. Please use your current location or provide coordinates directly.",
-          );
+          setError("No locations found for the provided address");
+          setSearchResults([]);
+          return;
         }
 
         setSearchResults(mockResults);
@@ -94,10 +84,11 @@ export function useLocationSelection(): UseLocationSelectionResult {
         if (mockResults.length === 1 && mockResults[0]) {
           setSelectedLocation(mockResults[0].coordinates);
         }
-      } catch (error) {
-        console.error("Address search failed:", error);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to search for address";
+        setError(errorMessage);
         setSearchResults([]);
-        throw error;
       } finally {
         setIsSearching(false);
       }
@@ -110,29 +101,108 @@ export function useLocationSelection(): UseLocationSelectionResult {
     searchQuery,
     searchResults,
     isSearching,
+    error,
     selectLocation,
     searchByAddress,
     clearSelection,
-    setSearchQuery,
+    clearError,
   };
 }
 
-// Mock function to get coordinates for common zip codes
-// In a real implementation, this would be replaced with a proper geocoding service
-function getMockCoordinatesForZip(zipCode: string): LocationCoordinates | null {
-  const mockZipCodes: Record<string, LocationCoordinates> = {
-    // Major US cities for testing
-    "10001": { latitude: 40.7505, longitude: -73.9934 }, // NYC
-    "90210": { latitude: 34.0901, longitude: -118.4065 }, // Beverly Hills
-    "60601": { latitude: 41.8781, longitude: -87.6298 }, // Chicago
-    "94102": { latitude: 37.7749, longitude: -122.4194 }, // San Francisco
-    "33101": { latitude: 25.7617, longitude: -80.1918 }, // Miami
-    "75201": { latitude: 32.7767, longitude: -96.797 }, // Dallas
-    "98101": { latitude: 47.6062, longitude: -122.3321 }, // Seattle
-    "30301": { latitude: 33.749, longitude: -84.388 }, // Atlanta
-    "02101": { latitude: 42.3601, longitude: -71.0589 }, // Boston
-    "20001": { latitude: 38.9072, longitude: -77.0369 }, // Washington DC
+// Mock geocoding function - replace with real geocoding service
+async function mockGeocodeAddress(
+  address: string,
+): Promise<LocationSearchResult[]> {
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  const query = address.toLowerCase().trim();
+
+  // Mock some common zip codes and addresses for testing
+  const mockLocations: Record<string, LocationSearchResult> = {
+    "10001": {
+      id: "nyc-10001",
+      address: "New York",
+      city: "New York",
+      state: "NY",
+      zipCode: "10001",
+      coordinates: { latitude: 40.7505, longitude: -73.9934 },
+      displayName: "New York, NY 10001",
+    },
+    "90210": {
+      id: "bh-90210",
+      address: "Beverly Hills",
+      city: "Beverly Hills",
+      state: "CA",
+      zipCode: "90210",
+      coordinates: { latitude: 34.0901, longitude: -118.4065 },
+      displayName: "Beverly Hills, CA 90210",
+    },
+    "60601": {
+      id: "chi-60601",
+      address: "Chicago",
+      city: "Chicago",
+      state: "IL",
+      zipCode: "60601",
+      coordinates: { latitude: 41.8781, longitude: -87.6298 },
+      displayName: "Chicago, IL 60601",
+    },
+    "33101": {
+      id: "mia-33101",
+      address: "Miami",
+      city: "Miami",
+      state: "FL",
+      zipCode: "33101",
+      coordinates: { latitude: 25.7617, longitude: -80.1918 },
+      displayName: "Miami, FL 33101",
+    },
+    "78701": {
+      id: "aus-78701",
+      address: "Austin",
+      city: "Austin",
+      state: "TX",
+      zipCode: "78701",
+      coordinates: { latitude: 30.2672, longitude: -97.7431 },
+      displayName: "Austin, TX 78701",
+    },
   };
 
-  return mockZipCodes[zipCode] || null;
+  const results: LocationSearchResult[] = [];
+
+  // Check for exact zip code match
+  if (mockLocations[query]) {
+    results.push(mockLocations[query]!);
+  }
+
+  // Check for partial matches in city names
+  Object.values(mockLocations).forEach((location) => {
+    if (
+      location.city.toLowerCase().includes(query) ||
+      location.state.toLowerCase().includes(query) ||
+      location.displayName.toLowerCase().includes(query)
+    ) {
+      if (!results.find((r) => r.id === location.id)) {
+        results.push(location);
+      }
+    }
+  });
+
+  // If no matches found, create a mock result based on the query
+  if (results.length === 0 && query.length > 2) {
+    // Generate a mock coordinate based on the query (for demo purposes)
+    const mockLat = 40.7128 + (Math.random() - 0.5) * 10; // Around NYC area
+    const mockLng = -74.006 + (Math.random() - 0.5) * 10;
+
+    results.push({
+      id: `mock-${Date.now()}`,
+      address: query,
+      city: "Unknown",
+      state: "Unknown",
+      zipCode: "00000",
+      coordinates: { latitude: mockLat, longitude: mockLng },
+      displayName: `${query} (approximate location)`,
+    });
+  }
+
+  return results;
 }

@@ -58,7 +58,6 @@ export function useGeolocation(
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
         };
-
         setLocation(coords);
         setHasPermission(true);
         setLoading(false);

@@ -44,12 +44,19 @@ export async function getCurrentUser() {
   return user ?? null;
 }
 
-// Helper function to require admin access (throws error if not admin)
+// Helper function to require admin access (redirects if not admin)
 export async function requireAdmin() {
-  const isAdmin = await isCurrentUserAdmin();
+  const session = await auth();
 
-  if (!isAdmin) {
-    throw new Error("Admin access required");
+  if (!session?.user) {
+    const { redirect } = await import("next/navigation");
+    redirect("/login");
+  }
+
+  // TypeScript assertion: we know session exists after the check above
+  if (session!.user?.role !== "admin") {
+    const { redirect } = await import("next/navigation");
+    redirect("/dashboard");
   }
 }
 

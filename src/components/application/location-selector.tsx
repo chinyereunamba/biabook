@@ -15,13 +15,13 @@ import { LocationPermissionRequest } from "./location-permission-request";
 import { ManualLocationEntry } from "./manual-location-entry";
 import {
   useLocationSelection,
-  type LocationSelection,
+  type LocationCoordinates,
 } from "@/hooks/use-location-selection";
 import { cn } from "@/lib/utils";
 import type { Coordinates, Address } from "@/types/location";
 
 export interface LocationSelectorProps {
-  onLocationSelected: (location: LocationSelection) => void;
+  onLocationSelected: (location: LocationCoordinates) => void;
   onLocationCleared?: () => void;
   title?: string;
   description?: string;
@@ -46,22 +46,16 @@ export function LocationSelector({
   );
 
   const {
-    location,
-    isLoading,
+    selectedLocation,
+    isSearching,
     error,
-    canUseGeolocation,
     selectLocation,
-    clearLocation,
+    clearSelection,
     clearError,
   } = useLocationSelection();
 
   // Handle location selection from geolocation
   const handleGeolocationSuccess = (coordinates: Coordinates) => {
-    const locationSelection: LocationSelection = {
-      coordinates,
-      source: "geolocation",
-      displayText: "Current location",
-    };
     selectLocation(coordinates);
     onLocationSelected(locationSelection);
     setMode("selected");
@@ -73,16 +67,14 @@ export function LocationSelector({
     address?: Address,
     zipCode?: string,
   ) => {
-    selectLocation(coordinates, address, zipCode);
-    if (location) {
-      onLocationSelected(location);
-    }
+    selectLocation(coordinates);
+    onLocationSelected(coordinates);
     setMode("selected");
   };
 
   // Handle location clearing
   const handleClearLocation = () => {
-    clearLocation();
+    clearSelection();
     clearError();
     onLocationCleared?.();
     setMode("permission");

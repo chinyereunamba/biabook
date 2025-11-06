@@ -21,11 +21,13 @@ import { RevenueChart } from "./revenue-chart";
 import { ServicePerformanceTable } from "./service-performance-table";
 import { CustomerMetricsCards } from "./customer-metrics-cards";
 import { BookingTrendsChart } from "./booking-trends-chart";
+import { LocationAnalyticsDashboard } from "./location-analytics-dashboard";
+import { CustomerLocationHeatMap } from "./customer-location-heatmap";
 import { format, subDays } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import type { AnalyticsResponse } from "@/types/analytics";
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw } from "lucide-react";
+import { Download, RefreshCw, MapPin } from "lucide-react";
 
 export function AnalyticsDashboard() {
   // Set default date range to last 30 days
@@ -144,11 +146,12 @@ export function AnalyticsDashboard() {
         value={activeTab}
         onValueChange={setActiveTab}
       >
-        <TabsList className="mb-6 grid grid-cols-4">
+        <TabsList className="mb-6 grid grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="revenue">Revenue</TabsTrigger>
           <TabsTrigger value="services">Services</TabsTrigger>
           <TabsTrigger value="customers">Customers</TabsTrigger>
+          <TabsTrigger value="location">Location</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -367,6 +370,47 @@ export function AnalyticsDashboard() {
               </Button>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="location" className="space-y-6">
+          <div className="space-y-6">
+            <div className="flex items-center space-x-2">
+              <MapPin className="text-muted-foreground h-5 w-5" />
+              <div>
+                <h3 className="text-lg font-medium">Location Analytics</h3>
+                <p className="text-muted-foreground text-sm">
+                  Understand where your customers are coming from and optimize
+                  your service area
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Customer Location Metrics</CardTitle>
+                  <CardDescription>
+                    Analytics and insights about customer locations
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <LocationAnalyticsDashboard businessId="your-business-id" />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Location Heat Map</CardTitle>
+                  <CardDescription>
+                    Visual representation of customer locations
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CustomerLocationHeatMap businessId="your-business-id" />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

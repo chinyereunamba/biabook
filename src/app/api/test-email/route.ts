@@ -1,22 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendWelcomeEmail } from "@/lib/email";
+import { sendWelcomeEmail, sendVerificationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, name } = await request.json();
+    const { email, name, type = "welcome" } = await request.json();
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    const result = await sendWelcomeEmail({
-      to: email,
-      name: name || "Test User",
-    });
+    let result;
+
+    if (type === "verification") {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      const verificationUrl = `${baseUrl}/api/auth/verify-email?token=test-token&email=${encodeURIComponent(email)}`;
+
+      result = await sendVerificationEmail({
+        to: email,
+        verificationUrl,
+      });
+    } else {
+      result = await sendWelcomeEmail({
+        to: email,
+        name: name || "Test User",
+      });
+    }
 
     if (result.success) {
       return NextResponse.json({
-        message: "Test email sent successfully",
+        message: `Test ${type} email sent successfully`,
         messageId: result.messageId,
       });
     } else {

@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/auth-utils";
+import { requireAdmin } from "@/server/auth/helpers";
 import AdminDashboardClient from "@/components/admin/admin-dashboard-client";
 
 export default async function AdminDashboard() {

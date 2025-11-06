@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { CompactLocationSelector } from "@/components/application/location-selector";
-import type { LocationSelection } from "@/hooks/use-location-selection";
+import type { LocationCoordinates } from "@/hooks/use-location-selection";
 import type { Coordinates } from "@/types/location";
 import { cn } from "@/lib/utils";
 
@@ -59,19 +59,19 @@ export function LocationSearch({
   );
 
   const {
-    getCurrentLocation,
-    isLoading: geoLoading,
+    requestLocation: getCurrentLocation,
+    loading: geoLoading,
     error: geoError,
-    coordinates: geoCoordinates,
+    location: geoCoordinates,
   } = useGeolocation();
 
   const handleLocationSelected = useCallback(
-    (location: LocationSelection) => {
+    (location: LocationCoordinates) => {
       setSelectedLocation(location);
       setSearchMode("location");
 
       const searchParams: LocationSearchParams = {
-        coordinates: location.coordinates,
+        coordinates: location,
         radius: selectedRadius,
         displayText: location.displayText,
       };
@@ -185,7 +185,7 @@ export function LocationSearch({
           </div>
           <Button
             variant="outline"
-            size="default"
+            size="md"
             onClick={handleCurrentLocation}
             disabled={geoLoading || isLoading}
             className="px-3"
@@ -198,7 +198,7 @@ export function LocationSearch({
           </Button>
           <Button
             variant="outline"
-            size="default"
+            size="md"
             onClick={() => setShowFilters(!showFilters)}
             className="px-3"
           >
@@ -275,7 +275,7 @@ export function LocationSearch({
                 <Button
                   key={option.value}
                   variant={
-                    selectedRadius === option.value ? "default" : "outline"
+                    selectedRadius === option.value ? "primary" : "outline"
                   }
                   size="sm"
                   onClick={() => handleRadiusChange(option.value)}
@@ -318,9 +318,7 @@ export function LocationSearch({
       {/* Error Display */}
       {geoError && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
-          <p className="text-sm text-red-800 dark:text-red-200">
-            {geoError.message}
-          </p>
+          <p className="text-sm text-red-800 dark:text-red-200">{geoError}</p>
         </div>
       )}
     </div>

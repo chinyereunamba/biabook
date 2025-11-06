@@ -16,7 +16,7 @@ This document outlines the comprehensive role-based access control (RBAC) system
 
 ### 2. Server-Side Page Protection
 
-- **`requireAdmin()` utility** in `src/lib/auth-utils.ts`
+- **`requireAdmin()` utility** in `src/server/auth/helpers.ts`
 - Server-side authentication check on admin pages
 - Automatic redirects if user is not authenticated or not admin
 - Applied to key admin pages:
