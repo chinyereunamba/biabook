@@ -39,6 +39,21 @@ export class NotificationQueueService {
       "id" | "attempts" | "status" | "createdAt" | "updatedAt"
     >,
   ): Promise<string> {
+    // Validate scheduledFor date
+    if (
+      !notification.scheduledFor ||
+      isNaN(notification.scheduledFor.getTime())
+    ) {
+      throw new Error(
+        `Invalid scheduledFor date: ${notification.scheduledFor}`,
+      );
+    }
+
+    // Validate required fields
+    if (!notification.recipientEmail) {
+      throw new Error("Recipient email is required");
+    }
+
     const now = new Date();
 
     const [result] = await db

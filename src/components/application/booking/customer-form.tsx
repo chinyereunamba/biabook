@@ -209,7 +209,7 @@ export function CustomerForm({
 
   return (
     <Card className={className}>
-      <CardContent className="p-6">
+      <CardContent>
         <div ref={containerRef as React.RefObject<HTMLDivElement>}>
           <form onSubmit={handleSubmit} className="space-y-6">
             <FormFeedback errors={errors} />

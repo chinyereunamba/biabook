@@ -15,6 +15,33 @@ import type { Business } from "@/types/business";
 import type { NotificationType } from "@/types/notification";
 
 /**
+ * Safely create a Date object from appointment date and time
+ */
+function createAppointmentDateTime(
+  appointmentDate: Date | string,
+  startTime: string,
+): Date | null {
+  try {
+    const dateStr =
+      appointmentDate instanceof Date
+        ? appointmentDate.toISOString().split("T")[0]
+        : String(appointmentDate).split("T")[0];
+
+    const dateTime = new Date(dateStr + "T" + startTime);
+
+    // Validate the resulting date
+    if (isNaN(dateTime.getTime())) {
+      return null;
+    }
+
+    return dateTime;
+  } catch (error) {
+    console.error("Error creating appointment date time:", error);
+    return null;
+  }
+}
+
+/**
  * Service for scheduling notifications
  */
 export class NotificationScheduler {
@@ -72,13 +99,34 @@ export class NotificationScheduler {
     service: Service,
     business: Business,
   ): Promise<void> {
-    const appointmentDate = new Date(
-      appointment.appointmentDate + "T" + appointment.startTime,
+    // Parse appointment date and time safely
+    const appointmentDate = createAppointmentDateTime(
+      appointment.appointmentDate,
+      appointment.startTime,
     );
+
+    // Validate the appointment date
+    if (!appointmentDate) {
+      console.error("Invalid appointment date/time:", {
+        appointmentDate: appointment.appointmentDate,
+        startTime: appointment.startTime,
+        appointmentId: appointment.id,
+      });
+      return;
+    }
 
     // Schedule 24-hour reminder for customer
     const reminder24h = new Date(appointmentDate);
     reminder24h.setHours(reminder24h.getHours() - 24);
+
+    // Validate reminder date
+    if (isNaN(reminder24h.getTime())) {
+      console.error("Invalid reminder24h date:", {
+        appointmentDate: appointmentDate.toISOString(),
+        appointmentId: appointment.id,
+      });
+      return;
+    }
 
     if (reminder24h > new Date()) {
       await this.scheduleNotification({
@@ -99,6 +147,15 @@ export class NotificationScheduler {
     // Schedule 2-hour reminder for customer
     const reminder2h = new Date(appointmentDate);
     reminder2h.setHours(reminder2h.getHours() - 2);
+
+    // Validate reminder date
+    if (isNaN(reminder2h.getTime())) {
+      console.error("Invalid reminder2h date:", {
+        appointmentDate: appointmentDate.toISOString(),
+        appointmentId: appointment.id,
+      });
+      return;
+    }
 
     if (reminder2h > new Date()) {
       await this.scheduleNotification({

@@ -32,15 +32,17 @@ const customAdapter = {
     // Assign role based on email
     const role = adminEmails.includes(user.email) ? "admin" : "user";
 
+    const emailVerified = user.email ? new Date() : null;
+
     const result = await db
       .insert(users)
       .values({
         id: crypto.randomUUID(),
         name: user.name,
         email: user.email,
-        emailVerified: user.emailVerified,
+        emailVerified: emailVerified,
         image: user.image,
-        password: user.password || null, // Handle password for credentials users
+        password: user.password || null,
         role: role as "user" | "admin",
       })
       .returning();
@@ -138,9 +140,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn({ account, profile, user }: any) {
       if (account?.provider === "google") {
-        if (!profile?.email_verified) {
-          return false;
+        try {
+          await db
+            .update(users)
+            .set({ emailVerified: new Date() })
+            .where(eq(users.email, user.email!));
+        } catch (error) {
+          console.error("Failed to update Google user verification:", error);
         }
+
         return true;
       }
 

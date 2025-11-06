@@ -411,11 +411,25 @@ async function createBookingHandler(request: NextRequest) {
       ]);
 
       // Schedule reminder notifications for later
-      await notificationScheduler.scheduleBookingReminders(
-        appointmentForScheduler,
-        service,
-        businessForScheduler,
-      );
+      try {
+        await notificationScheduler.scheduleBookingReminders(
+          appointmentForScheduler,
+          service,
+          businessForScheduler,
+        );
+      } catch (reminderError) {
+        bookingLogger.warn(
+          "Failed to schedule booking reminders",
+          { ...context, appointmentId: newAppointment.id },
+          {
+            error:
+              reminderError instanceof Error
+                ? reminderError.message
+                : String(reminderError),
+          },
+        );
+        // Continue execution even if reminder scheduling fails
+      }
 
       bookingLogger.info("Booking notifications sent and reminders scheduled", {
         ...context,
