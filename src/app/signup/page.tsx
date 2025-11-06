@@ -16,6 +16,7 @@ import {
   EyeOff,
   User,
   Lock,
+  CheckCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
@@ -86,12 +87,16 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mb-6 flex items-center justify-center space-x-2">
-            <Calendar className="text-primary h-8 w-8" />
-            <span className="text-2xl font-bold text-gray-900">BiaBook</span>
+            <div className="rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 p-2">
+              <Calendar className="h-8 w-8 text-white" />
+            </div>
+            <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-2xl font-bold text-transparent">
+              BiaBook
+            </span>
           </div>
           <h1 className="mb-2 text-3xl font-bold text-gray-900">
             Create your account
@@ -99,32 +104,32 @@ export default function SignupPage() {
           <p className="text-gray-600">Start accepting bookings in minutes</p>
         </div>
 
-        <Card className="border-gray-200 shadow-lg">
-          <CardContent className="">
+        <Card className="border-0 shadow-xl">
+          <CardContent className="p-8">
             {!showMagicLink && !showPasswordForm ? (
               <div className="space-y-6">
                 {/* Google Sign-in - Primary CTA */}
                 <Button
-                  className="h-12 w-full border border-gray-300 bg-white text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-50"
+                  className="h-12 w-full border border-gray-200 bg-white text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
                   onClick={() =>
                     signIn("google", { callbackUrl: "/onboarding" })
                   }
                 >
                   <svg className="mr-3 h-5 w-5" viewBox="0 0 24 24">
                     <path
-                      fill="currentColor"
+                      fill="#4285F4"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                     />
                     <path
-                      fill="currentColor"
+                      fill="#34A853"
                       d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
                     />
                     <path
-                      fill="currentColor"
+                      fill="#FBBC05"
                       d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
                     />
                     <path
-                      fill="currentColor"
+                      fill="#EA4335"
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
@@ -136,14 +141,19 @@ export default function SignupPage() {
                     <Separator className="w-full" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-gray-500">Or</span>
+                    <span className="bg-white px-4 font-medium text-gray-500">
+                      Or
+                    </span>
                   </div>
                 </div>
 
                 {/* Magic Link Form */}
                 <form onSubmit={handleMagicLink} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-gray-700">
+                    <Label
+                      htmlFor="email"
+                      className="font-medium text-gray-700"
+                    >
                       Email address
                     </Label>
                     <div className="relative">
@@ -151,8 +161,8 @@ export default function SignupPage() {
                       <Input
                         id="email"
                         type="email"
-                        placeholder="Enter your email"
-                        className="h-12 border-gray-300 pl-10 focus:border-purple-500 focus:ring-purple-500"
+                        placeholder="Enter your email address"
+                        className="h-12 border-gray-200 pl-10 transition-colors focus:border-purple-500 focus:ring-purple-500"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -162,7 +172,7 @@ export default function SignupPage() {
 
                   <Button
                     type="submit"
-                    className="bg-primary h-12 w-full hover:bg-purple-700"
+                    className="h-12 w-full bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-200 hover:from-purple-700 hover:to-blue-700"
                   >
                     Send magic link
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -172,10 +182,10 @@ export default function SignupPage() {
                 <div className="text-center">
                   <button
                     type="button"
-                    className="text-sm text-gray-500 underline hover:text-gray-700"
+                    className="text-sm font-medium text-purple-600 transition-colors hover:text-purple-700"
                     onClick={() => setShowPasswordForm(true)}
                   >
-                    Or sign up with email and password
+                    Sign up with email and password instead
                   </button>
                 </div>
               </div>
@@ -184,23 +194,39 @@ export default function SignupPage() {
                 {/* Back button */}
                 <button
                   type="button"
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700"
                   onClick={() => setShowPasswordForm(false)}
                 >
-                  ← Back to options
+                  <ArrowRight className="mr-1 h-4 w-4 rotate-180" />
+                  Back to options
                 </button>
 
                 {/* Error message */}
                 {error && (
-                  <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
-                    {error}
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="h-4 w-4 text-red-400"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-2">{error}</div>
+                    </div>
                   </div>
                 )}
 
                 {/* Credentials Form */}
                 <form onSubmit={handleCredentialsSignup} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-gray-700">
+                    <Label htmlFor="name" className="font-medium text-gray-700">
                       Full Name
                     </Label>
                     <div className="relative">
@@ -209,7 +235,7 @@ export default function SignupPage() {
                         id="name"
                         type="text"
                         placeholder="Enter your full name"
-                        className="h-12 border-gray-300 pl-10 focus:border-purple-500 focus:ring-purple-500"
+                        className="h-12 border-gray-200 pl-10 transition-colors focus:border-purple-500 focus:ring-purple-500"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
@@ -218,7 +244,10 @@ export default function SignupPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email-creds" className="text-gray-700">
+                    <Label
+                      htmlFor="email-creds"
+                      className="font-medium text-gray-700"
+                    >
                       Email address
                     </Label>
                     <div className="relative">
@@ -226,8 +255,8 @@ export default function SignupPage() {
                       <Input
                         id="email-creds"
                         type="email"
-                        placeholder="Enter your email"
-                        className="h-12 border-gray-300 pl-10 focus:border-purple-500 focus:ring-purple-500"
+                        placeholder="Enter your email address"
+                        className="h-12 border-gray-200 pl-10 transition-colors focus:border-purple-500 focus:ring-purple-500"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -236,7 +265,10 @@ export default function SignupPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-gray-700">
+                    <Label
+                      htmlFor="password"
+                      className="font-medium text-gray-700"
+                    >
                       Password
                     </Label>
                     <div className="relative">
@@ -244,8 +276,8 @@ export default function SignupPage() {
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Create a password"
-                        className="h-12 border-gray-300 pr-10 pl-10 focus:border-purple-500 focus:ring-purple-500"
+                        placeholder="Create a strong password"
+                        className="h-12 border-gray-200 pr-10 pl-10 transition-colors focus:border-purple-500 focus:ring-purple-500"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -253,7 +285,7 @@ export default function SignupPage() {
                       />
                       <button
                         type="button"
-                        className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 hover:text-gray-600"
+                        className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 transition-colors hover:text-gray-600"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -263,51 +295,70 @@ export default function SignupPage() {
                         )}
                       </button>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      Password must be at least 8 characters long
-                    </p>
+                    <div className="flex items-center space-x-1 text-xs text-gray-500">
+                      <div
+                        className={`h-2 w-2 rounded-full ${password.length >= 8 ? "bg-green-400" : "bg-gray-300"}`}
+                      ></div>
+                      <span>At least 8 characters</span>
+                    </div>
                   </div>
 
                   <Button
                     type="submit"
-                    className="bg-primary h-12 w-full hover:bg-purple-700"
+                    className="h-12 w-full bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-200 hover:from-purple-700 hover:to-blue-700"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Creating account..." : "Create account"}
-                    {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
+                        Creating account...
+                      </div>
+                    ) : (
+                      <>
+                        Create your account
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </>
+                    )}
                   </Button>
                 </form>
               </div>
             ) : (
-              <div className="space-y-4 text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
-                  <Mail className="text-primary h-8 w-8" />
+              <div className="space-y-6 text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                  <CheckCircle className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Check your email
-                </h3>
-                <p className="text-gray-600">
-                  We sent a magic link to <strong>{email}</strong>
-                </p>
-                <p className="text-sm text-gray-500">
-                  Click the link in the email to sign in. The link will expire
-                  in 10 minutes.
-                </p>
+                <div>
+                  <h3 className="mb-2 text-2xl font-bold text-gray-900">
+                    Check your email
+                  </h3>
+                  <p className="text-gray-600">
+                    We sent a magic link to{" "}
+                    <span className="font-semibold text-gray-900">{email}</span>
+                  </p>
+                </div>
+                <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
+                  <p className="mb-1 font-medium">What's next?</p>
+                  <p>Click the link in the email to create your account.</p>
+                  <p className="mt-2">
+                    The link will expire in 10 minutes for security.
+                  </p>
+                </div>
                 <Button
                   variant="outline"
                   onClick={() => setShowMagicLink(false)}
-                  className="border-gray-300"
+                  className="h-12 border-gray-200"
                 >
+                  <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
                   Back to sign up
                 </Button>
               </div>
             )}
 
-            <div className="mt-8 text-center text-sm text-gray-500">
+            <div className="text-center text-sm text-gray-600">
               Already have an account?{" "}
               <Link
                 href="/login"
-                className="text-primary font-medium hover:text-purple-700"
+                className="font-medium text-purple-600 transition-colors hover:text-purple-700"
               >
                 Sign in
               </Link>
@@ -317,11 +368,17 @@ export default function SignupPage() {
 
         <div className="mt-6 text-center text-xs text-gray-500">
           By signing up, you agree to our{" "}
-          <Link href="/terms" className="underline hover:text-gray-700">
+          <Link
+            href="/terms"
+            className="underline transition-colors hover:text-gray-700"
+          >
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="underline hover:text-gray-700">
+          <Link
+            href="/privacy"
+            className="underline transition-colors hover:text-gray-700"
+          >
             Privacy Policy
           </Link>
         </div>
