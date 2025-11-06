@@ -10,12 +10,11 @@ import {
   type LucideProps,
 } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { performCompleteLogout } from "@/lib/session-utils";
-import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
 
 export default function LayoutComponent({
   children,
@@ -33,7 +32,6 @@ export default function LayoutComponent({
   const [showProfile, setShowProfile] = useState(false);
   const [toggleMenu, setToggleMenu] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
 
   const { data: session } = useSession();
   const menuClass = toggleMenu ? "hidden" : "";
