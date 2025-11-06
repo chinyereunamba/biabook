@@ -15,9 +15,15 @@ export async function GET(
       );
     }
 
-    // TODO: cache the business info when fetch to avoid fetching agin when the user refreshes
+    // TODO: cache the business info when fetch to avoid fetching again when the user refreshes
 
-    const business = await businessRepository.findByIdWithServices(businessId);
+    // Try to find by ID first, then by slug
+    let business = await businessRepository.findByIdWithServices(businessId);
+
+    if (!business) {
+      // If not found by ID, try by slug
+      business = await businessRepository.findBySlugWithServices(businessId);
+    }
 
     if (!business) {
       return NextResponse.json(

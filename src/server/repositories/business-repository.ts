@@ -40,7 +40,6 @@ export class BusinessRepository {
   /**
    * Get business by id
    */
-
   async findById(id: string): Promise<Business | null> {
     if (!id?.trim()) {
       return null;
@@ -50,6 +49,23 @@ export class BusinessRepository {
       .select()
       .from(businesses)
       .where(eq(businesses.id, id))
+      .limit(1);
+
+    return business ?? null;
+  }
+
+  /**
+   * Get business by slug
+   */
+  async findBySlug(slug: string): Promise<Business | null> {
+    if (!slug?.trim()) {
+      return null;
+    }
+
+    const [business] = await db
+      .select()
+      .from(businesses)
+      .where(eq(businesses.slug, slug))
       .limit(1);
 
     return business ?? null;
@@ -104,6 +120,56 @@ export class BusinessRepository {
   }
 
   /**
+   * Get a business by slug with category information and timezone
+   */
+  async findBySlugWithCategory(
+    slug: string,
+  ): Promise<BusinessWithCategory | null> {
+    if (!slug?.trim()) {
+      return null;
+    }
+
+    const result = await db
+      .select({
+        id: businesses.id,
+        name: businesses.name,
+        slug: businesses.slug,
+        description: businesses.description,
+        location: businesses.location,
+        phone: businesses.phone,
+        email: businesses.email,
+        categoryId: businesses.categoryId,
+        ownerId: businesses.ownerId,
+        createdAt: businesses.createdAt,
+        updatedAt: businesses.updatedAt,
+        category: {
+          id: categories.id,
+          name: categories.name,
+        },
+        timezone: businessLocations.timezone,
+      })
+      .from(businesses)
+      .leftJoin(categories, eq(businesses.categoryId, categories.id))
+      .leftJoin(
+        businessLocations,
+        eq(businesses.id, businessLocations.businessId),
+      )
+      .where(eq(businesses.slug, slug))
+      .limit(1);
+
+    const business = result[0];
+    if (!business) {
+      return null;
+    }
+
+    return {
+      ...business,
+      category: business.category ?? { id: "", name: "Uncategorized" },
+      timezone: business.timezone ?? undefined,
+    };
+  }
+
+  /**
    * Get a business by ID with category and active services
    */
   async findByIdWithServices(id: string): Promise<BusinessWithServices | null> {
@@ -122,6 +188,40 @@ export class BusinessRepository {
       .select()
       .from(services)
       .where(and(eq(services.businessId, id), eq(services.isActive, true)))
+      .orderBy(desc(services.createdAt));
+
+    return {
+      ...businessWithCategory,
+      services: businessServices,
+    };
+  }
+
+  /**
+   * Get a business by slug with category and active services
+   */
+  async findBySlugWithServices(
+    slug: string,
+  ): Promise<BusinessWithServices | null> {
+    if (!slug?.trim()) {
+      return null;
+    }
+
+    // First get the business with category
+    const businessWithCategory = await this.findBySlugWithCategory(slug);
+    if (!businessWithCategory) {
+      return null;
+    }
+
+    // Then get active services for this business
+    const businessServices = await db
+      .select()
+      .from(services)
+      .where(
+        and(
+          eq(services.businessId, businessWithCategory.id),
+          eq(services.isActive, true),
+        ),
+      )
       .orderBy(desc(services.createdAt));
 
     return {

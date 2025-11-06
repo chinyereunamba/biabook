@@ -222,7 +222,7 @@ export function EnhancedErrorDisplay({
                 size="sm"
                 variant="outline"
                 onClick={() =>
-                  (window.location.href = "mailto:support@biabook.com")
+                  (window.location.href = "mailto:support@biabook.app")
                 }
                 className="flex items-center gap-2"
               >

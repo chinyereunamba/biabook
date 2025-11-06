@@ -6,7 +6,12 @@
 import type { Coordinates } from "@/types/location";
 import { LocationError, LocationErrorCode } from "@/types/location";
 import { isValidTimezone } from "@/lib/location-validation";
-import { timezoneService } from "@/lib/timezone-service";
+import {
+  clientTimezoneService,
+  detectTimezone,
+  formatTimeWithTimezone,
+  getBrowserTimezone,
+} from "@/lib/timezone-service-client";
 
 /**
  * Appointment time with timezone information
@@ -31,11 +36,7 @@ export interface TimezoneConversionResult {
  * Gets the user's current timezone
  */
 export function getUserTimezone(): string {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone;
-  } catch {
-    return "UTC"; // Fallback to UTC
-  }
+  return getBrowserTimezone();
 }
 
 /**
@@ -64,7 +65,7 @@ export async function detectTimezoneFromLocation(): Promise<string> {
       accuracy: position.coords.accuracy,
     };
 
-    return await timezoneService.detectTimezone(coordinates);
+    return await detectTimezone(coordinates);
   } catch {
     // Fallback to browser timezone
     return getUserTimezone();
@@ -100,10 +101,7 @@ export function createAppointmentTime(
   }
 
   const appointmentDate = new Date(year, month - 1, day, hour, minute);
-  const displayTime = timezoneService.formatTimeWithTimezone(
-    appointmentDate,
-    timezone,
-  );
+  const displayTime = formatTimeWithTimezone(appointmentDate, timezone);
 
   return {
     date,
@@ -150,10 +148,7 @@ export async function convertAppointmentTime(
     // Format the converted time
     const convertedDate = targetDate.toISOString().split("T")[0]!;
     const convertedTime = targetDate.toTimeString().slice(0, 5);
-    const displayTime = timezoneService.formatTimeWithTimezone(
-      targetDate,
-      targetTimezone,
-    );
+    const displayTime = formatTimeWithTimezone(targetDate, targetTimezone);
 
     return {
       date: convertedDate,
@@ -223,7 +218,7 @@ export function formatAppointmentTimeDisplay(
     const appointmentDate = new Date(year, month - 1, day, hour, minute);
 
     if (showTimezone) {
-      return timezoneService.formatTimeWithTimezone(appointmentDate, timezone);
+      return formatTimeWithTimezone(appointmentDate, timezone);
     } else {
       return new Intl.DateTimeFormat("en-US", {
         timeZone: timezone,
