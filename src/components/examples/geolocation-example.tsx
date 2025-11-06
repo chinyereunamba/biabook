@@ -23,7 +23,7 @@ export function GeolocationExample() {
     useState<LocationCoordinates | null>(null);
   const [showSelector, setShowSelector] = useState(false);
 
-  const handleLocationSelected = (location: LocationSelection) => {
+  const handleLocationSelected = (location: LocationCoordinates) => {
     setSelectedLocation(location);
     setShowSelector(false);
   };
@@ -119,13 +119,15 @@ export function GeolocationHookExample() {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <strong>Can use geolocation:</strong>{" "}
-            {canUseGeolocation ? "Yes" : "No"}
+            {typeof navigator !== "undefined" && "geolocation" in navigator
+              ? "Yes"
+              : "No"}
           </div>
           <div>
-            <strong>Is loading:</strong> {isLoading ? "Yes" : "No"}
+            <strong>Is loading:</strong> {isSearching ? "Yes" : "No"}
           </div>
           <div>
-            <strong>Show manual entry:</strong> {showManualEntry ? "Yes" : "No"}
+            <strong>Show manual entry:</strong> Yes
           </div>
           <div>
             <strong>Has location:</strong> {location ? "Yes" : "No"}
@@ -146,8 +148,8 @@ export function GeolocationHookExample() {
 
         <div className="flex gap-2">
           <Button
-            onClick={getCurrentLocation}
-            disabled={isLoading || !canUseGeolocation}
+            onClick={() => searchByAddress("New York")}
+            disabled={isSearching}
           >
             Get Current Location
           </Button>

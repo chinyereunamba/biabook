@@ -52,7 +52,7 @@ describe("/api/bookings/validate-location", () => {
         },
       });
 
-      const response = await POST(request);
+      const response = await POST(request, {} as any);
       const result = await response.json();
 
       expect(response.status).toBe(200);
@@ -96,7 +96,7 @@ describe("/api/bookings/validate-location", () => {
         includeAlternatives: true,
       });
 
-      const response = await POST(request);
+      const response = await POST(request, {} as any);
       const result = await response.json();
 
       expect(response.status).toBe(200);
@@ -132,7 +132,7 @@ describe("/api/bookings/validate-location", () => {
         },
       });
 
-      const response = await POST(request);
+      const response = await POST(request, {} as any);
       const result = await response.json();
 
       expect(response.status).toBe(200);
@@ -149,7 +149,7 @@ describe("/api/bookings/validate-location", () => {
         },
       });
 
-      const response = await POST(request);
+      const response = await POST(request, {} as any);
 
       expect(response.status).toBe(400);
     });
@@ -163,7 +163,7 @@ describe("/api/bookings/validate-location", () => {
         },
       });
 
-      const response = await POST(request);
+      const response = await POST(request, {} as any);
 
       expect(response.status).toBe(400);
     });
@@ -181,7 +181,7 @@ describe("/api/bookings/validate-location", () => {
         },
       });
 
-      const response = await POST(request);
+      const response = await POST(request, {} as any);
 
       expect(response.status).toBe(400);
     });
@@ -199,7 +199,7 @@ describe("/api/bookings/validate-location", () => {
         },
       });
 
-      const response = await POST(request);
+      const response = await POST(request, {} as any);
 
       expect(response.status).toBe(400);
     });
@@ -230,7 +230,7 @@ describe("/api/bookings/validate-location", () => {
         },
       });
 
-      await POST(request);
+      await POST(request, {} as any);
 
       expect(
         serviceRadiusValidationService.validateBookingLocation,
@@ -275,7 +275,7 @@ describe("/api/bookings/validate-location", () => {
         maxAlternatives: 3,
       });
 
-      await POST(request);
+      await POST(request, {} as any);
 
       expect(
         serviceRadiusValidationService.validateBookingLocation,

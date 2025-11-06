@@ -4,6 +4,7 @@ import {
   Head,
   Heading,
   Html,
+  Img,
   Link,
   Preview,
   Section,
@@ -27,49 +28,61 @@ export const VerificationEmail = ({
       <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Section style={logoContainer}>
-            <Heading style={h1}>BiaBook</Heading>
+          {/* Header */}
+          <Section style={header}>
+            {/* If you have a logo, you can use it here */}
+            {/* <Img src="https://yourdomain.com/logo.png" alt="BiaBook Logo" width="120" /> */}
+            <Heading style={brand}>BiaBook</Heading>
           </Section>
 
-          <Heading style={h2}>Confirm your email address</Heading>
+          {/* Content */}
+          <Section style={content}>
+            <Heading style={title}>Confirm your email address</Heading>
+            <Text style={paragraph}>Hi there,</Text>
+            <Text style={paragraph}>
+              Welcome to <strong>BiaBook</strong>! To complete your registration
+              and start booking appointments, please confirm your email address
+              by clicking the button below.
+            </Text>
 
-          <Text style={text}>Hi there,</Text>
+            <Section style={buttonContainer}>
+              <Link style={button} href={verificationUrl}>
+                Confirm Email Address
+              </Link>
+            </Section>
 
-          <Text style={text}>
-            Welcome to BiaBook! To complete your registration and start booking
-            appointments, please confirm your email address by clicking the
-            button below.
-          </Text>
+            <Text style={paragraph}>
+              Or copy and paste this link in your browser:
+            </Text>
+            <Text style={linkText}>{verificationUrl}</Text>
 
-          <Section style={buttonContainer}>
-            <Link style={button} href={verificationUrl}>
-              Confirm Email Address
-            </Link>
+            <Text style={paragraph}>
+              This link will expire in 24 hours for security reasons.
+            </Text>
+
+            <Text style={paragraph}>
+              If you didn’t create an account with BiaBook, you can safely
+              ignore this email.
+            </Text>
+
+            <Text style={signature}>
+              Warm regards,
+              <br />
+              <strong>The BiaBook Team</strong>
+            </Text>
           </Section>
 
-          <Text style={text}>Or copy and paste this link in your browser:</Text>
-
-          <Text style={linkText}>{verificationUrl}</Text>
-
-          <Text style={text}>
-            This link will expire in 24 hours for security reasons.
-          </Text>
-
-          <Text style={text}>
-            If you didn't create an account with BiaBook, you can safely ignore
-            this email.
-          </Text>
-
-          <Text style={footer}>
-            Best regards,
-            <br />
-            The BiaBook Team
-          </Text>
-
-          <Text style={footerText}>
-            This email was sent to {email}. If you didn't request this
-            verification, you can safely ignore this email.
-          </Text>
+          {/* Footer */}
+          <Section style={footer}>
+            <Text style={footerText}>
+              This email was sent to{" "}
+              <span style={{ color: "#111827" }}>{email}</span>. If you didn't request this verification, you can
+              safely ignore this email.
+            </Text>
+            <Text style={footerText}>
+              © {new Date().getFullYear()} BiaBook. All rights reserved.
+            </Text>
+          </Section>
         </Container>
       </Body>
     </Html>
@@ -78,54 +91,64 @@ export const VerificationEmail = ({
 
 export default VerificationEmail;
 
+// ============================
 // Styles
+// ============================
+
 const main = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "#f9fafb",
   fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
+  color: "#111827",
+  margin: 0,
+  padding: "24px 0",
 };
 
 const container = {
+  backgroundColor: "#ffffff",
   margin: "0 auto",
-  padding: "20px 0 48px",
-  maxWidth: "560px",
+  padding: "32px 24px",
+  maxWidth: "600px",
+  borderRadius: "8px",
+  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
 };
 
-const logoContainer = {
+const header = {
   textAlign: "center" as const,
-  marginBottom: "32px",
+  paddingBottom: "24px",
+  borderBottom: "1px solid #e5e7eb",
 };
 
-const h1 = {
-  color: "#1f2937",
-  fontSize: "32px",
-  fontWeight: "700",
-  margin: "0",
-  padding: "0",
-  textAlign: "center" as const,
+const brand = {
+  fontSize: "28px",
+  fontWeight: 700,
+  color: "#7c3aed", // your brand purple
+  margin: 0,
 };
 
-const h2 = {
-  color: "#1f2937",
-  fontSize: "24px",
-  fontWeight: "600",
-  lineHeight: "1.3",
-  margin: "16px 0",
+const content = {
+  padding: "32px 0",
 };
 
-const text = {
-  color: "#374151",
+const title = {
+  fontSize: "22px",
+  fontWeight: 600,
+  color: "#111827",
+  margin: "0 0 16px 0",
+};
+
+const paragraph = {
   fontSize: "16px",
   lineHeight: "1.6",
+  color: "#374151",
   margin: "16px 0",
 };
 
 const linkText = {
-  color: "#3b82f6",
   fontSize: "14px",
-  lineHeight: "1.6",
-  margin: "16px 0",
+  color: "#7c3aed",
   wordBreak: "break-all" as const,
+  marginBottom: "24px",
 };
 
 const buttonContainer = {
@@ -134,27 +157,32 @@ const buttonContainer = {
 };
 
 const button = {
-  backgroundColor: "#3b82f6",
-  borderRadius: "8px",
+  backgroundColor: "#7c3aed",
   color: "#ffffff",
-  fontSize: "16px",
-  fontWeight: "600",
   textDecoration: "none",
-  textAlign: "center" as const,
+  padding: "12px 32px",
+  borderRadius: "6px",
   display: "inline-block",
-  padding: "12px 24px",
+  fontSize: "16px",
+  fontWeight: 600,
+};
+
+const signature = {
+  fontSize: "16px",
+  lineHeight: "1.6",
+  color: "#111827",
+  marginTop: "32px",
 };
 
 const footer = {
-  color: "#374151",
-  fontSize: "16px",
-  lineHeight: "1.6",
-  margin: "32px 0 16px",
+  borderTop: "1px solid #e5e7eb",
+  marginTop: "32px",
+  paddingTop: "16px",
+  textAlign: "center" as const,
 };
 
 const footerText = {
+  fontSize: "13px",
   color: "#6b7280",
-  fontSize: "14px",
-  lineHeight: "1.6",
-  margin: "16px 0",
+  margin: "8px 0",
 };

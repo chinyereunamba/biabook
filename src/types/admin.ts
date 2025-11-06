@@ -1,17 +1,20 @@
-import { useState, useEffect } from "react";
-
 interface Business {
   id: string;
   name: string;
-  ownerName: string;
-  ownerEmail: string;
-  categoryName: string;
-  location?: string;
-  phone?: string;
-  email?: string;
+  slug: string;
+  description: string | null;
+  ownerName: string | null;
+  ownerEmail: string | null;
+  categoryName: string | null;
+  categoryId: string;
+  ownerId: string;
+  location: string | null;
+  phone: string | null;
+  email: string | null;
   totalAppointments: number;
   totalRevenue: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 interface BusinessSummary {

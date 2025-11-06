@@ -165,7 +165,7 @@ export default function AdminDashboardClient() {
         {/* Metrics Grid */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card className="transition-shadow hover:shadow-md">
-            <CardContent className="p-6">
+            <CardContent>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">
@@ -187,7 +187,7 @@ export default function AdminDashboardClient() {
           </Card>
 
           <Card className="transition-shadow hover:shadow-md">
-            <CardContent className="p-6">
+            <CardContent>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">
@@ -209,7 +209,7 @@ export default function AdminDashboardClient() {
           </Card>
 
           <Card className="transition-shadow hover:shadow-md">
-            <CardContent className="p-6">
+            <CardContent>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">
@@ -232,7 +232,7 @@ export default function AdminDashboardClient() {
           </Card>
 
           <Card className="transition-shadow hover:shadow-md">
-            <CardContent className="p-6">
+            <CardContent>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">

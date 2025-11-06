@@ -57,7 +57,7 @@ export function LocationSelector({
   // Handle location selection from geolocation
   const handleGeolocationSuccess = (coordinates: Coordinates) => {
     selectLocation(coordinates);
-    onLocationSelected(locationSelection);
+    onLocationSelected(coordinates);
     setMode("selected");
   };
 
@@ -103,12 +103,11 @@ export function LocationSelector({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {location.displayText}
+                    Location Selected
                   </span>
                   <Badge variant="secondary" className="text-xs">
-                    {location.source === "geolocation" && "GPS"}
-                    {location.source === "address" && "Address"}
-                    {location.source === "zipcode" && "ZIP"}
+                    {selectedLocation?.latitude.toFixed(4)},{" "}
+                    {selectedLocation?.longitude.toFixed(4)}
                   </Badge>
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -142,10 +141,12 @@ export function LocationSelector({
     return (
       <ManualLocationEntry
         onLocationSelected={handleManualLocationSelected}
-        onBack={canUseGeolocation ? handleBackFromManual : undefined}
+        onBack={handleBackFromManual}
         title={title}
         description={description}
-        showGeolocationOption={canUseGeolocation}
+        showGeolocationOption={
+          typeof navigator !== "undefined" && "geolocation" in navigator
+        }
         className={className}
       />
     );
@@ -166,7 +167,7 @@ export function LocationSelector({
 
 // Compact version for inline use
 export interface CompactLocationSelectorProps {
-  onLocationSelected: (location: LocationSelection) => void;
+  onLocationSelected: (location: LocationCoordinates) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -180,9 +181,9 @@ export function CompactLocationSelector({
 }: CompactLocationSelectorProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedLocation, setSelectedLocation] =
-    useState<LocationSelection | null>(null);
+    useState<LocationCoordinates | null>(null);
 
-  const handleLocationSelected = (location: LocationSelection) => {
+  const handleLocationSelected = (location: LocationCoordinates) => {
     setSelectedLocation(location);
     setIsExpanded(false);
     onLocationSelected(location);
@@ -222,7 +223,9 @@ export function CompactLocationSelector({
         className="w-full justify-start text-left font-normal"
       >
         <MapPin className="mr-2 h-4 w-4" />
-        {selectedLocation ? selectedLocation.displayText : placeholder}
+        {selectedLocation
+          ? `${selectedLocation.latitude.toFixed(4)}, ${selectedLocation.longitude.toFixed(4)}`
+          : placeholder}
       </Button>
       {selectedLocation && (
         <Button
@@ -240,7 +243,7 @@ export function CompactLocationSelector({
 
 // Location display component for showing selected location
 export interface LocationDisplayProps {
-  location: LocationSelection;
+  location: LocationCoordinates;
   showBadge?: boolean;
   showCoordinates?: boolean;
   className?: string;
@@ -253,29 +256,11 @@ export function LocationDisplay({
   className,
 }: LocationDisplayProps) {
   const getSourceIcon = () => {
-    switch (location.source) {
-      case "geolocation":
-        return <Navigation className="h-4 w-4" />;
-      case "address":
-        return <Search className="h-4 w-4" />;
-      case "zipcode":
-        return <MapPin className="h-4 w-4" />;
-      default:
-        return <MapPin className="h-4 w-4" />;
-    }
+    return <MapPin className="h-4 w-4" />;
   };
 
   const getSourceLabel = () => {
-    switch (location.source) {
-      case "geolocation":
-        return "GPS Location";
-      case "address":
-        return "Address";
-      case "zipcode":
-        return "ZIP Code";
-      default:
-        return "Location";
-    }
+    return "Coordinates";
   };
 
   return (
@@ -286,7 +271,7 @@ export function LocationDisplay({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="truncate font-medium text-gray-900 dark:text-gray-100">
-            {location.displayText}
+            Location
           </span>
           {showBadge && (
             <Badge variant="secondary" className="text-xs">
@@ -296,8 +281,7 @@ export function LocationDisplay({
         </div>
         {showCoordinates && (
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {location.coordinates.latitude.toFixed(6)},{" "}
-            {location.coordinates.longitude.toFixed(6)}
+            {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
           </p>
         )}
       </div>

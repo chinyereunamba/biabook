@@ -22,8 +22,9 @@ export default function BusinessSummary({
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
-    }).format(amount / 100);
+    }).format(amount);
   };
+
   const avgRevenue =
     summary.total > 0
       ? formatCurrency(summary.totalRevenue / summary.total)
@@ -68,7 +69,7 @@ export default function BusinessSummary({
     <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
       {stats.map((item) => (
         <Card key={item.id}>
-          <CardContent className="p-6">
+          <CardContent>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-muted-foreground text-sm font-medium">

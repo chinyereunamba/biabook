@@ -228,10 +228,23 @@ export default function BusinessTable({
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          window.open(`mailto:${b.ownerEmail}`, "_blank")
+                        }
+                        disabled={!b.ownerEmail}
+                        title="Send email to owner"
+                      >
                         <Mail className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push(`/admin/businesses/${b.id}`)}
+                        title="View business details"
+                      >
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </div>
@@ -240,14 +253,18 @@ export default function BusinessTable({
               ))}
             </tbody>
           </table>
-          a
         </div>
 
         {sortedBusinesses.length === 0 && (
           <div className="py-12 text-center">
             <Building2 className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+            <h3 className="text-foreground mb-2 text-lg font-semibold">
+              No businesses found
+            </h3>
             <p className="text-muted-foreground">
-              No businesses found matching your criteria.
+              {searchTerm
+                ? `No businesses match "${searchTerm}". Try adjusting your search.`
+                : "No businesses have been registered yet."}
             </p>
           </div>
         )}

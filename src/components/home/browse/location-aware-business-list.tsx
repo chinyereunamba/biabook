@@ -13,6 +13,7 @@ import {
   Filter,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import type { BusinessLocation } from "@/components/application/maps/business-map";
 import { EnhancedBusinessMap } from "@/components/application/maps/enhanced-business-map";
 import type { BusinessSearchResult } from "@/server/services/proximity-search-service";
 import type { Coordinates } from "@/types/location";

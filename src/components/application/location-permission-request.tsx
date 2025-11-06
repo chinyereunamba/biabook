@@ -200,6 +200,9 @@ export function LocationRequestButton({
     hasPermission,
   } = useGeolocation();
 
+  const canRequestLocation =
+    typeof navigator !== "undefined" && "geolocation" in navigator;
+
   // Handle successful location
   if (coordinates) {
     onLocationGranted(coordinates);
@@ -226,9 +229,12 @@ export function LocationRequestButton({
 
     try {
       await getCurrentLocation();
-      await getCurrentLocation();
     } catch (err) {
-      onError?.(err as LocationError);
+      const locationError = new LocationError(
+        LocationErrorCode.GEOLOCATION_UNAVAILABLE,
+        err instanceof Error ? err.message : "Unknown error",
+      );
+      onError?.(locationError);
     }
   };
 

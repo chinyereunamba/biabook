@@ -46,11 +46,11 @@ export async function GET() {
         sessionRole: session.user.role,
         dbRole: dbUser?.role,
         isAdmin: session.user.role === "admin",
-        adminEmails: ["chinyereunamba15@gmail.com", "admin@biabook.com"],
+        adminEmails: ["chinyereunamba15@gmail.com", "admin@biabook.app"],
         userEmail: session.user.email,
         shouldBeAdmin: [
           "chinyereunamba15@gmail.com",
-          "admin@biabook.com",
+          "admin@biabook.app",
         ].includes(session.user.email || ""),
       },
     });

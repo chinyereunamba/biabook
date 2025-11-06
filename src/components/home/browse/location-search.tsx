@@ -49,7 +49,7 @@ export function LocationSearch({
   className,
 }: LocationSearchProps) {
   const [selectedLocation, setSelectedLocation] =
-    useState<LocationSelection | null>(null);
+    useState<LocationCoordinates | null>(null);
   const [selectedRadius, setSelectedRadius] = useState(25);
   const [showFilters, setShowFilters] = useState(false);
   const [manualAddress, setManualAddress] = useState("");
@@ -73,7 +73,7 @@ export function LocationSearch({
       const searchParams: LocationSearchParams = {
         coordinates: location,
         radius: selectedRadius,
-        displayText: location.displayText,
+        displayText: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`,
       };
 
       onLocationSearch(searchParams);
@@ -85,10 +85,9 @@ export function LocationSearch({
     try {
       await getCurrentLocation();
       if (geoCoordinates) {
-        const location: LocationSelection = {
-          coordinates: geoCoordinates,
-          source: "geolocation",
-          displayText: "Current location",
+        const location: LocationCoordinates = {
+          latitude: geoCoordinates.latitude,
+          longitude: geoCoordinates.longitude,
         };
         handleLocationSelected(location);
       }
@@ -130,9 +129,9 @@ export function LocationSearch({
       // Re-search with new radius if we have a location
       if (selectedLocation && searchMode === "location") {
         const searchParams: LocationSearchParams = {
-          coordinates: selectedLocation.coordinates,
+          coordinates: selectedLocation,
           radius: newRadius,
-          displayText: selectedLocation.displayText,
+          displayText: `${selectedLocation.latitude.toFixed(4)}, ${selectedLocation.longitude.toFixed(4)}`,
         };
         onLocationSearch(searchParams);
       } else if (manualAddress && searchMode === "address") {
@@ -296,9 +295,9 @@ export function LocationSearch({
             <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
               Searching near:{" "}
-              {selectedLocation?.displayText ||
-                manualAddress ||
-                `${manualZipCode} area`}
+              {selectedLocation
+                ? `${selectedLocation.latitude.toFixed(4)}, ${selectedLocation.longitude.toFixed(4)}`
+                : manualAddress || `${manualZipCode} area`}
             </span>
             <Badge variant="secondary" className="text-xs">
               {selectedRadius} miles
