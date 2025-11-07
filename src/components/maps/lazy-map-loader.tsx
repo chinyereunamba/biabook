@@ -159,7 +159,7 @@ export function LazyMapLoader({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry?.isIntersecting) {
           setIsIntersecting(true);
           observer.disconnect();
         }

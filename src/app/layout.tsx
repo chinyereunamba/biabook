@@ -12,25 +12,25 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const afacad = localFont({
+const outfit = localFont({
   src: [
     {
-      path: "../../public/fonts/Afacad-Regular.ttf",
+      path: "../../public/fonts/Outfit-Regular.ttf",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../../public/fonts/Afacad-Medium.ttf",
+      path: "../../public/fonts/Outfit-Medium.ttf",
       weight: "500",
       style: "normal",
     },
     {
-      path: "../../public/fonts/Afacad-Bold.ttf",
+      path: "../../public/fonts/Outfit-Bold.ttf",
       weight: "700",
       style: "normal",
     },
   ],
-  variable: "--font-afacad",
+  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={afacad.variable}>
+    <html lang="en" className={outfit.variable}>
       <body>
         <Providers>
           {/* <TRPCReactProvider cookies={cookies().toString()}> */}

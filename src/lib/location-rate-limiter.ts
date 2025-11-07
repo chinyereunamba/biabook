@@ -138,6 +138,10 @@ export class LocationRateLimiter {
     };
   }
 
+  getConfig(): Readonly<RateLimitConfig> {
+    return this.config;
+  }
+
   /**
    * Cleans up expired entries
    */
@@ -322,6 +326,10 @@ export class LocationRateLimiterManager {
     this.limiters.set(operation, new LocationRateLimiter(config));
   }
 
+  getLimiterConfig(operation: string): Readonly<RateLimitConfig> | undefined {
+    return this.limiters.get(operation)?.getConfig();
+  }
+
   /**
    * Gets comprehensive statistics
    */
@@ -365,17 +373,19 @@ export const locationRateLimiter = new LocationRateLimiterManager();
 /**
  * Middleware function for Express.js to enforce rate limits
  */
+
 export function createLocationRateLimitMiddleware(operation: string) {
   return (req: any, res: any, next: any) => {
     try {
-      const identifier = req.ip || req.connection.remoteAddress || "unknown";
+      const identifier = req.ip || req.connection?.remoteAddress || "unknown";
       const result = locationRateLimiter.checkLimit(operation, identifier);
+
+      // ✅ Get limiter config safely through the new getter
+      const config = locationRateLimiter.getLimiterConfig(operation);
 
       // Set rate limit headers
       res.set({
-        "X-RateLimit-Limit":
-          locationRateLimiter.limiters.get(operation)?.config.maxRequests ||
-          "unknown",
+        "X-RateLimit-Limit": config?.maxRequests?.toString() ?? "unknown",
         "X-RateLimit-Remaining": result.remaining.toString(),
         "X-RateLimit-Reset": new Date(result.resetTime).toISOString(),
       });
@@ -395,7 +405,8 @@ export function createLocationRateLimitMiddleware(operation: string) {
       next();
     } catch (error) {
       console.error("Rate limit middleware error:", error);
-      next(); // Continue on error to avoid blocking legitimate requests
+      next(); // Continue even if rate limiter fails
     }
   };
 }
+

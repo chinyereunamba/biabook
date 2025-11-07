@@ -32,28 +32,28 @@ export function ErrorDisplay() {
   }, [searchParams]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+    <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mb-6 flex items-center justify-center space-x-2">
             <Calendar className="h-8 w-8 text-purple-600" />
-            <span className="text-2xl font-bold text-gray-900">BiaBook</span>
+            <span className="text-2xl font-bold ">BiaBook</span>
           </div>
         </div>
 
         <Card className="border-gray-200 shadow-lg">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full ">
                 <AlertCircle className="h-6 w-6 text-red-600" />
               </div>
             </div>
-            <CardTitle className="mt-4 text-center text-xl text-gray-900">
+            <CardTitle className="mt-4 text-center text-xl">
               Authentication Error
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            <p className="mb-6 text-gray-600">{errorMessage}</p>
+            <p className="mb-6 ">{errorMessage}</p>
 
             <div className="flex flex-col space-y-3">
               <Button asChild className="bg-primary hover:bg-purple-700">

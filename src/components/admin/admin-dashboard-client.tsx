@@ -1,18 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+// Recharts temporarily disabled for React 19 compatibility
 import {
   Building2,
   Users,
@@ -265,37 +254,14 @@ export default function AdminDashboardClient() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={stats?.monthlyRevenue || []}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="var(--color-border)"
-                  />
-                  <XAxis
-                    dataKey="month"
-                    stroke="var(--color-muted-foreground)"
-                  />
-                  <YAxis stroke="var(--color-muted-foreground)" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "var(--color-card)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: "8px",
-                    }}
-                    formatter={(value: number) => [
-                      formatCurrency(value),
-                      "Revenue",
-                    ]}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="var(--color-primary)"
-                    strokeWidth={2}
-                    dot={{ fill: "var(--color-primary)", r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="flex h-[300px] items-center justify-center rounded-lg bg-muted/20">
+                <div className="text-center">
+                  <TrendingUp className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                  <p className="text-muted-foreground text-sm">
+                    Revenue chart will be available soon
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -308,28 +274,14 @@ export default function AdminDashboardClient() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={stats?.appointmentsByStatus || []}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ status, count }) => `${status}: ${count}`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="count"
-                  >
-                    {(stats?.appointmentsByStatus || []).map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="bg-muted/20 flex h-[300px] items-center justify-center rounded-lg">
+                <div className="text-center">
+                  <Activity className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                  <p className="text-muted-foreground text-sm">
+                    Status chart will be available soon
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

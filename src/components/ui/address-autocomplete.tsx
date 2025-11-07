@@ -70,7 +70,7 @@ export function AddressAutocomplete({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<NodeJS.Timeout>(null);
 
   // Initialize Google Places service
   const [placesService, setPlacesService] =
@@ -372,7 +372,7 @@ export function AddressAutocomplete({
       case "Enter":
         e.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-          handleSuggestionClick(suggestions[selectedIndex]);
+          handleSuggestionClick(suggestions[selectedIndex]!);
         }
         break;
 

@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
-} from "recharts";
-import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
+// Recharts temporarily disabled for React 19 compatibility
+import { ArrowDownIcon, ArrowUpIcon, DollarSign } from "lucide-react";
 
 interface RevenueChartProps {
   total: number;
@@ -25,24 +18,8 @@ export function RevenueChart({
 }: RevenueChartProps) {
   // Format currency for display
   const formatCurrency = (value: number) => {
-    return `$${(value / 100).toFixed(2)}`;
+    return `${(value / 100).toFixed(2)}`;
   };
-
-  // Prepare data for the chart
-  const data = [
-    {
-      name: "Total",
-      value: total / 100,
-    },
-    {
-      name: "Confirmed",
-      value: confirmed / 100,
-    },
-    {
-      name: "Average",
-      value: average / 100,
-    },
-  ];
 
   return (
     <div className="space-y-4">
@@ -68,22 +45,13 @@ export function RevenueChart({
         </div>
       </div>
 
-      <div className="h-[200px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
-            <XAxis dataKey="name" />
-            <YAxis tickFormatter={(value) => `$${value}`} width={50} />
-            <Tooltip
-              formatter={(value) => [`$${value}`, "Revenue"]}
-              cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
-            />
-            <Bar
-              dataKey="value"
-              fill="hsl(var(--primary))"
-              radius={[4, 4, 0, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="bg-muted/20 flex h-[200px] items-center justify-center rounded-lg">
+        <div className="text-center">
+          <DollarSign className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+          <p className="text-muted-foreground text-sm">
+            Revenue chart will be available soon
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -2,22 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area,
-} from "recharts";
+// Recharts temporarily disabled for React 19 compatibility
 import {
   TrendingUp,
   TrendingDown,
@@ -386,35 +371,14 @@ export default function AnalyticsCharts() {
             <CardTitle>Revenue & Bookings Trend</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
-              <AreaChart data={analyticsData.revenueByMonth}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--color-border)"
-                />
-                <XAxis dataKey="month" stroke="var(--color-muted-foreground)" />
-                <YAxis stroke="var(--color-muted-foreground)" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "var(--color-card)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "8px",
-                  }}
-                  formatter={(value: number, name: string) => [
-                    name === "revenue" ? formatCurrency(value) : value,
-                    name === "revenue" ? "Revenue" : "Bookings",
-                  ]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stackId="1"
-                  stroke="var(--color-primary)"
-                  fill="var(--color-primary)"
-                  fillOpacity={0.3}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <div className="bg-muted/20 flex h-[350px] items-center justify-center rounded-lg">
+              <div className="text-center">
+                <TrendingUp className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                <p className="text-muted-foreground text-sm">
+                  Revenue chart will be available soon
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -424,39 +388,14 @@ export default function AnalyticsCharts() {
             <CardTitle>Business Growth</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
-              <LineChart data={analyticsData.businessGrowth}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--color-border)"
-                />
-                <XAxis dataKey="month" stroke="var(--color-muted-foreground)" />
-                <YAxis stroke="var(--color-muted-foreground)" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "var(--color-card)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "8px",
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="businesses"
-                  stroke="#8884d8"
-                  strokeWidth={2}
-                  dot={{ fill: "#8884d8", r: 4 }}
-                  name="Total Businesses"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="active"
-                  stroke="#82ca9d"
-                  strokeWidth={2}
-                  dot={{ fill: "#82ca9d", r: 4 }}
-                  name="Active Businesses"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="bg-muted/20 flex h-[350px] items-center justify-center rounded-lg">
+              <div className="text-center">
+                <Building2 className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                <p className="text-muted-foreground text-sm">
+                  Business growth chart will be available soon
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -469,33 +408,14 @@ export default function AnalyticsCharts() {
             <CardTitle>Bookings by Category</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
-              <PieChart>
-                <Pie
-                  data={analyticsData.bookingsByCategory}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, value }) => `${name}: ${value}%`}
-                  outerRadius={120}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {analyticsData.bookingsByCategory.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value: number, name: string, props: any) => [
-                    `${value}% (${props.payload.bookings} bookings)`,
-                    name,
-                  ]}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="bg-muted/20 flex h-[350px] items-center justify-center rounded-lg">
+              <div className="text-center">
+                <Activity className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                <p className="text-muted-foreground text-sm">
+                  Category breakdown chart will be available soon
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 

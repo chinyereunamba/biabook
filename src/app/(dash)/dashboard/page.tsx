@@ -10,17 +10,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { RecentBooking, Stats } from "@/types/dashboard";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -183,30 +172,14 @@ export default async function DashboardPage() {
                 Last 6 months performance
               </p>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={revenueData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--color-border)"
-                />
-                <XAxis dataKey="month" stroke="var(--color-muted-foreground)" />
-                <YAxis stroke="var(--color-muted-foreground)" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "var(--color-card)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "8px",
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="var(--color-primary)"
-                  strokeWidth={2}
-                  dot={{ fill: "var(--color-primary)", r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="bg-muted/20 flex h-[300px] items-center justify-center rounded-lg">
+              <div className="text-center">
+                <TrendingUp className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                <p className="text-muted-foreground text-sm">
+                  Revenue chart will be available soon
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Weekly Bookings */}
@@ -219,28 +192,14 @@ export default async function DashboardPage() {
                 This week's activity
               </p>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={bookingsData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--color-border)"
-                />
-                <XAxis dataKey="day" stroke="var(--color-muted-foreground)" />
-                <YAxis stroke="var(--color-muted-foreground)" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "var(--color-card)",
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "8px",
-                  }}
-                />
-                <Bar
-                  dataKey="bookings"
-                  fill="var(--color-accent)"
-                  radius={[8, 8, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="bg-muted/20 flex h-[300px] items-center justify-center rounded-lg">
+              <div className="text-center">
+                <Calendar className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                <p className="text-muted-foreground text-sm">
+                  Bookings chart will be available soon
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
