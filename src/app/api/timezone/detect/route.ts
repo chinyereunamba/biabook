@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timezoneProviderManager } from "@/lib/timezone-providers";
-import { LocationError, LocationErrorCode } from "@/lib/location-validation";
+import { LocationError, LocationErrorCode } from "@/types/location";
 import { z } from "zod";
 
 const DetectTimezoneSchema = z.object({

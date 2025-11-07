@@ -13,10 +13,11 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete";
+import { useAddressAutocomplete } from "@/hooks/use-address-autocomplete";
 import {
   Calendar,
   Building,
-  MapPin,
   Phone,
   Globe,
   Plus,
@@ -24,7 +25,6 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle,
-  AlertCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -52,8 +52,25 @@ export default function OnboardingPage() {
     category: "",
     description: "",
     phone: "",
-    address: "",
     website: "",
+  });
+
+  // Use address autocomplete hook
+  const {
+    addressState,
+    handleAddressSelect,
+    handleAddressChange,
+    setCity,
+    setState,
+    setZipCode,
+    hasCompleteAddress,
+    validationErrors,
+  } = useAddressAutocomplete({
+    onAddressChange: (address) => {
+      // Address state is managed by the hook
+    },
+    validateOnChange: true,
+    showSuccessToast: true,
   });
   const [services, setServices] = useState([
     { name: "", duration: "", price: "" },
@@ -124,7 +141,10 @@ export default function OnboardingPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            businessData,
+            businessData: {
+              ...businessData,
+              ...addressState, // Include all address data
+            },
             services,
             availability,
           }),
@@ -334,24 +354,76 @@ export default function OnboardingPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="address" className="text-gray-700">
-                  Address
+                  Business Address
                 </Label>
-                <div className="relative">
-                  <MapPin className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-                  <Input
-                    id="address"
-                    placeholder="123 Main St, City, State, ZIP"
-                    className="border-gray-300 pl-10 focus:border-purple-500 focus:ring-purple-500"
-                    value={businessData.address}
-                    onChange={(e) =>
-                      setBusinessData({
-                        ...businessData,
-                        address: e.target.value,
-                      })
-                    }
-                  />
-                </div>
+                <AddressAutocomplete
+                  id="address"
+                  value={addressState.address}
+                  onChange={handleAddressChange}
+                  onAddressSelect={handleAddressSelect}
+                  placeholder="Start typing your business address..."
+                  className="border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  countryRestriction="us"
+                  types={["establishment", "geocode"]}
+                />
+                <p className="text-xs text-gray-500">
+                  Start typing to see address suggestions. We'll automatically
+                  fill in city, state, and ZIP code.
+                </p>
+                {validationErrors.length > 0 && (
+                  <div className="text-sm text-red-600">
+                    {validationErrors.map((error, index) => (
+                      <p key={index}>{error}</p>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              {/* Show parsed address components if available */}
+              {(addressState.city ||
+                addressState.state ||
+                addressState.zipCode) && (
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label className="text-gray-700">City</Label>
+                    <Input
+                      value={addressState.city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      placeholder="City"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-700">State</Label>
+                    <Input
+                      value={addressState.state}
+                      onChange={(e) => setState(e.target.value)}
+                      className="border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      placeholder="State"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-700">ZIP Code</Label>
+                    <Input
+                      value={addressState.zipCode}
+                      onChange={(e) => setZipCode(e.target.value)}
+                      className="border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      placeholder="ZIP Code"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Show coordinates if available */}
+              {addressState.coordinates && (
+                <div className="rounded-lg bg-green-50 p-3">
+                  <p className="text-sm text-green-700">
+                    ✓ Location coordinates detected:{" "}
+                    {addressState.coordinates.latitude.toFixed(6)},{" "}
+                    {addressState.coordinates.longitude.toFixed(6)}
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}

@@ -4,7 +4,7 @@
  */
 
 import type { Coordinates, TimezoneService } from "@/types/location";
-import { LocationError, LocationErrorCode } from "@/lib/location-validation";
+import { LocationError, LocationErrorCode } from "@/types/location";
 import {
   validateCoordinates,
   isValidTimezone,

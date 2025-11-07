@@ -5,7 +5,7 @@ import {
   detectTimezoneWithProvider,
   getAvailableTimezoneProviders,
 } from "@/lib/timezone-service";
-import { LocationError } from "@/lib/location-validation";
+import { LocationError } from "@/types/location";
 
 const coordinatesSchema = z.object({
   latitude: z.number().min(-90).max(90),

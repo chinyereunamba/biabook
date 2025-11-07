@@ -3,7 +3,7 @@
  */
 
 import type { Coordinates } from "@/types/location";
-import { LocationError, LocationErrorCode } from "@/lib/location-validation";
+import { LocationError, LocationErrorCode } from "@/types/location";
 import { isValidTimezone } from "@/lib/location-validation";
 import { clientTimezoneProviderManager } from "@/lib/timezone-providers-client";
 
