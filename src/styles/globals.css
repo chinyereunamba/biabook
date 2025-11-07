@@ -5,10 +5,6 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans:
-    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-
   /* Mobile-First Design System Foundation */
 
   /* MOBILE-FIRST BREAKPOINTS */
@@ -80,8 +76,8 @@
   --radius-full: 9999px;
 }
 
-
 :root {
+  font-family: var(--font-afacad), "sans-serif", !important;
   /* Light theme: Clean white backgrounds, teal primary, professional accents */
   --background: oklch(0.98 0 0);
   --foreground: oklch(0.15 0 0);
@@ -154,8 +150,6 @@
   --sidebar-ring: oklch(0.55 0.15 200);
 }
 
-
-
 @theme inline {
   --font-sans: "Geist", "Geist Fallback";
   --font-mono: "Geist Mono", "Geist Mono Fallback";
@@ -196,7 +190,6 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
-
 
 @layer base {
   * {
@@ -414,6 +407,7 @@
 *,
 html {
   scroll-behavior: smooth;
+  font-family: var(--font-afacad);
 }
 
 /* Loading and Animation Utilities */

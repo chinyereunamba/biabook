@@ -1,16 +1,10 @@
 import "@/styles/globals.css";
-import { Geist } from "next/font/google";
+import localFont from "next/font/local";
 import { Providers } from "./providers";
 
-// Initialize server-side services
 if (typeof window === "undefined") {
   import("@/server/init");
 }
-
-// const geist = Geist({
-//   subsets: ["latin"],
-//   variable: "--font-sans",
-// });
 
 export const metadata = {
   title: "BiaBook - Simple Appointment Booking",
@@ -18,16 +12,36 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
+const afacad = localFont({
+  src: [
+    {
+      path: "../../public/fonts/Afacad-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Afacad-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Afacad-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-afacad",
+  display: "swap",
+});
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body
-        // className={geist.variable}
-      >
+    <html lang="en" className={afacad.variable}>
+      <body>
         <Providers>
           {/* <TRPCReactProvider cookies={cookies().toString()}> */}
           {children}

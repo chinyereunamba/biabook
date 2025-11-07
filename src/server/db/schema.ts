@@ -54,6 +54,7 @@ export const users = createTable("user", (d) => ({
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
+  passwordResetTokens: many(passwordResetTokens),
 }));
 
 export const accounts = createTable(
@@ -102,6 +103,42 @@ export const sessions = createTable(
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
+
+export const passwordResetTokens = createTable(
+  "password_reset_token",
+  (d) => ({
+    id: d
+      .text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: d
+      .text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    token: d.text("token").notNull().unique(),
+    expires: d.integer("expires", { mode: "timestamp" }).notNull(),
+    used: d.integer("used", { mode: "boolean" }).default(false).notNull(),
+    createdAt: d
+      .integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
+      .notNull(),
+  }),
+  (t) => [
+    index("password_reset_token_idx").on(t.token),
+    index("password_reset_user_idx").on(t.userId),
+    index("password_reset_expires_idx").on(t.expires),
+  ],
+);
+
+export const passwordResetTokensRelations = relations(
+  passwordResetTokens,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [passwordResetTokens.userId],
+      references: [users.id],
+    }),
+  }),
+);
 
 export const verificationTokens = createTable(
   "verification_token",
