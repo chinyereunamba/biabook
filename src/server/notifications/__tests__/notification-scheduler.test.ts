@@ -242,6 +242,15 @@ describe("NotificationScheduler", () => {
       }),
     );
 
+    // Should enqueue 30-minute customer reminder
+    expect(notificationQueueService.enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "booking_reminder_30m",
+        recipientId: "john@example.com",
+        recipientType: "customer",
+      }),
+    );
+
     // Should enqueue business reminder
     expect(notificationQueueService.enqueue).toHaveBeenCalledWith(
       expect.objectContaining({

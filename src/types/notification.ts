@@ -5,6 +5,7 @@ export type NotificationType =
   | "booking_confirmation"
   | "booking_reminder_24h"
   | "booking_reminder_2h"
+  | "booking_reminder_30m"
   | "booking_cancellation"
   | "booking_rescheduled"
   | "business_new_booking"

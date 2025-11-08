@@ -18,7 +18,11 @@ export default async function OnboardingGuard({
   }
 
   // Check onboarding status
-  if (requireOnboarded && !session.user.isOnboarded) {
+  if (
+    requireOnboarded &&
+    !session.user.isOnboarded &&
+    !session.user.email?.includes("@biabook.app")
+  ) {
     redirect("/onboarding");
   }
 

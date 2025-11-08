@@ -45,14 +45,14 @@ export default function ForgotPasswordPage() {
 
   if (isSubmitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4">
+      <div className="flex min-h-screen items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
             <div className="mb-6 flex items-center justify-center space-x-2">
-              <div className="rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 p-2">
-                <Calendar className="h-8 w-8 text-white" />
+              <div className="rounded-xl p-2">
+                <Calendar className="h-8 w-8" />
               </div>
-              <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-2xl font-bold text-transparent">
+              <span className="text-2xl font-bold text-transparent">
                 BiaBook
               </span>
             </div>
@@ -60,36 +60,36 @@ export default function ForgotPasswordPage() {
 
           <Card className="border-0 shadow-xl">
             <CardHeader className="pb-4 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-green-100 to-emerald-100">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
-              <CardTitle className="text-2xl font-bold text-gray-900">
+              <CardTitle className="text-2xl font-bold">
                 Check your email
               </CardTitle>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2">
                 We've sent password reset instructions to{" "}
-                <span className="font-medium text-gray-900">{email}</span>
+                <span className="font-medium">{email}</span>
               </p>
             </CardHeader>
 
             <CardContent className="space-y-6">
-              <div className="rounded-lg bg-gray-50 p-4">
-                <h3 className="mb-2 font-medium text-gray-900">Next steps:</h3>
-                <ol className="space-y-2 text-sm text-gray-600">
+              <div className="rounded-lg p-4">
+                <h3 className="mb-2 font-medium">Next steps:</h3>
+                <ol className="space-y-2 text-sm">
                   <li className="flex items-start">
-                    <span className="mt-0.5 mr-3 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-medium text-purple-600">
+                    <span className="mt-0.5 mr-3 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium">
                       1
                     </span>
                     Check your email inbox (and spam folder)
                   </li>
                   <li className="flex items-start">
-                    <span className="mt-0.5 mr-3 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-medium text-purple-600">
+                    <span className="mt-0.5 mr-3 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium">
                       2
                     </span>
                     Click the reset password link in the email
                   </li>
                   <li className="flex items-start">
-                    <span className="mt-0.5 mr-3 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-medium text-purple-600">
+                    <span className="mt-0.5 mr-3 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium">
                       3
                     </span>
                     Create a new password for your account
@@ -99,9 +99,7 @@ export default function ForgotPasswordPage() {
 
               <div className="space-y-3">
                 <Link href="/login" className="block">
-                  <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                    Back to Sign In
-                  </Button>
+                  <Button className="w-full">Back to Sign In</Button>
                 </Link>
 
                 <button
@@ -109,7 +107,7 @@ export default function ForgotPasswordPage() {
                     setIsSubmitted(false);
                     setEmail("");
                   }}
-                  className="w-full text-center text-sm font-medium text-purple-600 hover:text-purple-700"
+                  className="w-full text-center text-sm font-medium"
                 >
                   Try a different email address
                 </button>
@@ -146,14 +144,14 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4">
+    <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mb-6 flex items-center justify-center space-x-2">
-            <div className="rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 p-2">
+            <div className="rounded-xl p-2">
               <Calendar className="h-8 w-8 text-white" />
             </div>
-            <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-2xl font-bold text-transparent">
+            <span className="bg-clip-text text-2xl font-bold text-transparent">
               BiaBook
             </span>
           </div>
@@ -209,7 +207,7 @@ export default function ForgotPasswordPage() {
 
               <Button
                 type="submit"
-                className="h-12 w-full bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-200 hover:from-purple-700 hover:to-blue-700"
+                className="h-12 w-full"
                 disabled={isLoading}
               >
                 {isLoading ? (

@@ -22,18 +22,41 @@ export function Providers({ children }: { children: ReactNode }) {
         enableSystem
         disableTransitionOnChange
       >
-        <ErrorBoundary
-          componentName="RootLayout"
-          showReportButton={true}
-          enableAutoReporting={true}
-        >
-          <ToastProvider>
-            <Toaster position="top-right" richColors />
-            <Analytics />
-            {children}
-          </ToastProvider>
-        </ErrorBoundary>
+        <ReactQueryProvider>
+          <ErrorBoundary
+            componentName="RootLayout"
+            showReportButton={true}
+            enableAutoReporting={true}
+          >
+            <ToastProvider>
+              <Toaster position="top-right" richColors />
+              <Analytics />
+              {children}
+            </ToastProvider>
+          </ErrorBoundary>
+        </ReactQueryProvider>
       </ThemeProvider>
     </SessionProvider>
+  );
+}
+
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useState } from "react";
+
+export default function ReactQueryProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // Avoid recreating the QueryClient on every render
+  const [queryClient] = useState(() => new QueryClient());
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }

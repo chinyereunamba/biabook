@@ -173,6 +173,35 @@ export class NotificationScheduler {
       });
     }
 
+    // Schedule 30-minute reminder for customer
+    const reminder30m = new Date(appointmentDate);
+    reminder30m.setMinutes(reminder30m.getMinutes() - 30);
+
+    // Validate reminder date
+    if (isNaN(reminder30m.getTime())) {
+      console.error("Invalid reminder30m date:", {
+        appointmentDate: appointmentDate.toISOString(),
+        appointmentId: appointment.id,
+      });
+      return;
+    }
+
+    if (reminder30m > new Date()) {
+      await this.scheduleNotification({
+        type: "booking_reminder_30m",
+        recipientId: appointment.customerEmail,
+        recipientType: "customer",
+        recipientEmail: appointment.customerEmail,
+        recipientPhone: appointment.customerPhone,
+        payload: {
+          appointmentId: appointment.id,
+          serviceId: service.id,
+          businessId: business.id,
+        },
+        scheduledFor: reminder30m,
+      });
+    }
+
     // Check business notification preferences
     const preferences = await this.getBusinessNotificationPreferences(
       business.id,
@@ -408,6 +437,7 @@ export class NotificationScheduler {
 
       case "booking_reminder_24h":
       case "booking_reminder_2h":
+      case "booking_reminder_30m":
         return notificationService.sendBookingReminderToCustomer(
           appointment,
           service,

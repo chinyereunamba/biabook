@@ -3,7 +3,13 @@ import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import LayoutComponent from "@/components/admin/layout";
-import { Book, LayoutDashboard, Settings, ToolCase } from "lucide-react";
+import {
+  Book,
+  LayoutDashboard,
+  MapPin,
+  Settings,
+  ToolCase,
+} from "lucide-react";
 
 export default function ClientLayout({
   children,
@@ -29,6 +35,7 @@ export default function ClientLayout({
 
   // Don't render if admin (will redirect to admin dashboard)
   if (session.user?.role === "admin") {
+    router.replace("/admin");
     return null;
   }
 
@@ -37,6 +44,7 @@ export default function ClientLayout({
     { name: "analysis", icon: Settings, link: "/dashboard/analytics" },
     { name: "services", icon: ToolCase, link: "/dashboard/services" },
     { name: "bookings", icon: Book, link: "/dashboard/bookings" },
+    { name: "locations", icon: MapPin, link: "/dashboard/locations" },
   ];
   if (!session.user?.isOnboarded) {
     router.replace("/onboarding/welcome");

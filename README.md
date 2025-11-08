@@ -32,7 +32,7 @@ BiaBook is an appointment booking platform designed for service businesses like 
 
 - **WhatsApp integration**: Instant notifications via WhatsApp Business API
 - **Email notifications**: Professional email templates for confirmations and reminders
-- **Automated reminders**: Scheduled notifications before appointments
+- **Automated reminders**: Scheduled notifications at 24 hours, 2 hours, and 30 minutes before appointments
 - **Notification queue**: Reliable delivery with retry mechanisms and fallback options
 - **Template management**: Customizable message templates for different notification types
 

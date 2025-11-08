@@ -145,7 +145,6 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
-
 /* ===== GRADIENTS ===== */
 :root {
   --gradient-primary: linear-gradient(135deg, oklch(0.231 0.033 276.536) 0%, oklch(0.28 0.035 276.536) 100%);

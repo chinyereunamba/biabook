@@ -169,7 +169,11 @@ export default function OnboardingPage() {
         }
 
         // Update the session to reflect onboarding completion
-        await update();
+        await fetch("/api/auth/session?update", { cache: "no-store" });
+        await update(); // ensures session syncs with backend
+
+        router.push("/dashboard");
+        router.refresh();
 
         // Redirect to dashboard
         router.push(data.redirectUrl || "/dashboard");
@@ -204,13 +208,13 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
+      <header className="border-b border-gray-200 ">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center space-x-2">
             <Calendar className="h-6 w-6 text-purple-600" />
-            <span className="text-xl font-bold text-gray-900">BiaBook</span>
+            <span className="text-xl font-bold ">BiaBook</span>
           </div>
           <Badge variant="secondary" className="bg-purple-50 text-purple-700">
             Setup Progress: {step}/{totalSteps}
@@ -222,10 +226,10 @@ export default function OnboardingPage() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium ">
               Step {step} of {totalSteps}
             </span>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm ">
               {Math.round(progress)}% complete
             </span>
           </div>
@@ -236,20 +240,20 @@ export default function OnboardingPage() {
         {step === 1 && (
           <Card className="border-gray-200 shadow-lg">
             <CardHeader>
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ">
                 <Building className="h-6 w-6 text-purple-600" />
               </div>
-              <CardTitle className="text-2xl text-gray-900">
+              <CardTitle className="text-2xl ">
                 Tell us about your business
               </CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="">
                 This information will be displayed on your booking page
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="businessName" className="text-gray-700">
+                  <Label htmlFor="businessName" className="">
                     Business Name *
                   </Label>
                   <Input
@@ -264,7 +268,7 @@ export default function OnboardingPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="category" className="text-gray-700">
+                  <Label htmlFor="category" className="">
                     Category *
                   </Label>
                   <select
@@ -290,7 +294,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-gray-700">
+                <Label htmlFor="description" className="">
                   Description
                 </Label>
                 <textarea
@@ -309,11 +313,11 @@ export default function OnboardingPage() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-gray-700">
+                  <Label htmlFor="phone" className="">
                     Phone Number
                   </Label>
                   <div className="relative">
-                    <Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                    <Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform " />
                     <Input
                       id="phone"
                       type="tel"
@@ -330,11 +334,11 @@ export default function OnboardingPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="website" className="text-gray-700">
+                  <Label htmlFor="website" className="">
                     Website (Optional)
                   </Label>
                   <div className="relative">
-                    <Globe className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+                    <Globe className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform " />
                     <Input
                       id="website"
                       type="url"
@@ -353,7 +357,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address" className="text-gray-700">
+                <Label htmlFor="address" className="">
                   Business Address
                 </Label>
                 <AddressAutocomplete
@@ -366,7 +370,7 @@ export default function OnboardingPage() {
                   countryRestriction="us"
                   types={["establishment", "geocode"]}
                 />
-                <p className="text-xs text-gray-500">
+                <p className="text-xs ">
                   Start typing to see address suggestions. We'll automatically
                   fill in city, state, and ZIP code.
                 </p>
@@ -385,7 +389,7 @@ export default function OnboardingPage() {
                 addressState.zipCode) && (
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
-                    <Label className="text-gray-700">City</Label>
+                    <Label className="">City</Label>
                     <Input
                       value={addressState.city}
                       onChange={(e) => setCity(e.target.value)}
@@ -394,7 +398,7 @@ export default function OnboardingPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-700">State</Label>
+                    <Label className="">State</Label>
                     <Input
                       value={addressState.state}
                       onChange={(e) => setState(e.target.value)}
@@ -403,7 +407,7 @@ export default function OnboardingPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-700">ZIP Code</Label>
+                    <Label className="">ZIP Code</Label>
                     <Input
                       value={addressState.zipCode}
                       onChange={(e) => setZipCode(e.target.value)}
@@ -432,13 +436,13 @@ export default function OnboardingPage() {
         {step === 2 && (
           <Card className="border-gray-200 shadow-lg">
             <CardHeader>
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ">
                 <Calendar className="h-6 w-6 text-purple-600" />
               </div>
-              <CardTitle className="text-2xl text-gray-900">
+              <CardTitle className="text-2xl ">
                 Add your services
               </CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="">
                 What services do you offer? You can always add more later.
               </CardDescription>
             </CardHeader>
@@ -449,7 +453,7 @@ export default function OnboardingPage() {
                   className="space-y-4 rounded-lg border border-gray-200 p-4"
                 >
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium text-gray-900">
+                    <h4 className="font-medium ">
                       Service {index + 1}
                     </h4>
                     {services.length > 1 && (
@@ -466,7 +470,7 @@ export default function OnboardingPage() {
 
                   <div className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
-                      <Label className="text-gray-700">Service Name *</Label>
+                      <Label className="">Service Name *</Label>
                       <Input
                         placeholder="e.g. Hair Cut & Style"
                         className="border-gray-300 focus:border-purple-500 focus:ring-purple-500"
@@ -478,7 +482,7 @@ export default function OnboardingPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-gray-700">
+                      <Label className="">
                         Duration (minutes) *
                       </Label>
                       <Input
@@ -493,7 +497,7 @@ export default function OnboardingPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-gray-700">Price ($) *</Label>
+                      <Label className="">Price ($) *</Label>
                       <Input
                         type="number"
                         placeholder="50"
@@ -512,7 +516,7 @@ export default function OnboardingPage() {
               <Button
                 variant="outline"
                 onClick={addService}
-                className="w-full border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50"
+                className="w-full border-gray-300   hover:bg-gray-50"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Another Service
@@ -525,13 +529,13 @@ export default function OnboardingPage() {
         {step === 3 && (
           <Card className="border-gray-200 shadow-lg">
             <CardHeader>
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ">
                 <Calendar className="h-6 w-6 text-purple-600" />
               </div>
-              <CardTitle className="text-2xl text-gray-900">
+              <CardTitle className="text-2xl ">
                 Set your availability
               </CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="">
                 When are you available for appointments? You can adjust this
                 anytime.
               </CardDescription>
@@ -554,7 +558,7 @@ export default function OnboardingPage() {
                       }
                       className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                     />
-                    <span className="w-20 font-medium text-gray-900 capitalize">
+                    <span className="w-20 font-medium  capitalize">
                       {day}
                     </span>
                   </div>
@@ -580,7 +584,7 @@ export default function OnboardingPage() {
                           );
                         })}
                       </select>
-                      <span className="text-gray-500">to</span>
+                      <span className="">to</span>
                       <select
                         value={schedule.end}
                         onChange={(e) =>
@@ -615,16 +619,16 @@ export default function OnboardingPage() {
               <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
-              <h2 className="mb-4 text-3xl font-bold text-gray-900">
+              <h2 className="mb-4 text-3xl font-bold ">
                 You&apos;re all set!
               </h2>
-              <p className="mb-8 text-xl text-gray-600">
+              <p className="mb-8 text-xl ">
                 Your booking page is ready. Start sharing it with your
                 customers!
               </p>
 
               <div className="mb-8 rounded-lg bg-gray-50 p-6">
-                <h3 className="mb-4 font-semibold text-gray-900">
+                <h3 className="mb-4 font-semibold ">
                   Your booking page URL:
                 </h3>
                 <div className="flex items-center justify-center space-x-2 rounded-md border border-gray-200 bg-white p-3">
@@ -635,7 +639,7 @@ export default function OnboardingPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-gray-300 bg-transparent"
+                    className="border-gray-300 "
                     onClick={copyToClipboard}
                   >
                     {copied ? (
@@ -681,7 +685,7 @@ export default function OnboardingPage() {
             variant="outline"
             onClick={handleBack}
             disabled={step === 1}
-            className="border-gray-300 bg-transparent text-gray-700"
+            className="border-gray-300 "
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
