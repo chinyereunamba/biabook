@@ -183,21 +183,21 @@ function FindBusinessContent() {
           </p>
 
           {/* Location-based Search */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <LocationSearch
               onLocationSearch={handleLocationSearch}
               onLocationClear={handleLocationClear}
               isLoading={isLocationSearching}
             />
-          </div>
+          </div> */}
 
           {/* Traditional Search (only show if not using location search) */}
-          {!useLocationSearch && (
+          {/* {!useLocationSearch && ( */}
             <SearchBusiness
               categories={categories}
               onLoadingChange={handleLoadingChange}
             />
-          )}
+          {/* )} */}
         </div>
       </section>
 
