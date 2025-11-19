@@ -4,6 +4,8 @@ import { auth } from "@/server/auth";
 import { LazyAnalyticsDashboard } from "@/components/application/analytics/lazy";
 import { DashboardHeader } from "@/components/application/dashboard/dashboard-header";
 import { DashboardShell } from "@/components/application/dashboard/dashboard-shell";
+import { SiteHeader } from "@/components/site-header";
+import * as React from "react";
 
 export const metadata: Metadata = {
   title: "Analytics | BiaBook",
@@ -18,15 +20,14 @@ export default async function AnalyticsPage() {
   }
 
   return (
-    <DashboardShell>
-      <DashboardHeader
-        heading="Analytics"
-        subheading="View your business performance metrics and insights"
-        showExport={true}
+    <div className="bg-background w-full rounded-xl">
+      <SiteHeader
+        header="Analytics"
+        desc="View your business performance metrics and insights"
       />
-      <div className="grid gap-8">
+      <div className="grid gap-8 px-6 py-8">
         <LazyAnalyticsDashboard />
       </div>
-    </DashboardShell>
+    </div>
   );
 }

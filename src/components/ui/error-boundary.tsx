@@ -196,7 +196,7 @@ export class ErrorBoundary extends Component<
                 <Button
                   onClick={this.handleRetry}
                   className="w-full"
-                  variant="primary"
+                  variant="default"
                 >
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Try Again ({maxRetries - retryCount} attempts left)
@@ -264,7 +264,7 @@ export class ErrorBoundary extends Component<
                   <summary className="cursor-pointer font-medium text-gray-600 hover:text-gray-800">
                     Technical Details
                   </summary>
-                  <pre className="mt-2 overflow-auto rounded border bg-gray-50 p-3 text-xs">
+                  <pre className="mt-2 overflow-auto rounded border p-3 text-xs">
                     {error.message}
                     {error.stack && `\n\n${error.stack}`}
                   </pre>

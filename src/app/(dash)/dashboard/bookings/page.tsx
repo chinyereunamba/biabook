@@ -16,6 +16,8 @@ import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { LoadingOverlay } from "@/components/ui/loading-states";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { SiteHeader } from "@/components/site-header";
+import { DataTable } from "@/components/data-table";
 
 export default function BookingsPage() {
   const [businessId, setBusinessId] = useState<string | null>(null);
@@ -229,169 +231,171 @@ export default function BookingsPage() {
     });
   };
 
-  if (loading && bookings.length === 0) {
-    return <LoadingOverlay message="Loading bookings..." transparent={false} />;
-  }
+  // if (loading && bookings.length === 0) {
+  //   return <LoadingOverlay message="Loading bookings..." transparent={false} />;
+  // }
 
   return (
-    <div className="space-y-4 p-4 md:p-8">
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Bookings</h1>
-          <p className="text-muted-foreground">
-            Manage your customer appointments
-          </p>
-        </div>
+    <div className="bg-background w-full rounded-xl">
+      <SiteHeader
+        header="appointments"
+        desc="Manage your customer appointments"
+      />
+      <div className="px-6 py-8 space-y-6">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <form onSubmit={handleSearch} className="flex">
+              <div className="relative">
+                <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-gray-500" />
+                <Input
+                  type="search"
+                  placeholder="Search customers..."
+                  className="w-full pl-8 md:w-[200px]"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Button type="submit" variant="ghost" className="ml-2">
+                Search
+              </Button>
+            </form>
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <form onSubmit={handleSearch} className="flex">
-            <div className="relative">
-              <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-gray-500" />
-              <Input
-                type="search"
-                placeholder="Search customers..."
-                className="w-full pl-8 md:w-[200px]"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+            <div className="flex gap-2">
+              <Button
+                variant={statusFilter === null ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleStatusFilter(null)}
+              >
+                All
+              </Button>
+              <Button
+                variant={statusFilter === "confirmed" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleStatusFilter("confirmed")}
+              >
+                Confirmed
+              </Button>
+              <Button
+                variant={statusFilter === "pending" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleStatusFilter("pending")}
+              >
+                Pending
+              </Button>
+              <Button
+                variant={statusFilter === "cancelled" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleStatusFilter("cancelled")}
+              >
+                Cancelled
+              </Button>
             </div>
-            <Button type="submit" variant="ghost" className="ml-2">
-              Search
-            </Button>
-          </form>
-
-          <div className="flex gap-2">
-            <Button
-              variant={statusFilter === null ? "primary" : "outline"}
-              size="sm"
-              onClick={() => handleStatusFilter(null)}
-            >
-              All
-            </Button>
-            <Button
-              variant={statusFilter === "confirmed" ? "primary" : "outline"}
-              size="sm"
-              onClick={() => handleStatusFilter("confirmed")}
-            >
-              Confirmed
-            </Button>
-            <Button
-              variant={statusFilter === "pending" ? "primary" : "outline"}
-              size="sm"
-              onClick={() => handleStatusFilter("pending")}
-            >
-              Pending
-            </Button>
-            <Button
-              variant={statusFilter === "cancelled" ? "primary" : "outline"}
-              size="sm"
-              onClick={() => handleStatusFilter("cancelled")}
-            >
-              Cancelled
-            </Button>
           </div>
         </div>
-      </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Date & Time</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {bookings.length === 0 ? (
+        {/* <Card>
+          <CardContent>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-muted-foreground py-8 text-center"
-                  >
-                    No bookings found
-                  </TableCell>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Date & Time</TableHead>
+                  <TableHead>Service</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
                 </TableRow>
-              ) : (
-                bookings.map((booking) => (
-                  <TableRow key={booking.id}>
-                    <TableCell>
-                      <div className="font-medium">{booking.customerName}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {booking.customerEmail}
-                      </div>
-                      <div className="text-muted-foreground text-xs">
-                        {booking.customerPhone}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>{formatDate(booking.appointmentDate)}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {formatTime(booking.startTime)} -{" "}
-                        {formatTime(booking.endTime)}
-                      </div>
-                    </TableCell>
-                    <TableCell>{booking.serviceName}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          booking.status === "confirmed"
-                            ? "default"
-                            : booking.status === "cancelled"
-                              ? "destructive"
-                              : "outline"
-                        }
-                      >
-                        {booking.status.charAt(0).toUpperCase() +
-                          booking.status.slice(1)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      ${formatPrice(booking.servicePrice)}
+              </TableHeader>
+              <TableBody>
+                {bookings.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="text-muted-foreground py-8 text-center"
+                    >
+                      No bookings found
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                ) : (
+                  bookings.map((booking) => (
+                    <TableRow key={booking.id}>
+                      <TableCell>
+                        <div className="font-medium">
+                          {booking.customerName}
+                        </div>
+                        <div className="text-muted-foreground text-xs">
+                          {booking.customerEmail}
+                        </div>
+                        <div className="text-muted-foreground text-xs">
+                          {booking.customerPhone}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>{formatDate(booking.appointmentDate)}</div>
+                        <div className="text-muted-foreground text-xs">
+                          {formatTime(booking.startTime)} -{" "}
+                          {formatTime(booking.endTime)}
+                        </div>
+                      </TableCell>
+                      <TableCell>{booking.serviceName}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            booking.status === "confirmed"
+                              ? "default"
+                              : booking.status === "cancelled"
+                                ? "destructive"
+                                : "outline"
+                          }
+                        >
+                          {booking.status.charAt(0).toUpperCase() +
+                            booking.status.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        ${formatPrice(booking.servicePrice)}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card> */}
+        <DataTable data={bookings} />
 
-      {/* Pagination */}
-      {pagination.total > 0 && (
-        <div className="flex items-center justify-between">
-          <p className="text-muted-foreground text-sm">
-            Showing {pagination.offset + 1} to{" "}
-            {Math.min(pagination.offset + pagination.limit, pagination.total)}{" "}
-            of {pagination.total} bookings
-          </p>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrevPage}
-              disabled={pagination.offset === 0}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span className="ml-1">Previous</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNextPage}
-              disabled={
-                pagination.offset + pagination.limit >= pagination.total
-              }
-            >
-              <span className="mr-1">Next</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+        {/* Pagination */}
+        {pagination.total > 0 && (
+          <div className="flex items-center justify-between">
+            <p className="text-muted-foreground text-sm">
+              Showing {pagination.offset + 1} to{" "}
+              {Math.min(pagination.offset + pagination.limit, pagination.total)}{" "}
+              of {pagination.total} bookings
+            </p>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrevPage}
+                disabled={pagination.offset === 0}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="ml-1">Previous</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNextPage}
+                disabled={
+                  pagination.offset + pagination.limit >= pagination.total
+                }
+              >
+                <span className="mr-1">Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

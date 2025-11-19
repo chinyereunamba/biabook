@@ -108,51 +108,48 @@ export function AnalyticsDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-2">
-          <h2 className="text-xl font-bold">Analytics Dashboard</h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => refetch()}
-            className="h-8 w-8"
-            title="Refresh data"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-          <DateRangePicker
-            value={dateRange}
-            onChange={setDateRange}
-            align="end"
-            className="w-full sm:w-auto"
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExportData}
-            disabled={!analyticsData || isLoading}
-            className="h-10 gap-1"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span>Export</span>
-          </Button>
-        </div>
-      </div>
-
       <Tabs
         defaultValue="overview"
         value={activeTab}
         onValueChange={setActiveTab}
       >
-        <TabsList className="mb-6 grid grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-          <TabsTrigger value="services">Services</TabsTrigger>
-          <TabsTrigger value="customers">Customers</TabsTrigger>
-          <TabsTrigger value="location">Location</TabsTrigger>
-        </TabsList>
+        <div className="flex w-full flex-col justify-between gap-2 sm:w-auto sm:flex-row">
+          <TabsList className="mb-6 grid grid-cols-5">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="revenue">Revenue</TabsTrigger>
+            <TabsTrigger value="services">Services</TabsTrigger>
+            <TabsTrigger value="customers">Customers</TabsTrigger>
+            <TabsTrigger value="location">Location</TabsTrigger>
+          </TabsList>
+          <div className="flex gap-2">
+            <DateRangePicker
+              value={dateRange}
+              onChange={setDateRange}
+              align="end"
+              className="w-full sm:w-auto"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportData}
+              disabled={!analyticsData || isLoading}
+              className="h-10 gap-1"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span>Export</span>
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => refetch()}
+              disabled={!analyticsData || isLoading}
+              className="h-10 gap-1"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              <span>Refresh</span>
+            </Button>
+          </div>
+        </div>
 
         <TabsContent value="overview" className="space-y-6">
           {isLoading ? (
