@@ -29,15 +29,9 @@ export {
   DrawerHeader,
   DrawerFooter,
   DrawerTitle,
-  DrawerBody,
-  DrawerNav,
-  DrawerNavItem,
-  DrawerNavGroup,
   DrawerTrigger,
   DrawerClose,
-  drawerVariants,
 } from "./drawer";
-export type { DrawerProps, DrawerContentProps } from "./drawer";
 
 export { MobileTabs, MobileTabBar, ScrollableTabs } from "./mobile-tabs";
 export type {

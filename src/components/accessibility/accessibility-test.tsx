@@ -16,8 +16,6 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-  DrawerNav,
-  DrawerNavItem,
 } from "@/components/ui/drawer";
 import { FormField } from "@/components/ui/form-field";
 import { ServiceCard } from "@/components/application/booking/service-card";
@@ -131,7 +129,7 @@ export function AccessibilityTest() {
             <h3 className="mb-4 text-lg font-semibold">Button Accessibility</h3>
             <div className="flex flex-wrap gap-4">
               <Button
-                variant="primary"
+                variant="default"
                 aria-label="Primary action button"
                 onClick={() => announce("Primary button clicked")}
               >
@@ -298,14 +296,14 @@ export function AccessibilityTest() {
                 <DrawerHeader>
                   <DrawerTitle>Navigation Menu</DrawerTitle>
                 </DrawerHeader>
-                <DrawerNav>
+                {/* <DrawerNav>
                   <DrawerNavItem href="#" active>
                     Dashboard
                   </DrawerNavItem>
                   <DrawerNavItem href="#">Bookings</DrawerNavItem>
                   <DrawerNavItem href="#">Services</DrawerNavItem>
                   <DrawerNavItem href="#">Settings</DrawerNavItem>
-                </DrawerNav>
+                </DrawerNav> */}
               </DrawerContent>
             </Drawer>
           </section>

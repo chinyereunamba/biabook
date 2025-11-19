@@ -387,7 +387,7 @@ export default function BookingPage() {
 
                   {selectedDate && selectedTime && (
                     <div className="text-center">
-                      <Button size="md" onClick={handleDateTimeConfirm}>
+                      <Button size="default" onClick={handleDateTimeConfirm}>
                         Continue to Booking Details
                       </Button>
                     </div>

@@ -174,13 +174,13 @@ export interface LocationRequestButtonProps {
   onError?: (error: LocationError) => void;
   children?: React.ReactNode;
   variant?:
-    | "primary"
+    | "default"
     | "secondary"
     | "outline"
     | "ghost"
     | "destructive"
     | "link";
-  size?: "sm" | "md" | "lg" | "icon" | "icon-sm" | "icon-lg";
+  size?: "default" | "sm" | "lg" | "icon" | "icon-sm" | "icon-lg";
   className?: string;
 }
 
@@ -188,8 +188,8 @@ export function LocationRequestButton({
   onLocationGranted,
   onError,
   children = "Get my location",
-  variant = "primary",
-  size = "md",
+  variant = "default",
+  size = "default",
   className,
 }: LocationRequestButtonProps) {
   const {

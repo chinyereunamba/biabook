@@ -125,7 +125,7 @@ export function InteractiveDemo() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Ripple Effect</h3>
             <RippleEffect className="w-full">
-              <Button variant="primary" className="w-full">
+              <Button variant="default" className="w-full">
                 Click for Ripple Effect
               </Button>
             </RippleEffect>

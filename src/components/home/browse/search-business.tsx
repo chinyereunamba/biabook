@@ -55,7 +55,6 @@ export default function SearchBusiness({ categories, onLoadingChange }: Props) {
             defaultValue={searchTerm}
             placeholder="Search for salons, tutors, clinics..."
             className="bg-white"
-            rightIcon={<Search className="h-4 w-4" />}
           />
         </div>
         <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
@@ -70,7 +69,7 @@ export default function SearchBusiness({ categories, onLoadingChange }: Props) {
           return (
             <Button
               key={cat.id}
-              variant={active ? "primary" : "outline"}
+              variant={active ? "default" : "outline"}
               size="sm"
               disabled={isPending}
               onClick={() =>

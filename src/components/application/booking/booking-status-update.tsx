@@ -365,7 +365,7 @@ export function BookingStatusUpdate({
             </Button>
             <Button
               variant={
-                selectedStatus === "cancelled" ? "destructive" : "primary"
+                selectedStatus === "cancelled" ? "destructive" : "default"
               }
               onClick={handleConfirmStatusChange}
               disabled={loading}

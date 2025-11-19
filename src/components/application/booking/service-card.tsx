@@ -113,7 +113,7 @@ export function ServiceCard({
           </p>
           <Button
             size="sm"
-            variant={isSelected ? "primary" : "outline"}
+            variant={isSelected ? "default" : "outline"}
             className="mt-2 min-w-[90px]"
             aria-label={`${isSelected ? "Selected" : "Select"} ${service.name} service`}
             aria-pressed={isSelected}

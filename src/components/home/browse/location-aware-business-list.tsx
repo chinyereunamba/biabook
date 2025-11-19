@@ -165,7 +165,7 @@ export function LocationAwareBusinessList({
           {showMap && (
             <div className="flex overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600">
               <Button
-                variant={viewMode === "list" ? "primary" : "ghost"}
+                variant={viewMode === "list" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("list")}
                 className="rounded-none"
@@ -173,7 +173,7 @@ export function LocationAwareBusinessList({
                 <List className="h-4 w-4" />
               </Button>
               <Button
-                variant={viewMode === "map" ? "primary" : "ghost"}
+                variant={viewMode === "map" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("map")}
                 className="rounded-none"
@@ -181,7 +181,7 @@ export function LocationAwareBusinessList({
                 <Map className="h-4 w-4" />
               </Button>
               <Button
-                variant={viewMode === "split" ? "primary" : "ghost"}
+                variant={viewMode === "split" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("split")}
                 className="rounded-none"

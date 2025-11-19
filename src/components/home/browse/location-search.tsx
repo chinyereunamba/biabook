@@ -184,7 +184,7 @@ export function LocationSearch({
           </div>
           <Button
             variant="outline"
-            size="md"
+            size="default"
             onClick={handleCurrentLocation}
             disabled={geoLoading || isLoading}
             className="px-3"
@@ -197,7 +197,7 @@ export function LocationSearch({
           </Button>
           <Button
             variant="outline"
-            size="md"
+            size="default"
             onClick={() => setShowFilters(!showFilters)}
             className="px-3"
           >
@@ -274,7 +274,7 @@ export function LocationSearch({
                 <Button
                   key={option.value}
                   variant={
-                    selectedRadius === option.value ? "primary" : "outline"
+                    selectedRadius === option.value ? "default" : "outline"
                   }
                   size="sm"
                   onClick={() => handleRadiusChange(option.value)}

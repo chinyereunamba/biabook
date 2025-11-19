@@ -37,7 +37,11 @@ export type NavLink = {
 };
 
 export type NavProps = {
-  user: {};
+  user: {
+    name: string;
+    email: string;
+    avatar: string;
+  };
   navMain: NavLink[];
   navSecondary: NavLink[];
 };
@@ -72,8 +76,9 @@ export default function ClientLayout({
 
   const data: NavProps = {
     user: {
-      ...session.user,
-      avatar: "/avatars/shadcn.jpg",
+      name: session.user?.name || "User",
+      email: session.user?.email || "",
+      avatar: session.user?.image || "/avatars/shadcn.jpg",
     },
     navMain: [
       {

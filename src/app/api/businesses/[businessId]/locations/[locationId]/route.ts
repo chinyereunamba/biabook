@@ -7,7 +7,7 @@ import { eq, and } from "drizzle-orm";
 // GET /api/businesses/[businessId]/locations/[locationId] - Get a specific location
 export async function GET(
   request: NextRequest,
-  { params }: { params: { businessId: string; locationId: string } },
+  { params }: { params: Promise<{ businessId: string; locationId: string }> },
 ) {
   try {
     const session = await auth();
@@ -15,7 +15,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { businessId, locationId } = params;
+    const { businessId, locationId } = await params;
 
     // Verify user owns this business
     const [business] = await db
@@ -63,7 +63,7 @@ export async function GET(
 // PUT /api/businesses/[businessId]/locations/[locationId] - Update a location
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { businessId: string; locationId: string } },
+  { params }: { params: Promise<{ businessId: string; locationId: string }> },
 ) {
   try {
     const session = await auth();
@@ -71,7 +71,7 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { businessId, locationId } = params;
+    const { businessId, locationId } = await params;
 
     // Verify user owns this business
     const [business] = await db
@@ -160,7 +160,7 @@ export async function PUT(
 // DELETE /api/businesses/[businessId]/locations/[locationId] - Delete a location
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { businessId: string; locationId: string } },
+  { params }: { params: Promise<{ businessId: string; locationId: string }> },
 ) {
   try {
     const session = await auth();
@@ -168,7 +168,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { businessId, locationId } = params;
+    const { businessId, locationId } = await params;
 
     // Verify user owns this business
     const [business] = await db

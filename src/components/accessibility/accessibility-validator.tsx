@@ -326,7 +326,7 @@ export function AccessibilityValidator({
                 <Button
                   key={category.id}
                   variant={
-                    selectedCategory === category.id ? "primary" : "outline"
+                    selectedCategory === category.id ? "default" : "outline"
                   }
                   size="sm"
                   onClick={() => setSelectedCategory(category.id)}

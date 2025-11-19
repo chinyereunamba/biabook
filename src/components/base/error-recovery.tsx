@@ -28,7 +28,7 @@ import { useRouter } from "next/navigation";
 export interface RecoveryAction {
   label: string;
   action: () => void | Promise<void>;
-  variant?: "primary" | "outline" | "destructive";
+  variant?: "default" | "outline" | "destructive";
   icon?: React.ComponentType<{ className?: string }>;
 }
 
@@ -87,7 +87,7 @@ export function ErrorRecovery({
           ? "Retrying..."
           : `Try Again ${retryCount > 0 ? `(${retryCount}/${maxRetries})` : ""}`,
         action: handleRetry,
-        variant: "primary",
+        variant: "default",
         icon: RefreshCw,
       });
     }
@@ -198,7 +198,7 @@ export function ErrorRecovery({
               return (
                 <Button
                   key={index}
-                  variant={action.variant || "primary"}
+                  variant={action.variant || "default"}
                   size="sm"
                   onClick={action.action}
                   disabled={isRetrying}

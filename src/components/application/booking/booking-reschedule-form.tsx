@@ -240,7 +240,7 @@ export function BookingRescheduleForm({ booking }: BookingRescheduleFormProps) {
               {timeSlots.map((slot, index) => (
                 <Button
                   key={index}
-                  variant={selectedTimeSlot === slot ? "primary" : "outline"}
+                  variant={selectedTimeSlot === slot ? "default" : "outline"}
                   className={`h-auto py-2 ${
                     !slot.available ? "cursor-not-allowed opacity-50" : ""
                   }`}

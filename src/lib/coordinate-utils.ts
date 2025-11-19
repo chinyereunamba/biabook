@@ -5,6 +5,9 @@
 import type { Coordinates } from "@/types/location";
 import { LocationValidationError } from "./location-validation";
 
+// Re-export Coordinates type for convenience
+export type { Coordinates };
+
 /**
  * Earth's radius in miles (used for distance calculations)
  */

@@ -546,12 +546,12 @@ export function BookingConfirmation({
       {/* Action Buttons */}
       <div className="flex flex-col justify-center gap-3 sm:flex-row">
         {onNewBooking && (
-          <Button onClick={onNewBooking} size="md">
+          <Button onClick={onNewBooking} size="default">
             Book Another Appointment
           </Button>
         )}
 
-        <Button variant="outline" size="md" asChild>
+        <Button variant="outline" size="default" asChild>
           <Link href="/">
             <ExternalLink className="mr-2 h-4 w-4" />
             Back to Home

@@ -101,7 +101,7 @@ export function ServiceDetails({
             Close
           </Button>
           <Button
-            variant="primary"
+            variant="default"
             onClick={() => {
               onSelect(service.id);
               onClose();

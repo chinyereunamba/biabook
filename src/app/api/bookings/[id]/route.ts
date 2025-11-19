@@ -31,13 +31,13 @@ async function getBookingHandler(
   const session = await auth();
 
   if (!session?.user) {
-    throw BookingErrors.unauthorized();
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const appointment = await appointmentRepository.getById(id);
 
   if (!appointment) {
-    throw BookingErrors.notFound(id);
+    throw BookingErrors.appointmentNotFound(id);
   }
 
   return NextResponse.json(appointment);
@@ -55,7 +55,7 @@ async function updateBookingHandler(
   const session = await auth();
 
   if (!session?.user) {
-    throw BookingErrors.unauthorized();
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await request.json();
@@ -78,13 +78,13 @@ async function deleteBookingHandler(
   const session = await auth();
 
   if (!session?.user) {
-    throw BookingErrors.unauthorized();
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const success = await appointmentRepository.delete(id);
 
   if (!success) {
-    throw BookingErrors.notFound(id);
+    throw BookingErrors.appointmentNotFound(id);
   }
 
   return NextResponse.json({ success: true });

@@ -18,21 +18,79 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { DataTable } from "@/components/data-table";
+import type { ColumnDef } from "@tanstack/react-table";
+
+interface Booking {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  appointmentDate: string;
+  startTime: string;
+  endTime: string;
+  status: "pending" | "confirmed" | "cancelled" | "completed";
+  serviceName: string;
+  servicePrice: number;
+}
+
+const bookingColumns: ColumnDef<Booking>[] = [
+  {
+    accessorKey: "customerName",
+    header: "Customer",
+  },
+  {
+    accessorKey: "serviceName",
+    header: "Service",
+  },
+  {
+    accessorKey: "appointmentDate",
+    header: "Date",
+    cell: ({ row }) => {
+      const date = new Date(row.original.appointmentDate);
+      return date.toLocaleDateString();
+    },
+  },
+  {
+    accessorKey: "startTime",
+    header: "Time",
+    cell: ({ row }) => {
+      return `${row.original.startTime} - ${row.original.endTime}`;
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.original.status;
+      const statusColors = {
+        pending: "bg-yellow-100 text-yellow-800",
+        confirmed: "bg-blue-100 text-blue-800",
+        cancelled: "bg-red-100 text-red-800",
+        completed: "bg-green-100 text-green-800",
+      };
+      return (
+        <Badge className={statusColors[status]}>
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "servicePrice",
+    header: () => <div className="text-right">Price</div>,
+    cell: ({ row }) => {
+      const amount = parseFloat(row.original.servicePrice.toString());
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(amount);
+      return <div className="text-right font-medium">{formatted}</div>;
+    },
+  },
+];
 
 export default function BookingsPage() {
   const [businessId, setBusinessId] = useState<string | null>(null);
-  interface Booking {
-    id: string;
-    customerName: string;
-    customerEmail: string;
-    customerPhone: string;
-    appointmentDate: string;
-    startTime: string;
-    endTime: string;
-    status: "pending" | "confirmed" | "cancelled" | "completed";
-    serviceName: string;
-    servicePrice: number;
-  }
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -241,7 +299,7 @@ export default function BookingsPage() {
         header="appointments"
         desc="Manage your customer appointments"
       />
-      <div className="px-6 py-8 space-y-6">
+      <div className="space-y-6 px-6 py-8">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div className="flex flex-col gap-2 sm:flex-row">
             <form onSubmit={handleSearch} className="flex">
@@ -361,7 +419,7 @@ export default function BookingsPage() {
             </Table>
           </CardContent>
         </Card> */}
-        <DataTable data={bookings} />
+        <DataTable data={bookings} columns={bookingColumns} />
 
         {/* Pagination */}
         {pagination.total > 0 && (

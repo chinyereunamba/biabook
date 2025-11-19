@@ -9,8 +9,8 @@ import { businesses, businessLocations } from "@/server/db/schema";
 import {
   calculateDistance,
   validateCoordinateBounds,
-  type Coordinates,
 } from "@/lib/coordinate-utils";
+import type { Coordinates } from "@/types/location";
 
 // Wrapper for backward compatibility
 function validateCoordinates(coordinates: Coordinates): boolean {

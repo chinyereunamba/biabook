@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { IconInnerShadowTop } from '@tabler/icons-react'
+import { IconInnerShadowTop } from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
@@ -23,8 +23,7 @@ export function AppSidebar({
   ...props
 }: {
   data: NavProps;
-  props: React.ComponentProps<typeof Sidebar>;
-}) {
+} & React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>

@@ -369,7 +369,7 @@ export function BookingReschedule({
                               key={slot.time}
                               variant={
                                 selectedTime === slot.time
-                                  ? "primary"
+                                  ? "default"
                                   : "outline"
                               }
                               size="sm"
