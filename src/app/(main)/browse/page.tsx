@@ -35,12 +35,9 @@ function FindBusinessContent() {
   // Load all data once on mount
   useEffect(() => {
     const fetchAllData = async () => {
-      const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
       try {
         // Fetch all businesses without filters for client-side filtering
-        const res = await fetch(`${baseUrl}/api/businesses`, {
+        const res = await fetch("/api/businesses", {
           headers: {
             "Content-Type": "application/json",
           },
@@ -67,9 +64,6 @@ function FindBusinessContent() {
       setUseLocationSearch(true);
 
       try {
-        const baseUrl =
-          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
         const searchBody = {
           coordinates: params.coordinates,
           address: params.address,
@@ -80,7 +74,7 @@ function FindBusinessContent() {
           limit: 50,
         };
 
-        const response = await fetch(`${baseUrl}/api/businesses/search`, {
+        const response = await fetch("/api/businesses/search", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -193,10 +187,10 @@ function FindBusinessContent() {
 
           {/* Traditional Search (only show if not using location search) */}
           {/* {!useLocationSearch && ( */}
-            <SearchBusiness
-              categories={categories}
-              onLoadingChange={handleLoadingChange}
-            />
+          <SearchBusiness
+            categories={categories}
+            onLoadingChange={handleLoadingChange}
+          />
           {/* )} */}
         </div>
       </section>

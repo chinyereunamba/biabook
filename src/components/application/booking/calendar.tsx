@@ -135,11 +135,11 @@ export function Calendar({
           tabIndex={isSelected ? 0 : -1}
           className={cn(
             "relative min-h-[44px] min-w-[44px] touch-manipulation rounded-md p-2 text-sm transition-colors",
-            "hover:bg-gray-100 focus:ring-2 focus:ring-purple-500 focus:outline-none",
+            "hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none",
             {
-              "bg-purple-600 text-white hover:bg-purple-700": isSelected,
+              "bg-blue-600 text-white hover:bg-blue-700": isSelected,
               "cursor-not-allowed text-gray-400": isDisabled,
-              "font-semibold ring-2 ring-purple-200": isToday && !isSelected,
+              "font-semibold ring-2 ring-blue-200": isToday && !isSelected,
               "font-medium text-green-600":
                 isAvailable && !isSelected && !isDisabled,
               "text-gray-500": !isAvailable && !isSelected && !isDisabled,
@@ -195,7 +195,7 @@ export function Calendar({
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
             <div
               key={day}
-              className="p-2 text-center text-sm font-medium text-gray-500"
+              className="p-2 text-center text-sm font-medium text-foreground"
             >
               {day.substring(0, 1)}
               <span className="hidden sm:inline">{day.substring(1)}</span>
@@ -214,13 +214,13 @@ export function Calendar({
         </div>
 
         {/* Legend */}
-        <div className="mt-4 flex items-center justify-center space-x-4 text-xs text-gray-500">
+        <div className="mt-4 flex items-center justify-center space-x-4 text-xs text-foreground">
           <div className="flex items-center space-x-1">
             <div className="h-2 w-2 rounded-full bg-green-500" />
             <span>Available</span>
           </div>
           <div className="flex items-center space-x-1">
-            <div className="h-2 w-2 rounded-full bg-gray-400" />
+            <div className="h-2 w-2 rounded-full bg-secondary" />
             <span>Unavailable</span>
           </div>
         </div>

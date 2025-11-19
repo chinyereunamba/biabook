@@ -101,7 +101,7 @@ export function TimeSlotGrid({
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-purple-600"></div>
+            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
           </div>
         </CardContent>
       </Card>
@@ -118,8 +118,8 @@ export function TimeSlotGrid({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-            <Calendar className="mb-4 h-12 w-12 text-gray-300" />
+          <div className="flex flex-col items-center justify-center py-8 text-text">
+            <Calendar className="mb-4 h-12 w-12 text-foreground" />
             <p className="text-center">
               Please select a date to see available times
             </p>
@@ -150,7 +150,7 @@ export function TimeSlotGrid({
               <p className="text-sm text-gray-600">
                 {formatDate(selectedDate)}
                 {businessTimezone && businessName && (
-                  <span className="ml-2 text-xs text-blue-600">
+                  <span className="ml-2 text-xs text-primary">
                     • Times shown in {businessName}'s timezone
                   </span>
                 )}
@@ -232,7 +232,7 @@ export function TimeSlotGrid({
                     className={cn(
                       "min-h-[44px] touch-manipulation justify-center text-sm font-medium transition-all",
                       {
-                        "bg-purple-600 text-white hover:bg-purple-700":
+                        "bg-primary text-white hover:bg-primary/80":
                           isSelected,
                         "hover:border-purple-300 hover:bg-purple-50":
                           !isSelected,
@@ -248,17 +248,17 @@ export function TimeSlotGrid({
               })}
             </div>
 
-            <div className="mt-4 rounded-lg bg-blue-50 p-3">
+            <div className="mt-4 rounded-lg bg-secondary p-3">
               <div className="flex items-start space-x-2">
-                <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
-                <div className="text-sm text-blue-800">
+                <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-text" />
+                <div className="text-sm text-text">
                   <p className="font-medium">Booking Information</p>
-                  <p className="text-blue-600">
+                  <p className="text-text">
                     {availableSlots.length} time slot
                     {availableSlots.length !== 1 ? "s" : ""} available
                   </p>
                   {selectedTime && (
-                    <p className="mt-1 text-blue-600">
+                    <p className="mt-1 text-secondary-foreground">
                       Selected: {formatTime(selectedTime)}
                     </p>
                   )}

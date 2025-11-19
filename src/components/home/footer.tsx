@@ -5,7 +5,7 @@ import { appConfig } from "@/utils/config";
 
 export function Footer() {
   return (
-    <footer className=" py-12">
+    <footer className="py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 grid gap-8 md:grid-cols-4">
           <div>
@@ -15,7 +15,7 @@ export function Footer() {
               </div>
               <span className="font-bold">{appConfig.name}</span>
             </div>
-            <p className="text-primary-foreground/70 text-sm">
+            <p className="text-foreground text-sm">
               The easiest way for businesses to manage appointments and get
               WhatsApp notifications.
             </p>
@@ -23,20 +23,15 @@ export function Footer() {
 
           <div>
             <h4 className="mb-4 font-semibold">Product</h4>
-            <ul className="text-primary-foreground/70 space-y-2 text-sm">
+            <ul className="text-primary-foreground/70 text-text space-y-2 text-sm">
               <li>
-                <a href="#" className="hover:text-primary-foreground">
+                <a href="#" className="hover:underline text-foreground">
                   Features
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-primary-foreground">
+                <a href="#" className="hover:underline text-foreground">
                   Pricing
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-primary-foreground">
-                  API
                 </a>
               </li>
             </ul>
@@ -46,18 +41,8 @@ export function Footer() {
             <h4 className="mb-4 font-semibold">Company</h4>
             <ul className="text-primary-foreground/70 space-y-2 text-sm">
               <li>
-                <a href="#" className="hover:text-primary-foreground">
+                <a href="#" className="hover:underline text-foreground">
                   About
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-primary-foreground">
-                  Blog
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-primary-foreground">
-                  Careers
                 </a>
               </li>
             </ul>
@@ -66,23 +51,29 @@ export function Footer() {
           <div>
             <h4 className="mb-4 font-semibold">Support</h4>
             <ul className="text-primary-foreground/70 space-y-2 text-sm">
-              <li>
-                <a href="#" className="hover:text-primary-foreground">
+              {/* <li>
+                <a href="#" className="hover:underline text-foreground">
                   Help Center
                 </a>
-              </li>
+              </li> */}
               {/* <li>
-                <Link href="/contact" className="hover:text-primary-foreground">
+                <Link href="/contact" className="hover:underline text-foreground">
                   Contact
                 </Link>
               </li> */}
               <li>
-                <Link href="/privacy" className="hover:text-primary-foreground">
+                <Link
+                  href="/privacy"
+                  className="hover:underline text-foreground"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="hover:text-primary-foreground">
+                <Link
+                  href="/terms"
+                  className="hover:underline text-foreground"
+                >
                   Terms of Service
                 </Link>
               </li>
@@ -90,7 +81,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-primary-foreground/20 text-primary-foreground/70 border-t pt-8 text-center text-sm">
+        <div className="border-primary-foreground/20 text-foreground/70 border-t pt-8 text-center text-sm">
           <p>&copy; 2025 {appConfig.name}. All rights reserved.</p>
         </div>
       </div>

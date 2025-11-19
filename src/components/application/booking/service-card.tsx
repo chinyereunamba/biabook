@@ -73,7 +73,7 @@ export function ServiceCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-text text-lg font-semibold">
                 {service.name}
               </h3>
               {service.category && (
@@ -85,12 +85,12 @@ export function ServiceCard({
           </div>
 
           {service.description && (
-            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">
+            <p className="text-text mt-2 line-clamp-2 text-sm leading-relaxed">
               {service.description}
             </p>
           )}
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
+          <div className="text-text mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
             <div className="flex items-center">
               <Clock className="mr-1 h-4 w-4" />
               <span>{formatDuration(service.duration)}</span>
@@ -100,7 +100,7 @@ export function ServiceCard({
               <span>{formatPrice(service.price)}</span>
             </div>
             {service.bufferTime && service.bufferTime > 0 && (
-              <div className="text-xs text-gray-500">
+              <div className="text-text text-xs">
                 +{service.bufferTime}m buffer
               </div>
             )}
@@ -108,7 +108,7 @@ export function ServiceCard({
         </div>
 
         <div className="flex items-center justify-between sm:ml-4 sm:flex-col sm:items-end">
-          <p className="text-xl font-bold text-gray-900" aria-hidden="true">
+          <p className="text-text text-xl font-bold" aria-hidden="true">
             {formatPrice(service.price)}
           </p>
           <Button
