@@ -101,7 +101,7 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
 
   const handleDeleteBooking = async (bookingId: string) => {
     try {
-      const response = await fetch(`/api/appointments/${bookingId}`, {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
         method: "DELETE",
       });
 
@@ -125,7 +125,7 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
 
   const handleUpdateStatus = async (bookingId: string, status: string) => {
     try {
-      const response = await fetch(`/api/appointments/${bookingId}`, {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -158,7 +158,7 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
     notes?: string,
   ) => {
     try {
-      const response = await fetch(`/api/appointments/${bookingId}`, {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -195,7 +195,7 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
     refundAmount?: number,
   ) => {
     try {
-      const response = await fetch(`/api/appointments/${bookingId}`, {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -236,7 +236,7 @@ export function BookingManagement({ businessId }: BookingManagementProps) {
     notifyCustomer?: boolean,
   ) => {
     try {
-      const response = await fetch(`/api/appointments/${bookingId}`, {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

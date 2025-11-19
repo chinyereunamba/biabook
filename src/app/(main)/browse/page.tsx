@@ -40,7 +40,11 @@ function FindBusinessContent() {
 
       try {
         // Fetch all businesses without filters for client-side filtering
-        const res = await fetch(`${baseUrl}/api/businesses`);
+        const res = await fetch(`${baseUrl}/api/businesses`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         const data = await res.json();
         setAllBusinesses(data.businesses || []);
         setCategories(data.categories || []);

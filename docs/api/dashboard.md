@@ -59,9 +59,9 @@ Get appointments for the authenticated business owner.
 
 ---
 
-## PUT /api/appointments/:id
+## PATCH /api/bookings/:id
 
-Update an appointment status or details.
+Update a booking status or details.
 
 ### Parameters
 

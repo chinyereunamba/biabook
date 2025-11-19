@@ -8,9 +8,19 @@ import { db } from "@/server/db";
 import { businesses, businessLocations } from "@/server/db/schema";
 import {
   calculateDistance,
-  validateCoordinates,
+  validateCoordinateBounds,
   type Coordinates,
-} from "@/lib/distance-utils";
+} from "@/lib/coordinate-utils";
+
+// Wrapper for backward compatibility
+function validateCoordinates(coordinates: Coordinates): boolean {
+  try {
+    validateCoordinateBounds(coordinates.latitude, coordinates.longitude);
+    return true;
+  } catch {
+    return false;
+  }
+}
 import { proximitySearchService } from "./proximity-search-service";
 
 export interface ServiceAreaValidationResult {
