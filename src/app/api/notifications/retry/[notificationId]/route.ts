@@ -50,7 +50,7 @@ export async function POST(
         status: "pending",
         error: null,
         attempts: (notification.attempts || 0) + 1,
-        scheduledFor: new Date(), // Retry immediately
+        scheduledFor: Date.now(), // Retry immediately
       })
       .where(eq(notificationQueue.id, notificationId));
 

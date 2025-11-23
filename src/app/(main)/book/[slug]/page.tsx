@@ -270,7 +270,7 @@ export default function BookingPage() {
                           <h4 className="mb-2 font-semibold">
                             Selected Service
                           </h4>
-                          <div className="bg-primary/50 rounded-lg p-3">
+                          <div className="bg-primary/10 rounded-lg p-3">
                             <p className="font-medium">
                               {selectedService.name}
                             </p>
@@ -287,7 +287,7 @@ export default function BookingPage() {
                       {selectedDate && selectedTime && (
                         <div className="border-t pt-4">
                           <h4 className="mb-2 font-semibold">Selected Time</h4>
-                          <div className="bg-primary/20 rounded-lg p-3">
+                          <div className="bg-primary/10 rounded-lg p-3">
                             <p className="font-medium">{selectedDate}</p>
                             <p className="text-text text-sm">{selectedTime}</p>
                           </div>

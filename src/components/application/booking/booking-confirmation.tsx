@@ -449,7 +449,7 @@ export function BookingConfirmation({
         </CardContent>
       </Card>
 
-      {/* Notification Status */}
+      {/* Notification Status
       {notifications.length > 0 && (
         <NotificationStatusComponent
           notifications={notifications}
@@ -457,7 +457,7 @@ export function BookingConfirmation({
           className="mb-6"
           onRetry={handleNotificationRetry}
         />
-      )}
+      )} */}
 
       {/* Important Information */}
       <Card className="mb-6 border-blue-200 bg-blue-50">
