@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import type { LocationSearchParams } from "@/components/home/browse/location-search";
 import type { BusinessSearchResult } from "@/server/services/proximity-search-service";
 import type { Coordinates } from "@/types/location";
+import { LocateIcon, MapPin } from "lucide-react";
 
 function FindBusinessContent() {
   const searchParams = useSearchParams();
@@ -211,7 +212,7 @@ function FindBusinessContent() {
           ) : (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <h2 className="text-2xl font-bold text-text dark:text-gray-100">
                   {businessesToShow.length} businesses found
                 </h2>
                 <select className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
@@ -225,7 +226,7 @@ function FindBusinessContent() {
                 {businessesToShow.map((business: any) => (
                   <div
                     key={business.id}
-                    className="overflow-hidden rounded-xl border border-gray-200 bg-white transition hover:shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                    className="overflow-hidden rounded-xl border bg-secondary transition hover:shadow-lg"
                   >
                     <div className="from-primary/20 to-accent/20 flex h-48 items-center justify-center bg-gradient-to-br">
                       <span className="text-6xl">🏢</span>
@@ -233,7 +234,7 @@ function FindBusinessContent() {
 
                     <div className="p-6">
                       <div className="mb-2 flex items-start justify-between">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        <h3 className="text-lg font-semibold text-secondary-foreground">
                           {business.name}
                         </h3>
                         <span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-800 dark:bg-gray-700 dark:text-gray-200">
@@ -243,25 +244,25 @@ function FindBusinessContent() {
 
                       <div className="mb-3 flex items-center gap-2">
                         <span className="text-yellow-400">⭐</span>
-                        <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        <span className="font-semibold text-secondary-foreground">
                           {business.rating}
                         </span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                        <span className="text-sm text-secondary-foreground/60">
                           ({business.reviews})
                         </span>
                       </div>
 
-                      <div className="mb-3 flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                        <span>📍</span>
+                      <div className="mb-3 flex items-center gap-1 text-sm text-secondary-foreground">
+                        <span><MapPin /></span>
                         {business.location}
                       </div>
 
-                      <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                      <p className="mb-4 text-sm text-secondary-foreground">
                         {business.description}
                       </p>
 
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        <span className="font-semibold text-text">
                           {business.priceRange}
                         </span>
                         <button

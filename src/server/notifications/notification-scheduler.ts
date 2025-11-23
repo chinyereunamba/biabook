@@ -140,7 +140,7 @@ export class NotificationScheduler {
           serviceId: service.id,
           businessId: business.id,
         },
-        scheduledFor: reminder24h,
+        scheduledFor: new Date(reminder24h.toISOString()),
       });
     }
 
@@ -220,7 +220,7 @@ export class NotificationScheduler {
           serviceId: service.id,
           businessId: business.id,
         },
-        scheduledFor: reminder24h,
+        scheduledFor: new Date(reminder24h.toISOString()),
       });
     }
   }

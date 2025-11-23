@@ -77,6 +77,7 @@ export class WhatsAppService {
    */
   private async sendMessage(message: WhatsAppMessage): Promise<boolean> {
     if (!this.isConfigured) {
+      console.log("WhatsApp service not configured - skipping message");
       notificationLogger.logWhatsAppAttempt(
         message.to,
         false,
@@ -87,6 +88,8 @@ export class WhatsAppService {
 
     try {
       const url = `${this.apiUrl}/${this.phoneNumberId}/messages`;
+      console.log("Sending WhatsApp message to:", message.to);
+      console.log("WhatsApp API URL:", url);
 
       // Create AbortController for timeout handling
       const controller = new AbortController();
@@ -110,6 +113,7 @@ export class WhatsAppService {
           .catch(() => ({ error: "Unknown error" }));
 
         const errorMessage = `API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`;
+        console.error("WhatsApp API error:", errorMessage);
         notificationLogger.logWhatsAppAttempt(message.to, false, errorMessage);
         return false;
       }
@@ -117,6 +121,11 @@ export class WhatsAppService {
       const responseData = await response
         .json()
         .catch(() => ({ success: true }));
+
+      console.log("WhatsApp message sent successfully:", {
+        to: message.to,
+        messageId: responseData.messages?.[0]?.id,
+      });
 
       notificationLogger.logWhatsAppAttempt(message.to, true, undefined, {
         messageId: responseData.messages?.[0]?.id,
@@ -135,6 +144,7 @@ export class WhatsAppService {
         }
       }
 
+      console.error("WhatsApp send error:", errorMessage);
       notificationLogger.logWhatsAppAttempt(message.to, false, errorMessage);
       return false;
     }

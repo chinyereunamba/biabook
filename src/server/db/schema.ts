@@ -531,7 +531,7 @@ export const notificationQueue = createTable(
     recipientEmail: d.text("recipient_email").notNull(),
     recipientPhone: d.text("recipient_phone"),
     payload: d.text("payload").notNull(), // JSON string with notification data
-    scheduledFor: d.integer("scheduled_for", { mode: "timestamp" }).notNull(),
+    scheduledFor: d.integer("scheduled_for").notNull(),
     status: d
       .text("status", { enum: ["pending", "processed", "failed"] })
       .default("pending")

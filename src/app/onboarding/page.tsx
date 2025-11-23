@@ -31,16 +31,16 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 const BUSINESS_CATEGORIES = [
-  "Hair Salon",
-  "Barbershop",
-  "Spa & Wellness",
-  "Fitness",
-  "Healthcare",
-  "Education",
-  "Photography",
-  "Consulting",
-  "Home Services",
-  "Other",
+  { name: "Hair Salon", slug: "salon" },
+  { name: "Barbershop", slug: "barbershop" },
+  { name: "Spa & Wellness", slug: "spa" },
+  { name: "Fitness", slug: "fitness" },
+  { name: "Healthcare", slug: "healthcare" },
+  { name: "Education", slug: "education" },
+  { name: "Photography", slug: "photography" },
+  { name: "Consulting", slug: "consulting" },
+  { name: "Home Services", slug: "home-services" },
+  { name: "Other", slug: "other" },
 ];
 
 export default function OnboardingPage() {
@@ -210,11 +210,11 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="border-b border-gray-200 ">
+      <header className="border-b border-gray-200">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center space-x-2">
             <Calendar className="h-6 w-6 text-purple-600" />
-            <span className="text-xl font-bold ">BiaBook</span>
+            <span className="text-xl font-bold">BiaBook</span>
           </div>
           <Badge variant="secondary" className="bg-purple-50 text-purple-700">
             Setup Progress: {step}/{totalSteps}
@@ -226,12 +226,10 @@ export default function OnboardingPage() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium ">
+            <span className="text-sm font-medium">
               Step {step} of {totalSteps}
             </span>
-            <span className="text-sm ">
-              {Math.round(progress)}% complete
-            </span>
+            <span className="text-sm">{Math.round(progress)}% complete</span>
           </div>
           <Progress value={progress} className="h-2" />
         </div>
@@ -240,10 +238,10 @@ export default function OnboardingPage() {
         {step === 1 && (
           <Card className="border-gray-200 shadow-lg">
             <CardHeader>
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
                 <Building className="h-6 w-6 text-purple-600" />
               </div>
-              <CardTitle className="text-2xl ">
+              <CardTitle className="text-2xl">
                 Tell us about your business
               </CardTitle>
               <CardDescription className="">
@@ -285,8 +283,8 @@ export default function OnboardingPage() {
                   >
                     <option value="">Select a category</option>
                     {categories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
+                      <option key={cat.slug} value={cat.slug}>
+                        {cat.name}
                       </option>
                     ))}
                   </select>
@@ -317,7 +315,7 @@ export default function OnboardingPage() {
                     Phone Number
                   </Label>
                   <div className="relative">
-                    <Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform " />
+                    <Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                     <Input
                       id="phone"
                       type="tel"
@@ -338,7 +336,7 @@ export default function OnboardingPage() {
                     Website (Optional)
                   </Label>
                   <div className="relative">
-                    <Globe className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform " />
+                    <Globe className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                     <Input
                       id="website"
                       type="url"
@@ -370,7 +368,7 @@ export default function OnboardingPage() {
                   countryRestriction="us"
                   types={["establishment", "geocode"]}
                 />
-                <p className="text-xs ">
+                <p className="text-xs">
                   Start typing to see address suggestions. We'll automatically
                   fill in city, state, and ZIP code.
                 </p>
@@ -436,12 +434,10 @@ export default function OnboardingPage() {
         {step === 2 && (
           <Card className="border-gray-200 shadow-lg">
             <CardHeader>
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
                 <Calendar className="h-6 w-6 text-purple-600" />
               </div>
-              <CardTitle className="text-2xl ">
-                Add your services
-              </CardTitle>
+              <CardTitle className="text-2xl">Add your services</CardTitle>
               <CardDescription className="">
                 What services do you offer? You can always add more later.
               </CardDescription>
@@ -453,9 +449,7 @@ export default function OnboardingPage() {
                   className="space-y-4 rounded-lg border border-gray-200 p-4"
                 >
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium ">
-                      Service {index + 1}
-                    </h4>
+                    <h4 className="font-medium">Service {index + 1}</h4>
                     {services.length > 1 && (
                       <Button
                         variant="ghost"
@@ -482,9 +476,7 @@ export default function OnboardingPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="">
-                        Duration (minutes) *
-                      </Label>
+                      <Label className="">Duration (minutes) *</Label>
                       <Input
                         type="number"
                         placeholder="45"
@@ -516,7 +508,7 @@ export default function OnboardingPage() {
               <Button
                 variant="outline"
                 onClick={addService}
-                className="w-full border-gray-300   hover:bg-gray-50"
+                className="w-full border-gray-300 hover:bg-gray-50"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Another Service
@@ -529,12 +521,10 @@ export default function OnboardingPage() {
         {step === 3 && (
           <Card className="border-gray-200 shadow-lg">
             <CardHeader>
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl ">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
                 <Calendar className="h-6 w-6 text-purple-600" />
               </div>
-              <CardTitle className="text-2xl ">
-                Set your availability
-              </CardTitle>
+              <CardTitle className="text-2xl">Set your availability</CardTitle>
               <CardDescription className="">
                 When are you available for appointments? You can adjust this
                 anytime.
@@ -558,9 +548,7 @@ export default function OnboardingPage() {
                       }
                       className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                     />
-                    <span className="w-20 font-medium  capitalize">
-                      {day}
-                    </span>
+                    <span className="w-20 font-medium capitalize">{day}</span>
                   </div>
 
                   {schedule.enabled && (
@@ -619,18 +607,14 @@ export default function OnboardingPage() {
               <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
-              <h2 className="mb-4 text-3xl font-bold ">
-                You&apos;re all set!
-              </h2>
-              <p className="mb-8 text-xl ">
+              <h2 className="mb-4 text-3xl font-bold">You&apos;re all set!</h2>
+              <p className="mb-8 text-xl">
                 Your booking page is ready. Start sharing it with your
                 customers!
               </p>
 
               <div className="mb-8 rounded-lg bg-gray-50 p-6">
-                <h3 className="mb-4 font-semibold ">
-                  Your booking page URL:
-                </h3>
+                <h3 className="mb-4 font-semibold">Your booking page URL:</h3>
                 <div className="flex items-center justify-center space-x-2 rounded-md border border-gray-200 bg-white p-3">
                   <span className="font-mono text-purple-600">
                     https://biabook.app/book/
@@ -639,7 +623,7 @@ export default function OnboardingPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="border-gray-300 "
+                    className="border-gray-300"
                     onClick={copyToClipboard}
                   >
                     {copied ? (
@@ -685,7 +669,7 @@ export default function OnboardingPage() {
             variant="outline"
             onClick={handleBack}
             disabled={step === 1}
-            className="border-gray-300 "
+            className="border-gray-300"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back

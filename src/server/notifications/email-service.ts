@@ -46,6 +46,7 @@ export class EmailService {
   async sendEmail(options: EmailOptions): Promise<boolean> {
     try {
       if (!this.transporter) {
+        console.log("Email transporter not configured - skipping email");
         notificationLogger.logEmailAttempt(
           options.to,
           options.subject,
@@ -56,6 +57,11 @@ export class EmailService {
       }
 
       const from = env.EMAIL_FROM ?? "noreply@biabook.example.com";
+      console.log("Sending email:", {
+        from,
+        to: options.to,
+        subject: options.subject,
+      });
 
       await this.transporter.sendMail({
         from,
@@ -65,11 +71,13 @@ export class EmailService {
         text: options.text ?? options.html.replace(/<[^>]*>/g, ""), // Strip HTML tags for plain text
       });
 
+      console.log("Email sent successfully to:", options.to);
       notificationLogger.logEmailAttempt(options.to, options.subject, true);
       return true;
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
+      console.error("Email send error:", errorMessage);
       notificationLogger.logEmailAttempt(
         options.to,
         options.subject,

@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
-import localFont from "next/font/local";
 import { Providers } from "./providers";
+import { Geist, Urbanist } from "next/font/google";
 
 if (typeof window === "undefined") {
   import("@/server/init");
@@ -12,26 +12,9 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const outfit = localFont({
-  src: [
-    {
-      path: "../../public/fonts/Outfit-Regular.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/Outfit-Medium.ttf",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/Outfit-Bold.ttf",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-outfit",
-  display: "swap",
+const geist = Geist({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
 });
 
 export default function RootLayout({
@@ -40,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={outfit.variable}>
+    <html lang="en" className={geist.className}>
       <body>
         <Providers>
           {/* <TRPCReactProvider cookies={cookies().toString()}> */}

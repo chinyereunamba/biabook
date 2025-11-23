@@ -391,24 +391,36 @@ async function createBookingHandler(request: NextRequest) {
       }
     }
 
-    // Send immediate notifications and schedule reminders
+    // Schedule notifications (immediate confirmation + future reminders)
     try {
-      // Send immediate confirmation notifications (don't wait for queue processing)
-      await Promise.allSettled([
-        // Send confirmation to customer immediately with timezone info
-        notificationService.sendBookingConfirmationToCustomer(
+      bookingLogger.info("Scheduling booking notifications", {
+        ...context,
+        appointmentId: newAppointment.id,
+      });
+
+      // Schedule immediate confirmation notifications (will be sent by background processor)
+      try {
+        await notificationScheduler.scheduleBookingConfirmation(
           appointmentForScheduler,
           service,
           businessForScheduler,
-          businessLocation?.timezone,
-        ),
-        // Send notification to business owner immediately
-        notificationService.sendBookingNotificationToBusiness(
-          appointmentForScheduler,
-          service,
-          businessForScheduler,
-        ),
-      ]);
+        );
+        bookingLogger.info("Booking confirmation notifications scheduled", {
+          ...context,
+          appointmentId: newAppointment.id,
+        });
+      } catch (confirmationError) {
+        bookingLogger.warn(
+          "Failed to schedule booking confirmation",
+          { ...context, appointmentId: newAppointment.id },
+          {
+            error:
+              confirmationError instanceof Error
+                ? confirmationError.message
+                : String(confirmationError),
+          },
+        );
+      }
 
       // Schedule reminder notifications for later
       try {
@@ -417,6 +429,10 @@ async function createBookingHandler(request: NextRequest) {
           service,
           businessForScheduler,
         );
+        bookingLogger.info("Booking reminders scheduled successfully", {
+          ...context,
+          appointmentId: newAppointment.id,
+        });
       } catch (reminderError) {
         bookingLogger.warn(
           "Failed to schedule booking reminders",
@@ -431,17 +447,21 @@ async function createBookingHandler(request: NextRequest) {
         // Continue execution even if reminder scheduling fails
       }
 
-      bookingLogger.info("Booking notifications sent and reminders scheduled", {
+      // Note: Immediate confirmation notifications are scheduled with scheduledFor = NOW
+      // The background processor will pick them up within 1-2 minutes
+      // We don't manually trigger processing here to avoid processing ALL pending notifications
+      bookingLogger.info("Booking notifications scheduled", {
         ...context,
         appointmentId: newAppointment.id,
+        note: "Background processor will send confirmations within 1-2 minutes",
       });
     } catch (error) {
       bookingLogger.warn(
-        "Failed to send booking notifications",
+        "Failed to schedule booking notifications",
         { ...context, appointmentId: newAppointment.id },
         { error: error instanceof Error ? error.message : String(error) },
       );
-      // Don't fail the booking creation if notification sending fails
+      // Don't fail the booking creation if notification scheduling fails
     }
 
     // Return the created appointment with business and service details including timezone

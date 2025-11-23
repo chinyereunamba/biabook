@@ -56,6 +56,16 @@ export class NotificationQueueService {
 
     const now = new Date();
 
+    console.log("[NotificationQueue] Enqueueing notification");
+    console.log("  Type:", notification.type);
+    console.log("  Recipient:", notification.recipientEmail);
+    console.log("  Scheduled for:", notification.scheduledFor.toISOString());
+    console.log("  Current time:", now.toISOString());
+    console.log(
+      "  Minutes until send:",
+      Math.round((notification.scheduledFor.getTime() - now.getTime()) / 60000),
+    );
+
     const [result] = await db
       .insert(notificationQueue)
       .values({
@@ -65,7 +75,7 @@ export class NotificationQueueService {
         recipientEmail: notification.recipientEmail,
         recipientPhone: notification.recipientPhone ?? undefined,
         payload: JSON.stringify(notification.payload),
-        scheduledFor: notification.scheduledFor, // Drizzle handles Date to timestamp conversion
+        scheduledFor: notification.scheduledFor.getTime(),
         status: "pending",
         attempts: 0,
       })
@@ -95,6 +105,9 @@ export class NotificationQueueService {
   async getPendingNotifications(limit = 10): Promise<NotificationQueueItem[]> {
     const now = new Date();
 
+    console.log("[NotificationQueue] Getting pending notifications");
+    console.log("[NotificationQueue] Current time:", now.toISOString());
+
     const results = await db
       .select()
       .from(notificationQueue)
@@ -104,6 +117,15 @@ export class NotificationQueueService {
       .orderBy(notificationQueue.scheduledFor)
       .limit(limit);
 
+    console.log(
+      `[NotificationQueue] Found ${results.length} pending notifications`,
+    );
+    results.forEach((r) => {
+      console.log(
+        `  - ID: ${r.id}, scheduledFor: ${new Date(r.scheduledFor).toISOString()}, status: ${r.status}`,
+      );
+    });
+
     return results.map((item) => ({
       ...item,
       payload:
@@ -112,7 +134,7 @@ export class NotificationQueueService {
           : item.payload,
       type: item.type as NotificationType,
       // Drizzle with mode: "timestamp" returns Date objects directly
-      scheduledFor: item.scheduledFor,
+      scheduledFor: new Date(item.scheduledFor),
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
       lastAttemptAt: item.lastAttemptAt,
@@ -182,7 +204,7 @@ export class NotificationQueueService {
     await db
       .update(notificationQueue)
       .set({
-        scheduledFor: scheduledFor,
+        scheduledFor: scheduledFor.getDate(),
         updatedAt: now,
       })
       .where(eq(notificationQueue.id, id));

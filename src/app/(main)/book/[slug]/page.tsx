@@ -233,7 +233,7 @@ export default function BookingPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Choose a Service</CardTitle>
-                    <p className="text-sm text-text">
+                    <p className="text-text text-sm">
                       Select the service you&apos;d like to book with{" "}
                       {business.name}
                     </p>
@@ -260,7 +260,7 @@ export default function BookingPage() {
                     <div className="space-y-4">
                       <div>
                         <h3 className="font-semibold">{business.name}</h3>
-                        <p className="text-sm text-text">
+                        <p className="text-text text-sm">
                           {business.category.name}
                         </p>
                       </div>
@@ -270,11 +270,11 @@ export default function BookingPage() {
                           <h4 className="mb-2 font-semibold">
                             Selected Service
                           </h4>
-                          <div className="rounded-lg bg-primary/50 p-3">
+                          <div className="bg-primary/50 rounded-lg p-3">
                             <p className="font-medium">
                               {selectedService.name}
                             </p>
-                            <div className="mt-1 flex items-center justify-between text-sm text-text">
+                            <div className="text-text mt-1 flex items-center justify-between text-sm">
                               <span>{selectedService.duration} min</span>
                               <span className="font-semibold">
                                 ${(selectedService.price / 100).toFixed(2)}
@@ -287,11 +287,9 @@ export default function BookingPage() {
                       {selectedDate && selectedTime && (
                         <div className="border-t pt-4">
                           <h4 className="mb-2 font-semibold">Selected Time</h4>
-                          <div className="rounded-lg bg-primary/50 p-3">
+                          <div className="bg-primary/20 rounded-lg p-3">
                             <p className="font-medium">{selectedDate}</p>
-                            <p className="text-sm text-text">
-                              {selectedTime}
-                            </p>
+                            <p className="text-text text-sm">{selectedTime}</p>
                           </div>
                         </div>
                       )}
@@ -307,7 +305,7 @@ export default function BookingPage() {
                     <div className="flex items-center space-x-3">
                       <h2 className="text-2xl font-bold">Select Date & Time</h2>
                       {availabilityLoading && (
-                        <div className="flex items-center space-x-2 text-sm text-text">
+                        <div className="text-text flex items-center space-x-2 text-sm">
                           <Spinner size="sm" />
                           <span>Updating availability...</span>
                         </div>
