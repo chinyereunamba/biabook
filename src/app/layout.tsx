@@ -1,9 +1,10 @@
 import "@/styles/globals.css";
 import { Providers } from "./providers";
-import { Geist, Urbanist } from "next/font/google";
+import { Geist } from "next/font/google";
 
+// Initialize server-side services (background processor, etc.)
 if (typeof window === "undefined") {
-  import("@/server/init");
+  void import("@/server/init");
 }
 
 export const metadata = {

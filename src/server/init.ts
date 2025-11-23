@@ -5,5 +5,6 @@
 
 // Import background services to initialize them
 import "./notifications/background-processor";
+import "./notifications/notification-cleanup-service";
 
 console.log("Server initialization complete");

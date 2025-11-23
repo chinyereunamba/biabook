@@ -72,6 +72,31 @@ async function cancelBookingHandler(request: NextRequest) {
       customerEmail: appointmentData.appointment.customerEmail,
     });
 
+    // Cancel all pending reminder notifications for this appointment
+    try {
+      const { notificationQueueService } = await import(
+        "@/server/notifications/notification-queue"
+      );
+      const cancelledCount =
+        await notificationQueueService.cancelNotificationsForAppointment(id);
+      bookingLogger.info(
+        `Cancelled ${cancelledCount} pending notification(s) for appointment`,
+        {
+          ...context,
+          cancelledNotifications: cancelledCount,
+        },
+      );
+    } catch (error) {
+      bookingLogger.warn(
+        "Failed to cancel pending notifications",
+        { ...context },
+        {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      );
+      // Don't fail the cancellation if notification cleanup fails
+    }
+
     // Prepare data for notifications
     const appointmentForNotification = {
       ...appointmentData.appointment,

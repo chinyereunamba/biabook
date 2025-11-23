@@ -175,6 +175,63 @@ async function rescheduleBookingHandler(
       })
       .where(eq(appointments.id, id));
 
+    // Cancel old reminder notifications and schedule new ones
+    try {
+      const { notificationQueueService } = await import(
+        "@/server/notifications/notification-queue"
+      );
+      const { notificationScheduler } = await import(
+        "@/server/notifications/notification-scheduler"
+      );
+
+      // Cancel old reminders
+      const cancelledCount =
+        await notificationQueueService.cancelNotificationsForAppointment(id);
+      bookingLogger.info(
+        `Cancelled ${cancelledCount} old notification(s) for rescheduled appointment`,
+        {
+          ...context,
+          cancelledNotifications: cancelledCount,
+        },
+      );
+
+      // Schedule new reminders with updated date/time
+      const updatedAppointmentForScheduler = {
+        ...appointmentData.appointment,
+        appointmentDate: new Date(appointmentDate),
+        startTime: newStartTime,
+        endTime,
+      };
+
+      const businessForScheduler = {
+        ...appointmentData.business,
+        slug: appointmentData.business.name.toLowerCase().replace(/\s+/g, "-"),
+        userId: appointmentData.business.ownerId,
+      };
+
+      await notificationScheduler.scheduleBookingReminders(
+        updatedAppointmentForScheduler,
+        appointmentData.service,
+        businessForScheduler,
+      );
+
+      bookingLogger.info(
+        "New reminders scheduled for rescheduled appointment",
+        {
+          ...context,
+        },
+      );
+    } catch (error) {
+      bookingLogger.warn(
+        "Failed to update notifications for rescheduled appointment",
+        { ...context },
+        {
+          error: error instanceof Error ? error.message : String(error),
+        },
+      );
+      // Don't fail the reschedule if notification updates fail
+    }
+
     // Send rescheduling notifications
     try {
       // Update the appointment object with new values for notifications

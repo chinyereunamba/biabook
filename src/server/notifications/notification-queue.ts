@@ -75,7 +75,7 @@ export class NotificationQueueService {
         recipientEmail: notification.recipientEmail,
         recipientPhone: notification.recipientPhone ?? undefined,
         payload: JSON.stringify(notification.payload),
-        scheduledFor: notification.scheduledFor.getTime(),
+        scheduledFor: Math.floor(notification.scheduledFor.getTime() / 1000),
         status: "pending",
         attempts: 0,
       })
@@ -134,7 +134,7 @@ export class NotificationQueueService {
           : item.payload,
       type: item.type as NotificationType,
       // Drizzle with mode: "timestamp" returns Date objects directly
-      scheduledFor: new Date(item.scheduledFor),
+      scheduledFor: new Date(item.scheduledFor * 1000),
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
       lastAttemptAt: item.lastAttemptAt,
@@ -215,17 +215,63 @@ export class NotificationQueueService {
   }
 
   /**
-   * Delete processed notifications older than a certain date
+   * Cancel pending notifications for a specific appointment
    */
-  async cleanupOldNotifications(olderThan: Date): Promise<number> {
+  async cancelNotificationsForAppointment(
+    appointmentId: string,
+  ): Promise<number> {
+    console.log(
+      `[NotificationQueue] Cancelling notifications for appointment: ${appointmentId}`,
+    );
+
+    const now = new Date();
+
+    // Update all pending notifications for this appointment to 'failed' status
     const result = await db
-      .delete(notificationQueue)
+      .update(notificationQueue)
+      .set({
+        status: "failed",
+        error: "Appointment cancelled",
+        updatedAt: now,
+      })
       .where(
-        sql`${notificationQueue.status} = 'processed' AND ${notificationQueue.updatedAt} < ${olderThan}`,
+        sql`${notificationQueue.status} = 'pending' AND ${notificationQueue.payload} LIKE '%"appointmentId":"${appointmentId}"%'`,
       )
       .returning({ id: notificationQueue.id });
 
-    console.log(`Cleaned up ${result.length} old notifications`);
+    console.log(
+      `[NotificationQueue] Cancelled ${result.length} notification(s)`,
+    );
+    notificationLogger.info(
+      `Cancelled ${result.length} notifications for appointment ${appointmentId}`,
+    );
+
+    return result.length;
+  }
+
+  /**
+   * Delete old notifications (processed and failed) older than a certain date
+   * This keeps the database clean and prevents it from growing indefinitely
+   */
+  async cleanupOldNotifications(olderThan: Date): Promise<number> {
+    console.log(
+      `[NotificationQueue] Cleaning up notifications older than ${olderThan.toISOString()}`,
+    );
+
+    const result = await db
+      .delete(notificationQueue)
+      .where(
+        sql`(${notificationQueue.status} = 'processed' OR ${notificationQueue.status} = 'failed') AND ${notificationQueue.updatedAt} < ${olderThan}`,
+      )
+      .returning({ id: notificationQueue.id });
+
+    console.log(
+      `[NotificationQueue] Cleaned up ${result.length} old notification(s)`,
+    );
+    notificationLogger.info(
+      `Cleaned up ${result.length} old notifications older than ${olderThan.toISOString()}`,
+    );
+
     return result.length;
   }
 }

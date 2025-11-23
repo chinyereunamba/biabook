@@ -276,6 +276,23 @@ export async function DELETE(
       );
     }
 
+    // Cancel all pending reminder notifications for this appointment
+    try {
+      const { notificationQueueService } = await import(
+        "@/server/notifications/notification-queue"
+      );
+      const cancelledCount =
+        await notificationQueueService.cancelNotificationsForAppointment(
+          appointmentId,
+        );
+      console.log(
+        `Cancelled ${cancelledCount} pending notification(s) for appointment ${appointmentId}`,
+      );
+    } catch (error) {
+      console.error("Failed to cancel pending notifications:", error);
+      // Don't fail the cancellation if notification cleanup fails
+    }
+
     // Send cancellation notifications
     try {
       const service = await db

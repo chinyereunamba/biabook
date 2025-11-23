@@ -77,6 +77,8 @@
 }
 
 :root {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
   --radius: 0.65rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -209,6 +211,7 @@
     /* Mobile-first font optimization */
     font-size: 16px; /* Prevents zoom on iOS */
     line-height: 1.5;
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
