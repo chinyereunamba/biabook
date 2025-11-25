@@ -107,13 +107,13 @@ export class NotificationQueueService {
 
     console.log("[NotificationQueue] Getting pending notifications");
     console.log("[NotificationQueue] Current time:", now.toISOString());
+const nowUnix = Math.floor(Date.now() / 1000);
 
     const results = await db
       .select()
       .from(notificationQueue)
       .where(
-        sql`${notificationQueue.status} = 'pending' AND ${notificationQueue.scheduledFor} <= ${now} AND ${notificationQueue.attempts} < 3`,
-      )
+        sql`${notificationQueue.status} = 'pending' AND ${notificationQueue.scheduledFor} <= ${nowUnix} AND ${notificationQueue.attempts} < 3` )
       .orderBy(notificationQueue.scheduledFor)
       .limit(limit);
 
