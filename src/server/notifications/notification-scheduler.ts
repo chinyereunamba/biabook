@@ -518,7 +518,7 @@ export class NotificationScheduler {
     recipientEmail: string;
     recipientPhone?: string;
     payload: Record<string, unknown>;
-    scheduledFor: Date;
+    scheduledFor: Date | number;
   }): Promise<string> {
     return notificationQueueService.enqueue(notification);
   }
