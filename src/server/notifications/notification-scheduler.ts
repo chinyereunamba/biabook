@@ -512,17 +512,21 @@ export class NotificationScheduler {
    * Schedule a notification
    */
   private async scheduleNotification(notification: {
-    type: NotificationType;
-    recipientId: string;
-    recipientType: "business" | "customer";
-    recipientEmail: string;
-    recipientPhone?: string;
-    payload: Record<string, unknown>;
-    scheduledFor: Date | number;
-  }): Promise<string> {
-    return notificationQueueService.enqueue(notification);
+  type: NotificationType;
+  recipientId: string;
+  recipientType: "business" | "customer";
+  recipientEmail: string;
+  recipientPhone?: string;
+  payload: Record<string, unknown>;
+  scheduledFor: Date | number; // keep as-is
+}): Promise<string> {
+  // Convert number timestamps (seconds) to Date
+  if (typeof notification.scheduledFor === "number") {
+    notification.scheduledFor = new Date(notification.scheduledFor * 1000);
   }
 
+  return notificationQueueService.enqueue(notification);
+}
   /**
    * Get business notification preferences
    */
