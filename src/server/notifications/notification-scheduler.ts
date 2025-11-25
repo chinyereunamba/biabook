@@ -518,14 +518,17 @@ export class NotificationScheduler {
   recipientEmail: string;
   recipientPhone?: string;
   payload: Record<string, unknown>;
-  scheduledFor: Date | number; // keep as-is
+  scheduledFor: Date | number;
 }): Promise<string> {
-  // Convert number timestamps (seconds) to Date
+  // Runtime conversion
   if (typeof notification.scheduledFor === "number") {
     notification.scheduledFor = new Date(notification.scheduledFor * 1000);
   }
 
-  return notificationQueueService.enqueue(notification);
+  // TypeScript assertion: now it's definitely a Date
+  return notificationQueueService.enqueue(
+    notification as Omit<typeof notification, "scheduledFor"> & { scheduledFor: Date }
+  );
 }
   /**
    * Get business notification preferences
