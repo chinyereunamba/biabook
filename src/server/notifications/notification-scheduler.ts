@@ -65,7 +65,7 @@ export class NotificationScheduler {
         serviceId: service.id,
         businessId: business.id,
       },
-      scheduledFor: new Date(), // Send immediately
+      scheduledFor: Math.floor(new Date() / 1000), // Send immediately
     });
 
     // Check business notification preferences
@@ -86,7 +86,7 @@ export class NotificationScheduler {
           serviceId: service.id,
           businessId: business.id,
         },
-        scheduledFor: new Date(), // Send immediately
+        scheduledFor: Math.floor(new Date() / 1000), // Send immediately
       });
     }
   }
@@ -140,7 +140,7 @@ export class NotificationScheduler {
           serviceId: service.id,
           businessId: business.id,
         },
-        scheduledFor: new Date(reminder24h.toISOString()),
+        scheduledFor: Math.floor(reminder24h.getTime() / 1000),
       });
     }
 
@@ -169,7 +169,7 @@ export class NotificationScheduler {
           serviceId: service.id,
           businessId: business.id,
         },
-        scheduledFor: reminder2h,
+        scheduledFor: Math.floor(reminder2h.getTime() / 1000)
       });
     }
 
@@ -198,7 +198,7 @@ export class NotificationScheduler {
           serviceId: service.id,
           businessId: business.id,
         },
-        scheduledFor: reminder30m,
+        scheduledFor: Math.floor(reminder30m.getTime() / 1000)
       });
     }
 
@@ -220,7 +220,7 @@ export class NotificationScheduler {
           serviceId: service.id,
           businessId: business.id,
         },
-        scheduledFor: new Date(reminder24h.toISOString()),
+        scheduledFor: Math.floor(reminder24h.getTime() / 1000)
       });
     }
   }
@@ -266,7 +266,7 @@ export class NotificationScheduler {
           serviceId: service.id,
           businessId: business.id,
         },
-        scheduledFor: new Date(), // Send immediately
+        scheduledFor: Math.floor(new Date() / 1000)
       });
     }
   }
@@ -291,7 +291,7 @@ export class NotificationScheduler {
         serviceId: service.id,
         businessId: business.id,
       },
-      scheduledFor: new Date(), // Send immediately
+      scheduledFor: Math.floor(new Date() / 1000), // Send immediately
     });
 
     // Check business notification preferences
@@ -312,7 +312,7 @@ export class NotificationScheduler {
           serviceId: service.id,
           businessId: business.id,
         },
-        scheduledFor: new Date(), // Send immediately
+        scheduledFor: Math.floor(new Date() / 1000), // Send immediately
       });
     }
   }
