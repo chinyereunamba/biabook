@@ -1,6 +1,6 @@
 import { GalleryVerticalEnd } from "lucide-react";
 
-import { SignupForm } from "@/components/signup-form";
+import { SignupForm } from "@/components/forms/signup-form";
 import Link from "next/link";
 
 export default function SignupPage() {
