@@ -23,11 +23,7 @@ const customAdapter = {
   }),
   async createUser(user: any) {
     // Admin emails - add your admin emails here
-    const adminEmails = [
-      "chinyereunamba15@gmail.com",
-      "admin@biabook.app",
-      // Add more admin emails as needed
-    ];
+    const adminEmails = process.env.ADMIN_EMAILS?.split(",") ?? [];
 
     // Assign role based on email
     const role = adminEmails.includes(user.email) ? "admin" : "user";

@@ -18,16 +18,14 @@ export default async function OnboardingGuard({
   }
 
   // Check onboarding status
-  if (
-    requireOnboarded &&
-    !session.user.isOnboarded &&
-    !session.user.email?.includes("@biabook.app")
-  ) {
-    redirect("/onboarding");
-  }
-
-  if (!requireOnboarded && session.user.isOnboarded) {
-    redirect("/dashboard");
+  if (session.user.role === "admin") {
+    redirect("/admin");
+  } else {
+    if (requireOnboarded && !session.user.isOnboarded) {
+      redirect("/onboarding");
+    } else {
+      redirect("/dashboard");
+    }
   }
 
   return <>{children}</>;
