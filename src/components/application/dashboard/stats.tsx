@@ -10,7 +10,17 @@ import {
 import React from "react";
 import { TrendingUp, Calendar, Users } from "lucide-react";
 
-export const Stats = ({ item }) => {
+export const Stats = ({
+  item,
+}: {
+  item: {
+    key: string;
+    title: string;
+    value: number | string;
+    change: string;
+    footer: string;
+  };
+}) => {
   const ICONS = {
     "total-revenue": TrendingUp,
     "total-bookings": Calendar,

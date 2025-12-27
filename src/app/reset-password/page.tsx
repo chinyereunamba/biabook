@@ -1,7 +1,8 @@
 import { GalleryVerticalEnd } from "lucide-react";
 
-import { ResetPasswordForm } from "@/components/forms/reset-password-form";
 import Link from "next/link";
+import { Suspense } from "react";
+import ResetPasswordClient from "./reset-password-client";
 
 export default function ResetPasswordPage() {
   return (
@@ -16,7 +17,9 @@ export default function ResetPasswordPage() {
           </div>
           BiaBook
         </Link>
-        <ResetPasswordForm />
+        <Suspense fallback={<div>Loading reset password…</div>}>
+          <ResetPasswordClient />
+        </Suspense>
       </div>
     </div>
   );
