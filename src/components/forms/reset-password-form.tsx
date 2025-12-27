@@ -19,8 +19,9 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "../ui/field";
 
 export function ResetPasswordForm({
   className,
+  token,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: React.HTMLAttributes<HTMLDivElement> & { token: string | null }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [password, setPassword] = useState("");
@@ -30,17 +31,8 @@ export function ResetPasswordForm({
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
-  const [token, setToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    const tokenParam = searchParams.get("token");
-    if (!tokenParam) {
-      setError("Invalid reset link. Please request a new password reset.");
-    } else {
-      setToken(tokenParam);
-    }
-  }, [searchParams]);
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -199,8 +191,8 @@ export function ResetPasswordForm({
                   type="password"
                   placeholder="Enter your new password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </Field>
 
