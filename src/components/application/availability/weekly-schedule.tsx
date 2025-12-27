@@ -162,7 +162,6 @@ export function WeeklySchedule({
     try {
       if (onSave) {
         await onSave(schedule);
-        toast.success("Weekly schedule saved successfully");
         clearError(); // Clear any previous errors on success
       }
     } catch (error) {
@@ -171,7 +170,7 @@ export function WeeklySchedule({
         schedule,
       });
       handleError(errorInfo);
-      toast.error("Failed to save schedule. Please try again.");
+      // Error toast is handled by the parent component
     }
   };
 
@@ -269,7 +268,11 @@ export function WeeklySchedule({
         })}
       </CardContent>
       <CardFooter>
-        <LoadingButton loading={isLoading} loadingText="Saving...">
+        <LoadingButton
+          loading={isLoading}
+          loadingText="Saving..."
+          onClick={handleSave}
+        >
           Save Changes
         </LoadingButton>
       </CardFooter>
