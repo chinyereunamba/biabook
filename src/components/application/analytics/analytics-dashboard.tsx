@@ -119,7 +119,7 @@ export function AnalyticsDashboard() {
             <TabsTrigger value="revenue">Revenue</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="customers">Customers</TabsTrigger>
-            <TabsTrigger value="location">Location</TabsTrigger>
+            <TabsTrigger value="location" disabled>Location</TabsTrigger>
           </TabsList>
           <div className="flex gap-2">
             <DateRangePicker

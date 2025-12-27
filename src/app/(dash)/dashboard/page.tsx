@@ -1,28 +1,16 @@
 import { auth } from "@/server/auth";
-import {
-  Activity,
-  ArrowUpRight,
-  CreditCard,
-  DollarSign,
-  Users,
-  Loader2,
-  Calendar,
-  TrendingUp,
-} from "lucide-react";
-import type { RecentBooking, Stats } from "@/types/dashboard";
+import { Users, Calendar, TrendingUp } from "lucide-react";
+import type { RecentBooking } from "@/types/dashboard";
 import { SiteHeader } from "@/components/site-header";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Stats } from "@/components/application/dashboard/stats";
+import { businessRepository } from "@/server/repositories/business-repository";
+import { getDashboardStats } from "@/server/utils/stats";
 
 export default async function DashboardPage() {
   const session = await auth();
+  const userId = session?.user.id;
+  const businesses = await businessRepository.findByOwnerId(userId!);
+  const business = businesses[0];
 
   // Session is guaranteed to exist and be onboarded due to layout checks
 
@@ -45,36 +33,7 @@ export default async function DashboardPage() {
     { day: "Sun", bookings: 15 },
   ];
 
-  const stats = [
-    {
-      title: "Total Revenue",
-      value: "$1,250.00",
-      icon: TrendingUp,
-      change: "+12.5%",
-      footer: "Visitors for the last 6 months",
-    },
-    {
-      title: "Total Bookings",
-      value: "+2,350",
-      icon: Calendar,
-      change: "+12.5%",
-      footer: "Visitors for the last 6 months",
-    },
-    {
-      title: "Today's Bookings",
-      value: "+573",
-      icon: Users,
-      change: "+12.5%",
-      footer: "Appointments scheduled",
-    },
-    {
-      title: "Monthly Revenue",
-      value: "$12,500.00",
-      icon: TrendingUp,
-      change: "+12.5%",
-      footer: "This month's earnings",
-    },
-  ];
+  const stats = await getDashboardStats(business!.id);
 
   // Mock recent bookings data
   const recentBookings: RecentBooking[] = [];
@@ -112,26 +71,7 @@ export default async function DashboardPage() {
             </div>
           </div> */}
           {stats.map((item) => (
-            <Card className="@container/card">
-              <CardHeader>
-                <CardDescription>{item.title}</CardDescription>
-                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                  {item.value}
-                </CardTitle>
-                <CardAction>
-                  <Badge variant="outline">
-                    <item.icon />
-                    {item.change}
-                  </Badge>
-                </CardAction>
-              </CardHeader>
-              <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                <div className="line-clamp-1 flex gap-2 font-medium">
-                  {/* Trending up this month <TrendingUp className="size-4" /> */}
-                </div>
-                <div className="text-muted-foreground">{item.footer}</div>
-              </CardFooter>
-            </Card>
+            <Stats key={item.title} item={item} />
           ))}
         </div>
 

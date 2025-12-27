@@ -3,14 +3,9 @@ import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
-  IconCamera,
+  IconCalendarTime,
   IconChartBar,
   IconDashboard,
-  IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconFileWord,
-  IconFolder,
   IconHelp,
   IconListDetails,
   IconReport,
@@ -20,13 +15,6 @@ import {
   type Icon,
   type IconProps,
 } from "@tabler/icons-react";
-import {
-  Book,
-  LayoutDashboard,
-  MapPin,
-  Settings,
-  ToolCase,
-} from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
@@ -98,14 +86,14 @@ export default function ClientLayout({
       },
       {
         title: "appointments",
-        url: "/dashboard/bookings",
-        icon: IconFolder,
+        url: "/dashboard/appointments",
+        icon: IconCalendarTime,
       },
-      {
-        title: "Locations",
-        url: "/dashboard/locations",
-        icon: IconUsers,
-      },
+      // {
+      //   title: "Locations",
+      //   url: "/dashboard/locations",
+      //   icon: IconUsers,
+      // },
     ],
     navSecondary: [
       {

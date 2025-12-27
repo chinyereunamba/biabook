@@ -61,9 +61,9 @@ export class NotificationScheduler {
       recipientEmail: appointment.customerEmail,
       recipientPhone: appointment.customerPhone,
       payload: {
-        appointmentId: appointment.id,
-        serviceId: service.id,
-        businessId: business.id,
+        appointment: appointment,
+        service: service,
+        business: business,
       },
       scheduledFor: Math.floor(new Date().getTime() / 1000), // Send immediately
     });
@@ -82,9 +82,9 @@ export class NotificationScheduler {
         recipientEmail: business.email ?? "",
         recipientPhone: business.phone ?? undefined,
         payload: {
-          appointmentId: appointment.id,
-          serviceId: service.id,
-          businessId: business.id,
+          appointment: appointment,
+          service: service,
+          business: business,
         },
         scheduledFor: Math.floor(new Date().getTime() / 1000), // Send immediately
       });
@@ -136,9 +136,9 @@ export class NotificationScheduler {
         recipientEmail: appointment.customerEmail,
         recipientPhone: appointment.customerPhone,
         payload: {
-          appointmentId: appointment.id,
-          serviceId: service.id,
-          businessId: business.id,
+          appointment: appointment,
+          service: service,
+          business: business,
         },
         scheduledFor: Math.floor(reminder24h.getTime() / 1000),
       });
@@ -165,9 +165,9 @@ export class NotificationScheduler {
         recipientEmail: appointment.customerEmail,
         recipientPhone: appointment.customerPhone,
         payload: {
-          appointmentId: appointment.id,
-          serviceId: service.id,
-          businessId: business.id,
+          appointment: appointment,
+          service: service,
+          business: business,
         },
         scheduledFor: Math.floor(reminder2h.getTime() / 1000)
       });
@@ -194,9 +194,9 @@ export class NotificationScheduler {
         recipientEmail: appointment.customerEmail,
         recipientPhone: appointment.customerPhone,
         payload: {
-          appointmentId: appointment.id,
-          serviceId: service.id,
-          businessId: business.id,
+          appointment: appointment,
+          service: service,
+          business: business,
         },
         scheduledFor: Math.floor(reminder30m.getTime() / 1000)
       });
@@ -216,9 +216,9 @@ export class NotificationScheduler {
         recipientEmail: business.email ?? "",
         recipientPhone: business.phone ?? undefined,
         payload: {
-          appointmentId: appointment.id,
-          serviceId: service.id,
-          businessId: business.id,
+          appointment: appointment,
+          service: service,
+          business: business,
         },
         scheduledFor: Math.floor(reminder24h.getTime() / 1000)
       });
@@ -241,9 +241,9 @@ export class NotificationScheduler {
       recipientEmail: appointment.customerEmail,
       recipientPhone: appointment.customerPhone,
       payload: {
-        appointmentId: appointment.id,
-        serviceId: service.id,
-        businessId: business.id,
+        appointment: appointment,
+        service: service,
+        business: business,
       },
       scheduledFor: Math.floor(new Date().getTime() / 1000), // Send immediately
     });
@@ -262,9 +262,9 @@ export class NotificationScheduler {
         recipientEmail: business.email ?? "",
         recipientPhone: business.phone ?? undefined,
         payload: {
-          appointmentId: appointment.id,
-          serviceId: service.id,
-          businessId: business.id,
+          appointment: appointment,
+          service: service,
+          business: business,
         },
         scheduledFor: Math.floor(new Date().getTime() / 1000)
       });
@@ -287,9 +287,9 @@ export class NotificationScheduler {
       recipientEmail: appointment.customerEmail,
       recipientPhone: appointment.customerPhone,
       payload: {
-        appointmentId: appointment.id,
-        serviceId: service.id,
-        businessId: business.id,
+        appointment: appointment,
+        service: service,
+        business: business,
       },
       scheduledFor: Math.floor(new Date().getTime() / 1000), // Send immediately
     });
@@ -308,9 +308,9 @@ export class NotificationScheduler {
         recipientEmail: business.email ?? "",
         recipientPhone: business.phone ?? undefined,
         payload: {
-          appointmentId: appointment.id,
-          serviceId: service.id,
-          businessId: business.id,
+          appointment: appointment,
+          service: service,
+          business: business,
         },
         scheduledFor: Math.floor(new Date().getTime() / 1000), // Send immediately
       });
