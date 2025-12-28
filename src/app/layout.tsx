@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import { Providers } from "./providers";
-import { Geist } from "next/font/google";
+import { Google_Sans_Flex } from "next/font/google";
 
 // Initialize server-side services (background processor, etc.)
 if (typeof window === "undefined") {
@@ -13,7 +13,7 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const geist = Geist({
+const google = Google_Sans_Flex({
   weight: ["400", "500", "700"],
   subsets: ["latin"],
 });
@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={geist.className}>
+    <html lang="en" className={google.className}>
       <body>
         <Providers>
           {/* <TRPCReactProvider cookies={cookies().toString()}> */}
