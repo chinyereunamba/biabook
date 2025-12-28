@@ -3,6 +3,7 @@ import { GalleryVerticalEnd } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import ResetPasswordClient from "./reset-password-client";
+import { Logo } from "@/utils/logo";
 
 export default function ResetPasswordPage() {
   return (
@@ -12,10 +13,7 @@ export default function ResetPasswordPage() {
           href="/"
           className="flex items-center gap-2 self-center font-medium"
         >
-          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <GalleryVerticalEnd className="size-4" />
-          </div>
-          BiaBook
+          <Logo height={40} />
         </Link>
         <Suspense fallback={<div>Loading reset password…</div>}>
           <ResetPasswordClient />

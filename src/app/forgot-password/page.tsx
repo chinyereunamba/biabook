@@ -4,6 +4,7 @@ import { GalleryVerticalEnd } from "lucide-react";
 
 import { ForgotPasswordForm } from "@/components/forms/forgot-password-form";
 import Link from "next/link";
+import { Logo } from "@/utils/logo";
 
 export default function ForgotPasswordPage() {
   return (
@@ -13,10 +14,7 @@ export default function ForgotPasswordPage() {
           href="/"
           className="flex items-center gap-2 self-center font-medium"
         >
-          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <GalleryVerticalEnd className="size-4" />
-          </div>
-          BiaBook
+          <Logo height={40} />
         </Link>
         <ForgotPasswordForm />
       </div>

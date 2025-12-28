@@ -22,6 +22,6 @@ export interface RecentBooking {
   customerEmail: string;
   appointmentDate: string;
   status: "confirmed" | "cancelled" | "pending";
-  servicePrice: number;
+  servicePrice?: number;
   serviceName?: string;
 }

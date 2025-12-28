@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { appConfig } from "@/utils/config";
+import { Logo } from "@/utils/logo";
 
 export function Header() {
   return (
@@ -11,7 +12,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href={"/"} className="text-foreground text-lg font-bold">
-              {appConfig.name}
+              <Logo  height={37}/>
             </Link>
           </div>
 

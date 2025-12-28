@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { appConfig } from "@/utils/config";
+import { Logo } from "@/utils/logo";
 
 export function Footer() {
   return (
@@ -10,10 +11,7 @@ export function Footer() {
         <div className="mb-8 grid gap-8 md:grid-cols-4">
           <div>
             <div className="mb-4 flex items-center gap-2">
-              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
-                <span className="text-primary-foreground font-bold">B</span>
-              </div>
-              <span className="font-bold">{appConfig.name}</span>
+              <Logo height={36}/>
             </div>
             <p className="text-foreground text-sm">
               The easiest way for businesses to manage appointments and get
