@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "@/server/db";
+import { env } from "@/env";
 import {
   users,
   accounts,
@@ -77,12 +78,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     maxAge: 10 * 24 * 60 * 60, // 10 days
     updateAge: 24 * 60 * 60, // 24 hours
   },
-  secret: process.env.AUTH_SECRET!,
+  secret: env.AUTH_SECRET,
   adapter: customAdapter as any,
   providers: [
     Google({
-      clientId: process.env.AUTH_GOOGLE_ID!,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      clientId: env.AUTH_GOOGLE_ID,
+      clientSecret: env.AUTH_GOOGLE_SECRET,
     }),
 
     Credentials({

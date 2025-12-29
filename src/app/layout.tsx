@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import { Providers } from "./providers";
-import { Google_Sans_Flex } from "next/font/google";
+import { Inter } from "next/font/google";
 
 export const metadata = {
   title: "BiaBook - Simple Appointment Booking",
@@ -8,10 +8,11 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const google = Google_Sans_Flex({
-  weight: ["400", "500", "700"],
+const inter = Inter({
+  weight: ["400", "500", "600", "700"],
   display: "swap",
   subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export default function RootLayout({
@@ -20,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={google.className}>
-      <body>
+    <html lang="en" className={inter.variable}>
+      <body className="font-sans">
         <Providers>
           {/* <TRPCReactProvider cookies={cookies().toString()}> */}
           {children}

@@ -113,22 +113,23 @@ export default function ClientLayout({
       },
     ],
   };
-  
+
   if (!session.user?.isOnboarded) {
     router.replace("/onboarding/welcome");
-    return;
-  } else
-    return (
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 64)",
-            "--header-height": "calc(var(--spacing) * 20)",
-          } as React.CSSProperties
-        }
-      >
-        <AppSidebar data={data} variant="inset" />
-        <SidebarInset>{children}</SidebarInset>
-      </SidebarProvider>
-    );
+    return null;
+  }
+
+  return (
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 64)",
+          "--header-height": "calc(var(--spacing) * 20)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar data={data} variant="inset" />
+      <SidebarInset>{children}</SidebarInset>
+    </SidebarProvider>
+  );
 }
