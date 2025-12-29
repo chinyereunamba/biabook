@@ -2,6 +2,7 @@ import { db } from "@/server/db";
 import { businesses, users } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "./index";
+import type { Business } from "@/types/business";
 
 // Helper function to get the current user's business
 export async function getCurrentUserBusiness() {
@@ -12,7 +13,7 @@ export async function getCurrentUserBusiness() {
   }
 
   // Find the first business owned by this user
-  const [business] = await db
+  const [business]: Business[] = await db
     .select()
     .from(businesses)
     .where(eq(businesses.ownerId, session.user.id))

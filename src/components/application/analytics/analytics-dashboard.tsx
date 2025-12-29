@@ -29,7 +29,7 @@ import type { AnalyticsResponse } from "@/types/analytics";
 import { Button } from "@/components/ui/button";
 import { Download, RefreshCw, MapPin } from "lucide-react";
 
-export function AnalyticsDashboard() {
+export function AnalyticsDashboard({businessId}: { businessId: string }) {
   // Set default date range to last 30 days
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const to = new Date();
@@ -54,8 +54,6 @@ export function AnalyticsDashboard() {
     queryKey: ["analytics", from, to],
     queryFn: async () => {
       try {
-        // In a real app, you would get the business ID from context or state
-        const businessId = "your-business-id";
 
         const params = new URLSearchParams();
         if (from) params.append("from", from);
@@ -66,6 +64,7 @@ export function AnalyticsDashboard() {
         const response = await fetch(
           `/api/businesses/${businessId}/analytics?${params.toString()}`,
         );
+        console.log(await response.json());
 
         if (!response.ok) {
           throw new Error("Failed to fetch analytics data");
@@ -119,7 +118,9 @@ export function AnalyticsDashboard() {
             <TabsTrigger value="revenue">Revenue</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="customers">Customers</TabsTrigger>
-            <TabsTrigger value="location" disabled>Location</TabsTrigger>
+            <TabsTrigger value="location" disabled>
+              Location
+            </TabsTrigger>
           </TabsList>
           <div className="flex gap-2">
             <DateRangePicker

@@ -142,12 +142,14 @@ export default function BookingsPage() {
         const response = await fetch(
           `/api/businesses/${businessId}/appointments?${params.toString()}`,
         );
+
+        console.log("response Now", await response.json());
         if (!response.ok) {
           throw new Error("Failed to fetch bookings");
         }
 
         const data = await response.json();
-        setBookings(data.appointments ?? []);
+        setBookings(data.appointments);
         setPagination({
           total: data.pagination?.total ?? 0,
           limit: data.pagination?.limit ?? 10,
@@ -306,7 +308,7 @@ export default function BookingsPage() {
               </div>
             </form>
 
-            <div className="flex gap-2 items-center">
+            <div className="flex items-center gap-2">
               <Button
                 variant={statusFilter === null ? "default" : "outline"}
                 size="sm"
@@ -339,76 +341,7 @@ export default function BookingsPage() {
           </div>
         </div>
 
-        {/* <Card>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Date & Time</TableHead>
-                  <TableHead>Service</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {bookings.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="text-muted-foreground py-8 text-center"
-                    >
-                      No bookings found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  bookings.map((booking) => (
-                    <TableRow key={booking.id}>
-                      <TableCell>
-                        <div className="font-medium">
-                          {booking.customerName}
-                        </div>
-                        <div className="text-muted-foreground text-xs">
-                          {booking.customerEmail}
-                        </div>
-                        <div className="text-muted-foreground text-xs">
-                          {booking.customerPhone}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>{formatDate(booking.appointmentDate)}</div>
-                        <div className="text-muted-foreground text-xs">
-                          {formatTime(booking.startTime)} -{" "}
-                          {formatTime(booking.endTime)}
-                        </div>
-                      </TableCell>
-                      <TableCell>{booking.serviceName}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            booking.status === "confirmed"
-                              ? "default"
-                              : booking.status === "cancelled"
-                                ? "destructive"
-                                : "outline"
-                          }
-                        >
-                          {booking.status.charAt(0).toUpperCase() +
-                            booking.status.slice(1)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        ${formatPrice(booking.servicePrice)}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card> */}
         <DataTable data={bookings} columns={bookingColumns} />
-
       </div>
     </div>
   );

@@ -98,7 +98,7 @@ export default function ClientLayout({
     navSecondary: [
       {
         title: "Settings",
-        url: "#",
+        url: "/settings",
         icon: IconSettings,
       },
       {

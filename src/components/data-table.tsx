@@ -122,7 +122,10 @@ export function DataTable<T extends { id: string | number }>({
   columns?: ColumnDef<T>[];
 }) {
   const columns = customColumns || (defaultColumns as ColumnDef<T>[]);
-  const [data, setData] = React.useState(() => initialData);
+  const [data, setData] = React.useState<T[]>(() => initialData);
+  React.useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -189,7 +192,7 @@ export function DataTable<T extends { id: string | number }>({
           <DndContext
             collisionDetection={closestCenter}
             modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
+            // onDragEnd={handleDragEnd}
             sensors={sensors}
             id={sortableId}
           >

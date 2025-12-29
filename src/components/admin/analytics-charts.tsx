@@ -117,7 +117,7 @@ export default function AnalyticsCharts() {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "NGN",
     }).format(amount);
   };
 
@@ -371,13 +371,48 @@ export default function AnalyticsCharts() {
             <CardTitle>Revenue & Bookings Trend</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-muted/20 flex h-[350px] items-center justify-center rounded-lg">
-              <div className="text-center">
-                <TrendingUp className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                <p className="text-muted-foreground text-sm">
-                  Revenue chart will be available soon
-                </p>
-              </div>
+            <div className="space-y-4">
+              {analyticsData.revenueByMonth.length > 0 ? (
+                analyticsData.revenueByMonth.map((item, index) => (
+                  <div
+                    key={item.month}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 text-sm font-medium">
+                        {item.month}
+                      </div>
+                      <div className="flex-1">
+                        <div className="bg-muted h-2 overflow-hidden rounded-full">
+                          <div
+                            className="h-full rounded-full bg-green-500"
+                            style={{
+                              width: `${Math.min((item.revenue / Math.max(...analyticsData.revenueByMonth.map((d) => d.revenue))) * 100, 100)}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold">
+                        ${item.revenue.toFixed(0)}
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        {item.bookings} bookings
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="bg-muted/20 flex h-[300px] items-center justify-center rounded-lg">
+                  <div className="text-center">
+                    <TrendingUp className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                    <p className="text-muted-foreground text-sm">
+                      No revenue data available for this period
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -388,13 +423,48 @@ export default function AnalyticsCharts() {
             <CardTitle>Business Growth</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-muted/20 flex h-[350px] items-center justify-center rounded-lg">
-              <div className="text-center">
-                <Building2 className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                <p className="text-muted-foreground text-sm">
-                  Business growth chart will be available soon
-                </p>
-              </div>
+            <div className="space-y-4">
+              {analyticsData.businessGrowth.length > 0 ? (
+                analyticsData.businessGrowth.map((item, index) => (
+                  <div
+                    key={item.month}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 text-sm font-medium">
+                        {item.month}
+                      </div>
+                      <div className="flex-1">
+                        <div className="bg-muted h-2 overflow-hidden rounded-full">
+                          <div
+                            className="h-full rounded-full bg-blue-500"
+                            style={{
+                              width: `${Math.min((item.businesses / Math.max(...analyticsData.businessGrowth.map((d) => d.businesses))) * 100, 100)}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold">
+                        {item.businesses} total
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        {item.active} active
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="bg-muted/20 flex h-[300px] items-center justify-center rounded-lg">
+                  <div className="text-center">
+                    <Building2 className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                    <p className="text-muted-foreground text-sm">
+                      No business growth data available for this period
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -408,13 +478,55 @@ export default function AnalyticsCharts() {
             <CardTitle>Bookings by Category</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="bg-muted/20 flex h-[350px] items-center justify-center rounded-lg">
-              <div className="text-center">
-                <Activity className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                <p className="text-muted-foreground text-sm">
-                  Category breakdown chart will be available soon
-                </p>
-              </div>
+            <div className="space-y-4">
+              {analyticsData.bookingsByCategory.length > 0 ? (
+                analyticsData.bookingsByCategory.map((category, index) => (
+                  <div
+                    key={category.name}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div
+                        className="h-4 w-4 rounded-full"
+                        style={{
+                          backgroundColor: COLORS[index % COLORS.length],
+                        }}
+                      />
+                      <div className="font-medium">{category.name}</div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="max-w-[100px] flex-1">
+                        <div className="bg-muted h-2 overflow-hidden rounded-full">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              backgroundColor: COLORS[index % COLORS.length],
+                              width: `${category.value}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="min-w-[60px] text-right">
+                        <div className="text-sm font-semibold">
+                          {category.value}%
+                        </div>
+                        <div className="text-muted-foreground text-xs">
+                          {category.bookings} bookings
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="bg-muted/20 flex h-[300px] items-center justify-center rounded-lg">
+                  <div className="text-center">
+                    <Activity className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                    <p className="text-muted-foreground text-sm">
+                      No category data available for this period
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

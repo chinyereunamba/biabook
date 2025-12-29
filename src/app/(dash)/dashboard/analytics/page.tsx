@@ -5,7 +5,7 @@ import { LazyAnalyticsDashboard } from "@/components/application/analytics/lazy"
 import { DashboardHeader } from "@/components/application/dashboard/dashboard-header";
 import { DashboardShell } from "@/components/application/dashboard/dashboard-shell";
 import { SiteHeader } from "@/components/site-header";
-import * as React from "react";
+import { getCurrentUserBusiness } from "@/server/auth/helpers";
 
 export const metadata: Metadata = {
   title: "Analytics | BiaBook",
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 
 export default async function AnalyticsPage() {
   const session = await auth();
+  const businessId = (await getCurrentUserBusiness())[0]?.id;
 
   if (!session?.user) {
     redirect("/login");
@@ -26,7 +27,7 @@ export default async function AnalyticsPage() {
         desc="View your business performance metrics and insights"
       />
       <div className="grid gap-8 px-6 py-8">
-        <LazyAnalyticsDashboard />
+        <LazyAnalyticsDashboard businessId={businessId} />
       </div>
     </div>
   );

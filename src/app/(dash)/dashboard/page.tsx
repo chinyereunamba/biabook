@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Stats } from "@/components/application/dashboard/stats";
 import { businessRepository } from "@/server/repositories/business-repository";
 import { getDashboardStats } from "@/server/utils/stats";
+import { appointmentRepository } from "@/server/repositories/appointment-repository";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -37,6 +38,11 @@ export default async function DashboardPage() {
 
   // Mock recent bookings data
   const recentBookings: RecentBooking[] = [];
+  const allAppointments = await appointmentRepository.getAllAppointments(
+    business!.id,
+  );
+
+
 
   return (
     <div className="bg-background w-full rounded-xl">
@@ -156,7 +162,7 @@ export default async function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {recentBookings.map((booking) => (
+                {allAppointments.map((booking) => (
                   <tr
                     key={booking.id}
                     className="border-border hover:bg-secondary/50 border-b transition-colors"
@@ -167,16 +173,16 @@ export default async function DashboardPage() {
                       </p>
                     </td>
                     <td className="text-foreground px-4 py-4">
-                      {booking.serviceName}
+                      {booking.service.name}
                     </td>
                     <td className="text-foreground px-4 py-4">
-                      <p>{booking.appointmentDate}</p>
+                      <p>{booking.appointmentDate.toLocaleString()}</p>
                       <p className="text-muted-foreground text-sm">
                         {/* {booking?.time} */}
                       </p>
                     </td>
                     <td className="text-foreground px-4 py-4 font-semibold">
-                      {booking.servicePrice}
+                      {booking.service.price}
                     </td>
                     <td className="px-4 py-4">
                       {/* <span

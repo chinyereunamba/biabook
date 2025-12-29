@@ -388,6 +388,31 @@ export class AppointmentRepository {
       .map(toAppointmentWithDetails)
       .filter(Boolean) as AppointmentWithDetails[];
   }
+  /**
+   * Get today's appointments for a business
+   * @param businessId Business ID
+   * @returns List of today's appointments
+   */
+  async getAllAppointments(
+    businessId: string,
+  ): Promise<AppointmentWithDetails[]> {
+
+    const results = await db.query.appointments.findMany({
+      where: and(
+        eq(appointments.businessId, businessId),
+        inArray(appointments.status, ["pending", "confirmed"]),
+      ),
+      with: {
+        business: true,
+        service: true,
+      },
+      orderBy: [desc(appointments.appointmentDate)],
+    });
+
+    return results
+      .map(toAppointmentWithDetails)
+      .filter(Boolean) as AppointmentWithDetails[];
+  }
 
   /**
    * Update an appointment
