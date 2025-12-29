@@ -28,8 +28,10 @@ import type { DateRange } from "react-day-picker";
 import type { AnalyticsResponse } from "@/types/analytics";
 import { Button } from "@/components/ui/button";
 import { Download, RefreshCw, MapPin } from "lucide-react";
+import { useBusiness } from "@/hooks/use-business";
 
-export function AnalyticsDashboard({businessId}: { businessId: string }) {
+export function AnalyticsDashboard() {
+  const businessId = useBusiness().data?.business?.id;
   // Set default date range to last 30 days
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const to = new Date();

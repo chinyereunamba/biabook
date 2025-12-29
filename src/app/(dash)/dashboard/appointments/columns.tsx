@@ -1,69 +1,33 @@
-import type { Booking } from "@/types/appointment";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency } from "@/utils/format";
+import type { Booking } from "@/types/appointment";
 
 export const bookingColumns: ColumnDef<Booking>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && "indeterminate")
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
+  { id: "customerName", accessorKey: "customerName", header: "Customer" },
+  { id: "email", accessorKey: "customerEmail", header: "Email" },
+  { id: "phone", accessorKey: "customerPhone", header: "Phone" },
+  { id: "service", accessorKey: "serviceName", header: "Service" },
   {
-    accessorKey: "customerName",
-    header: "Customer",
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
-    accessorKey: "customerPhone",
-    header: "Phone",
-  },
-  {
-    accessorKey: "serviceName",
-    header: "Service",
-  },
-  {
+    id: "date",
     accessorKey: "appointmentDate",
     header: "Date",
-    cell: ({ row }) => {
-      const date = new Date(row.original.appointmentDate);
-      return date.toLocaleDateString();
-    },
+    cell: ({ row }) =>
+      new Date(row.original.appointmentDate).toLocaleDateString(),
   },
   {
+    id: "time",
     accessorKey: "startTime",
     header: "Time",
-    cell: ({ row }) => {
-      return `${row.original.startTime} - ${row.original.endTime}`;
-    },
+    cell: ({ row }) => `${row.original.startTime} - ${row.original.endTime}`,
   },
   {
+    id: "status",
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
       const status = row.original.status;
-      const statusColors = {
+      const statusColors: Record<string, string> = {
         pending: "bg-yellow-100 text-yellow-800",
         confirmed: "bg-blue-100 text-blue-800",
         cancelled: "bg-red-100 text-red-800",
@@ -77,28 +41,15 @@ export const bookingColumns: ColumnDef<Booking>[] = [
     },
   },
   {
+    id: "price",
     accessorKey: "servicePrice",
     header: () => <div className="text-right">Price</div>,
-    cell: ({ row }) => {
-      const amount = formatCurrency(
-        parseFloat(row.original.servicePrice.toString()),
-      );
-      return <div className="text-right font-medium">{amount}</div>;
-    },
+    cell: ({ row }) => (
+      <div className="text-right font-medium">
+        {formatCurrency(row.original.servicePrice)}
+      </div>
+    ),
   },
 ];
 
-// id: appointments.id,
-// customerName: appointments.customerName,
-// customerEmail: appointments.customerEmail,
-// customerPhone: appointments.customerPhone,
-// appointmentDate: appointments.appointmentDate,
-// startTime: appointments.startTime,
-// endTime: appointments.endTime,
-// status: appointments.status,
-// notes: appointments.notes,
-// confirmationNumber: appointments.confirmationNumber,
-// createdAt: appointments.createdAt,
-// serviceName: services.name,
-// servicePrice: services.price,
-// serviceDuration: services.duration,
+

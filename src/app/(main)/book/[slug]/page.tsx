@@ -22,7 +22,7 @@ import {
 import { TimezoneBookingSummary } from "@/components/application/booking/timezone-booking-summary";
 import type { CustomerFormData } from "@/components/application/booking/customer-form";
 import type { BookingConfirmationData } from "@/components/application/booking/booking-confirmation";
-import { useBusiness } from "@/hooks/use-business";
+import { useGetBusiness } from "@/hooks/use-business";
 import { useAvailability } from "@/hooks/use-availability";
 import { useBooking, createBookingRequest } from "@/hooks/use-booking";
 import { toast } from "sonner";
@@ -33,7 +33,8 @@ export default function BookingPage() {
   const businessId = params.slug as string;
 
   // Use the custom hook for business data
-  const { business, loading, error } = useBusiness(businessId);
+  const { business, loading, error } = useGetBusiness
+    (businessId);
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");

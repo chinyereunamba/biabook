@@ -128,8 +128,8 @@ export class AvailabilityCacheService {
    */
   async invalidateBusinessCache(businessId: string): Promise<void> {
     try {
-      revalidateTag(`availability:${businessId}`);
-      revalidateTag(`business:${businessId}`);
+      revalidateTag(`availability:${businessId}`, "default");
+      revalidateTag(`business:${businessId}`, "default");
       console.log(`Cache invalidated for business: ${businessId}`);
     } catch (error) {
       console.error(
@@ -147,9 +147,9 @@ export class AvailabilityCacheService {
     businessId: string,
   ): Promise<void> {
     try {
-      revalidateTag(`service:${serviceId}`);
-      revalidateTag(`availability:${businessId}`);
-      revalidateTag(`business:${businessId}`);
+      revalidateTag(`service:${serviceId}`, "default");
+      revalidateTag(`availability:${businessId}`, "default");
+      revalidateTag(`business:${businessId}`, "default");
       console.log(`Cache invalidated for service: ${serviceId}`);
     } catch (error) {
       console.error(
@@ -164,7 +164,7 @@ export class AvailabilityCacheService {
    */
   async invalidateAllCache(): Promise<void> {
     try {
-      revalidateTag(this.CACHE_KEY_PREFIX);
+      revalidateTag(this.CACHE_KEY_PREFIX, "default");
       console.log("All availability cache invalidated");
     } catch (error) {
       console.error("Failed to invalidate all availability cache:", error);

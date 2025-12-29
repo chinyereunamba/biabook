@@ -4,17 +4,54 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 
+import { useBusiness } from "@/hooks/use-business";
+import { fetchAppointments } from "@/lib/api/appointments";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
 import { DataTable } from "./data-table";
 import { bookingColumns } from "./columns";
-import { useAppointments } from "@/hooks/use-appointments";
+import type { Booking } from "@/types/appointment";
+import { Spinner } from "@/components/ui/loading-states";
+
+export const AppointmentsComponent = ({
+  recent,
+  week,
+}: {
+  recent?: number;
+  week?: boolean;
+}) => {
+  const businessQuery = useBusiness();
+  const [appointments, setAppointments] = useState<{
+    appointments: Booking[];
+    pagination: any[];
+  }>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const businessId = businessQuery.data?.business?.id;
+    if (!businessId) return;
+
+    setLoading(true);
+    fetchAppointments({ recent, week, businessId })
+      .then((data) => setAppointments(data))
+      .catch((err) => setError(err))
+      .finally(() => setLoading(false));
+  }, [businessQuery.data?.business?.id, recent, week]);
+
+  if (loading) return <div><Spinner /></div>;
+  if (error) return <div>Failed to load appointments: {error.message}</div>;
+
+  return (
+    <DataTable
+      data={appointments?.appointments ?? []}
+      columns={bookingColumns}
+    />
+  );
+};
 
 export default function BookingsPage() {
-  const { data: appointments, isLoading } = useAppointments();
-  const rows = appointments ?? [];
-
   const [pagination, setPagination] = useState({
     total: 0,
     limit: 10,
@@ -61,10 +98,6 @@ export default function BookingsPage() {
       offset: 0,
     });
   };
-
-  // if (loading && bookings.length === 0) {
-  //   return <LoadingOverlay message="Loading bookings..." transparent={false} />;
-  // }
 
   return (
     <div className="bg-background w-full rounded-xl">
@@ -120,8 +153,7 @@ export default function BookingsPage() {
             </div>
           </div>
         </div>
-
-        <DataTable data={rows} columns={bookingColumns} />
+        <AppointmentsComponent />
       </div>
     </div>
   );

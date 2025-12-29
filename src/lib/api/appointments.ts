@@ -1,16 +1,15 @@
-import { useBusiness } from "@/hooks/use-business";
-
 // lib/api/appointments.ts
 export const fetchAppointments = async ({
   recent,
   week,
+  businessId,
 }: {
   recent?: number;
   week?: boolean;
+  businessId: string;
 }) => {
-  const businessId = useBusiness().data?.id;
-  console.log(useBusiness().data?.id);
   const params = new URLSearchParams();
+  if (!businessId) throw new Error("No business ID provided");
 
   if (recent) params.append("recent", recent.toString());
   if (week) params.append("week", "true");

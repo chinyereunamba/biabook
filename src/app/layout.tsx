@@ -10,6 +10,7 @@ export const metadata = {
 
 const google = Google_Sans_Flex({
   weight: ["400", "500", "700"],
+  display: "swap",
   subsets: ["latin"],
 });
 
