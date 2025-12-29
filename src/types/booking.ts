@@ -205,3 +205,10 @@ export interface BusinessAnalytics {
   topServices: ServicePerformance[];
   repeatCustomers: number;
 }
+
+export type AppointmentQueryOptions = {
+  recentLimit?: number; 
+  week?: boolean; // current week
+  forChart?: boolean; // group by day
+};
+

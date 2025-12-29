@@ -1,4 +1,14 @@
-import { and, asc, desc, eq, gte, inArray, lt, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  between,
+  desc,
+  eq,
+  gte,
+  inArray,
+  lt,
+  sql,
+} from "drizzle-orm";
 import { db } from "@/server/db";
 import {
   appointments,
@@ -9,6 +19,7 @@ import {
 import type {
   Appointment,
   AppointmentDetailWithDate,
+  AppointmentQueryOptions,
   AppointmentWithDetails,
   CreateAppointmentInput,
   UpdateAppointmentInput,
@@ -23,6 +34,7 @@ import {
 import { BookingErrors } from "@/server/errors/booking-errors";
 import { bookingLogger, logExecution } from "@/server/logging/booking-logger";
 import { availabilityCacheService } from "@/server/cache/availability-cache";
+import { endOfWeek, startOfWeek } from "@/utils/format";
 
 function toAppointmentWithDetails(
   result: AppointmentDetailWithDate | undefined | null,
@@ -395,18 +407,29 @@ export class AppointmentRepository {
    */
   async getAllAppointments(
     businessId: string,
+    options: AppointmentQueryOptions = {},
   ): Promise<AppointmentWithDetails[]> {
+    const conditions = [
+      eq(appointments.businessId, businessId),
+      inArray(appointments.status, ["pending", "confirmed"]),
+    ];
+    const weekStart = startOfWeek().toISOString();
+    const weekEnd = endOfWeek().toISOString();
+    // Weekly bookings
+    if (options.week) {
+      conditions.push(
+        between(appointments.appointmentDate, weekStart, weekEnd),
+      );
+    }
 
     const results = await db.query.appointments.findMany({
-      where: and(
-        eq(appointments.businessId, businessId),
-        inArray(appointments.status, ["pending", "confirmed"]),
-      ),
+      where: and(...conditions),
       with: {
         business: true,
         service: true,
       },
       orderBy: [desc(appointments.appointmentDate)],
+      limit: options.recentLimit, // recent 5, 10, etc.
     });
 
     return results

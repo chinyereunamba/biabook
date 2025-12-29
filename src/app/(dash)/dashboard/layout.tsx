@@ -113,7 +113,7 @@ export default function ClientLayout({
       },
     ],
   };
-
+  
   if (!session.user?.isOnboarded) {
     router.replace("/onboarding/welcome");
     return;

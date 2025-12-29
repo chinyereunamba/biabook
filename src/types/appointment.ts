@@ -14,3 +14,16 @@ export interface Appointment {
   createdAt: Date;
   updatedAt: Date | null;
 }
+
+export interface Booking {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  appointmentDate: string;
+  startTime: string;
+  endTime: string;
+  status: "pending" | "confirmed" | "cancelled" | "completed";
+  serviceName: string;
+  servicePrice: number;
+}

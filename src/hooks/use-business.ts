@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 
 export interface BusinessService {
@@ -37,49 +38,59 @@ interface UseBusinessResult {
   refetch: () => void;
 }
 
-export function useBusiness(businessId: string): UseBusinessResult {
-  const [business, setBusiness] = useState<BusinessProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// export function useBusiness(businessId: string): UseBusinessResult {
+//   const [business, setBusiness] = useState<BusinessProfile | null>(null);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
 
-  const fetchBusiness = async () => {
-    if (!businessId) {
-      setError("Business ID is required");
-      setLoading(false);
-      return;
-    }
+//   const fetchBusiness = async () => {
+//     if (!businessId) {
+//       setError("Business ID is required");
+//       setLoading(false);
+//       return;
+//     }
 
-    try {
-      setLoading(true);
-      setError(null);
+//     try {
+//       setLoading(true);
+//       setError(null);
 
-      const response = await fetch(`/api/businesses/${businessId}`);
+//       const response = await fetch(`/api/businesses/${businessId}`);
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error("Business not found");
-        }
-        throw new Error("Failed to fetch business data");
-      }
+//       if (!response.ok) {
+//         if (response.status === 404) {
+//           throw new Error("Business not found");
+//         }
+//         throw new Error("Failed to fetch business data");
+//       }
 
-      const businessData: BusinessProfile = await response.json();
-      setBusiness(businessData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load business");
-      setBusiness(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+//       const businessData: BusinessProfile = await response.json();
+//       setBusiness(businessData);
+//     } catch (err) {
+//       setError(err instanceof Error ? err.message : "Failed to load business");
+//       setBusiness(null);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  useEffect(() => {
-    void fetchBusiness();
-  }, [businessId]);
+//   useEffect(() => {
+//     void fetchBusiness();
+//   }, [businessId]);
 
-  return {
-    business,
-    loading,
-    error,
-    refetch: fetchBusiness,
-  };
-}
+//   return {
+//     business,
+//     loading,
+//     error,
+//     refetch: fetchBusiness,
+//   };
+// }
+
+export const useBusiness = () =>
+  useQuery({
+    queryKey: ["business"],
+    queryFn: async () => {
+      const res = await fetch("/api/me/business");
+      return res.json();
+    },
+    staleTime: Infinity,
+  });

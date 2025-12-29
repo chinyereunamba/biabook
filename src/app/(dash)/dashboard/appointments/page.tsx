@@ -1,90 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
-import { DataTable } from "@/components/data-table";
-import type { ColumnDef } from "@tanstack/react-table";
-
-interface Booking {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  appointmentDate: string;
-  startTime: string;
-  endTime: string;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
-  serviceName: string;
-  servicePrice: number;
-}
-
-const bookingColumns: ColumnDef<Booking>[] = [
-  {
-    accessorKey: "customerName",
-    header: "Customer",
-  },
-  {
-    accessorKey: "serviceName",
-    header: "Service",
-  },
-  {
-    accessorKey: "appointmentDate",
-    header: "Date",
-    cell: ({ row }) => {
-      const date = new Date(row.original.appointmentDate);
-      return date.toLocaleDateString();
-    },
-  },
-  {
-    accessorKey: "startTime",
-    header: "Time",
-    cell: ({ row }) => {
-      return `${row.original.startTime} - ${row.original.endTime}`;
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.original.status;
-      const statusColors = {
-        pending: "bg-yellow-100 text-yellow-800",
-        confirmed: "bg-blue-100 text-blue-800",
-        cancelled: "bg-red-100 text-red-800",
-        completed: "bg-green-100 text-green-800",
-      };
-      return (
-        <Badge className={statusColors[status]}>
-          {status.charAt(0).toUpperCase() + status.slice(1)}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "servicePrice",
-    header: () => <div className="text-right">Price</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.original.servicePrice.toString());
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
-  },
-];
+import { DataTable } from "./data-table";
+import { bookingColumns } from "./columns";
+import { useAppointments } from "@/hooks/use-appointments";
 
 export default function BookingsPage() {
-  const [businessId, setBusinessId] = useState<string | null>(null);
+  const { data: appointments, isLoading } = useAppointments();
+  const rows = appointments ?? [];
 
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     total: 0,
     limit: 10,
@@ -92,156 +22,6 @@ export default function BookingsPage() {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-
-  // Load the current user's business
-  useEffect(() => {
-    const loadBusiness = async () => {
-      try {
-        const response = await fetch("/api/me/business");
-        if (!response.ok) {
-          throw new Error("Failed to fetch business");
-        }
-
-        const data: { business?: { id: string } } = await response.json();
-        if (data.business) {
-          setBusinessId(data.business.id);
-        } else {
-          // If no business is found, use a default one for demo purposes
-          setBusinessId("business-1");
-        }
-      } catch (error) {
-        console.error("Failed to load business:", error);
-        // Use a default business ID for demo purposes
-        setBusinessId("business-1");
-      }
-    };
-
-    void loadBusiness();
-  }, []);
-
-  // Load bookings when businessId is available
-  useEffect(() => {
-    if (!businessId) return;
-
-    const loadBookings = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams({
-          limit: pagination.limit.toString(),
-          offset: pagination.offset.toString(),
-        });
-
-        if (statusFilter) {
-          params.append("status", statusFilter);
-        }
-
-        if (searchTerm) {
-          params.append("search", searchTerm);
-        }
-
-        const response = await fetch(
-          `/api/businesses/${businessId}/appointments?${params.toString()}`,
-        );
-
-        console.log("response Now", await response.json());
-        if (!response.ok) {
-          throw new Error("Failed to fetch bookings");
-        }
-
-        const data = await response.json();
-        setBookings(data.appointments);
-        setPagination({
-          total: data.pagination?.total ?? 0,
-          limit: data.pagination?.limit ?? 10,
-          offset: data.pagination?.offset ?? 0,
-        });
-      } catch (error) {
-        console.error("Failed to load bookings:", error);
-        toast.error("Failed to load bookings");
-
-        // Set default data for demo purposes if API fails
-        setBookings([
-          {
-            id: "booking-1",
-            customerName: "Liam Johnson",
-            customerEmail: "liam@example.com",
-            customerPhone: "555-123-4567",
-            appointmentDate: "2025-07-20",
-            startTime: "10:00",
-            endTime: "11:00",
-            status: "confirmed",
-            serviceName: "Haircut",
-            servicePrice: 25000,
-          },
-          {
-            id: "booking-2",
-            customerName: "Olivia Smith",
-            customerEmail: "olivia@example.com",
-            customerPhone: "555-987-6543",
-            appointmentDate: "2025-07-21",
-            startTime: "14:00",
-            endTime: "15:00",
-            status: "pending",
-            serviceName: "Hair Coloring",
-            servicePrice: 75000,
-          },
-          {
-            id: "booking-3",
-            customerName: "Noah Williams",
-            customerEmail: "noah@example.com",
-            customerPhone: "555-456-7890",
-            appointmentDate: "2025-07-19",
-            startTime: "09:00",
-            endTime: "10:00",
-            status: "cancelled",
-            serviceName: "Beard Trim",
-            servicePrice: 15000,
-          },
-        ]);
-
-        setPagination({
-          total: 3,
-          limit: 10,
-          offset: 0,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void loadBookings();
-  }, [
-    businessId,
-    pagination.limit,
-    pagination.offset,
-    statusFilter,
-    searchTerm,
-  ]);
-
-  // Format price from cents to dollars
-  const formatPrice = (priceInCents: number) => {
-    return (priceInCents / 100).toFixed(2);
-  };
-
-  // Format time from 24h to 12h
-  const formatTime = (time: string): string => {
-    const [hours, minutes] = time.split(":");
-    const hour = parseInt(hours ?? "0");
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    return `${displayHour}:${minutes ?? "00"} ${ampm}`;
-  };
-
-  // Format date
-  const formatDate = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
 
   // Handle pagination
   const handleNextPage = () => {
@@ -341,7 +121,7 @@ export default function BookingsPage() {
           </div>
         </div>
 
-        <DataTable data={bookings} columns={bookingColumns} />
+        <DataTable data={rows} columns={bookingColumns} />
       </div>
     </div>
   );

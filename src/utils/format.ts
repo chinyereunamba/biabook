@@ -34,9 +34,9 @@ export function formatTime(time: string): string {
  * Format a price in cents to a currency string (e.g., "$10.99")
  */
 export function formatCurrency(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("en-NG", {
     style: "currency",
-    currency: "USD",
+    currency: "NGN",
     minimumFractionDigits: 2,
   }).format(cents / 100);
 }
@@ -85,3 +85,18 @@ export function formatLocalizedDate(dateStr: string): string {
     day: "numeric",
   }).format(date);
 }
+
+export const startOfWeek = (date = new Date()) => {
+  const d = new Date(date);
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate() - day + 1);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
+export const endOfWeek = (date = new Date()) => {
+  const d = startOfWeek(date);
+  d.setDate(d.getDate() + 6);
+  d.setHours(23, 59, 59, 999);
+  return d;
+};

@@ -1,11 +1,13 @@
 import { auth } from "@/server/auth";
-import { Users, Calendar, TrendingUp } from "lucide-react";
+import { Users, Calendar, TrendingUp, } from "lucide-react";
 import type { RecentBooking } from "@/types/dashboard";
 import { SiteHeader } from "@/components/site-header";
 import { Stats } from "@/components/application/dashboard/stats";
 import { businessRepository } from "@/server/repositories/business-repository";
 import { getDashboardStats } from "@/server/utils/stats";
 import { appointmentRepository } from "@/server/repositories/appointment-repository";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -13,36 +15,12 @@ export default async function DashboardPage() {
   const businesses = await businessRepository.findByOwnerId(userId!);
   const business = businesses[0];
 
-  // Session is guaranteed to exist and be onboarded due to layout checks
-
-  const revenueData = [
-    { month: "Jan", revenue: 4000 },
-    { month: "Feb", revenue: 3000 },
-    { month: "Mar", revenue: 2000 },
-    { month: "Apr", revenue: 2780 },
-    { month: "May", revenue: 1890 },
-    { month: "Jun", revenue: 2390 },
-  ];
-
-  const bookingsData = [
-    { day: "Mon", bookings: 24 },
-    { day: "Tue", bookings: 13 },
-    { day: "Wed", bookings: 30 },
-    { day: "Thu", bookings: 20 },
-    { day: "Fri", bookings: 35 },
-    { day: "Sat", bookings: 28 },
-    { day: "Sun", bookings: 15 },
-  ];
-
   const stats = await getDashboardStats(business!.id);
 
-  // Mock recent bookings data
-  const recentBookings: RecentBooking[] = [];
-  const allAppointments = await appointmentRepository.getAllAppointments(
+  const recentBooking = await appointmentRepository.getAllAppointments(
     business!.id,
+    { recentLimit: 5 },
   );
-
-
 
   return (
     <div className="bg-background w-full rounded-xl">
@@ -56,26 +34,7 @@ export default async function DashboardPage() {
         {/* Metrics Grid */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {/* Total Revenue */}
-          {/* <div className="bg-card border-border hover:border-primary/50 rounded-xl border p-6 transition-colors">
-            <div className="mb-4 flex items-start justify-between">
-              <div>
-                <p className="text-muted-foreground text-sm font-medium">
-                  Total Revenue
-                </p>
-                <h3 className="text-foreground mt-2 text-3xl font-bold">
-                  $45,231.89
-                </h3>
-              </div>
-              <div className="bg-primary/10 rounded-lg p-3">
-                <DollarSign className="text-primary h-6 w-6" />
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <ArrowUpRight className="h-4 w-4 text-green-500" />
-              <span className="font-medium text-green-500">+20.1%</span>
-              <span className="text-muted-foreground">from last month</span>
-            </div>
-          </div> */}
+
           {stats.map((item) => (
             <Stats key={item.title} item={item} />
           ))}
@@ -135,9 +94,9 @@ export default async function DashboardPage() {
                 Latest customer appointments
               </p>
             </div>
-            <button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
-              View All
-            </button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/bookings">View All</Link>
+            </Button>
           </div>
 
           <div className="overflow-x-auto">
@@ -162,7 +121,7 @@ export default async function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {allAppointments.map((booking) => (
+                {recentBooking.map((booking) => (
                   <tr
                     key={booking.id}
                     className="border-border hover:bg-secondary/50 border-b transition-colors"
@@ -176,26 +135,32 @@ export default async function DashboardPage() {
                       {booking.service.name}
                     </td>
                     <td className="text-foreground px-4 py-4">
-                      <p>{booking.appointmentDate.toLocaleString()}</p>
+                      <p>
+                        {booking.appointmentDate.toLocaleString("en-US", {
+                          dateStyle: "medium",
+                        })}
+                      </p>
+
                       <p className="text-muted-foreground text-sm">
-                        {/* {booking?.time} */}
+                        {booking?.startTime} - {booking?.endTime}
                       </p>
                     </td>
-                    <td className="text-foreground px-4 py-4 font-semibold">
-                      {booking.service.price}
+
+                    <td className="text-foreground px-4 py-4">
+                      NGN {booking.service.price}
                     </td>
                     <td className="px-4 py-4">
-                      {/* <span
+                      <span
                         className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          booking.status === "Confirmed"
+                          booking.status === "confirmed"
                             ? "bg-green-500/20 text-green-400"
-                            : booking.status === "Pending"
+                            : booking.status === "pending"
                               ? "bg-yellow-500/20 text-yellow-400"
-                              : "bg-blue-500/20 text-blue-400"
+                              : "bg-red-500/20 text-red-400"
                         }`}
                       >
                         {booking.status}
-                      </span> */}
+                      </span>
                     </td>
                   </tr>
                 ))}

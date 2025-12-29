@@ -7,8 +7,10 @@ import { Toaster } from "sonner";
 import { ToastProvider } from "@/components/base/error-toast";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useState } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -16,12 +18,12 @@ export function Providers({ children }: { children: ReactNode }) {
       refetchInterval={5 * 60} // Refetch session every 5 minutes
       refetchOnWindowFocus={true} // Refetch when window gains focus
     >
-      <ThemeProvider
+      {/* <ThemeProvider
         attribute="class"
         defaultTheme="system"
         enableSystem
         disableTransitionOnChange
-      >
+      > */}
         <ReactQueryProvider>
           <ErrorBoundary
             componentName="RootLayout"
@@ -35,15 +37,12 @@ export function Providers({ children }: { children: ReactNode }) {
             </ToastProvider>
           </ErrorBoundary>
         </ReactQueryProvider>
-      </ThemeProvider>
+      {/* </ThemeProvider> */}
     </SessionProvider>
   );
 }
 
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useState } from "react";
 
 export default function ReactQueryProvider({
   children,

@@ -9,8 +9,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <OnboardingGuard requireOnboarded={true}>
+    // <OnboardingGuard requireOnboarded={true}>
       <main className="bg-background flex min-h-screen">{children}</main>
-    </OnboardingGuard>
+    // </OnboardingGuard> 
   );
 }
