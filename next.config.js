@@ -1,10 +1,3 @@
-import "./src/env.js";
-import bundleAnalyzer from "@next/bundle-analyzer";
-
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-});
-
 /** @type {import("next").NextConfig} */
 const config = {
   images: {
@@ -36,39 +29,7 @@ const config = {
       "recharts",
     ],
   },
-  // Optimize chunks for better loading
-  webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        ...config.optimization.splitChunks,
-        cacheGroups: {
-          ...config.optimization.splitChunks.cacheGroups,
-          // Separate vendor chunks for better caching
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: "vendors",
-            priority: 10,
-            chunks: "all",
-          },
-          // Separate UI components chunk
-          ui: {
-            test: /[\\/]src[\\/]components[\\/]ui[\\/]/,
-            name: "ui-components",
-            priority: 20,
-            chunks: "all",
-          },
-          // Separate application components chunk
-          application: {
-            test: /[\\/]src[\\/]components[\\/]application[\\/]/,
-            name: "app-components",
-            priority: 15,
-            chunks: "all",
-          },
-        },
-      };
-    }
-    return config;
-  },
+  
 };
 
-export default withBundleAnalyzer(config);
+export default config;
