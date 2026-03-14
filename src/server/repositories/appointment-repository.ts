@@ -35,6 +35,7 @@ import { BookingErrors } from "@/server/errors/booking-errors";
 import { bookingLogger, logExecution } from "@/server/logging/booking-logger";
 import { availabilityCacheService } from "@/server/cache/availability-cache";
 import { endOfWeek, startOfWeek } from "@/utils/format";
+import { validateAppointmentAvailability } from "@/server/services/availability/availability-validator";
 
 function toAppointmentWithDetails(
   result: AppointmentDetailWithDate | undefined | null,
@@ -94,7 +95,7 @@ export class AppointmentRepository {
       const endTime = `${endDate.getHours().toString().padStart(2, "0")}:${endDate.getMinutes().toString().padStart(2, "0")}`;
 
       // Check for booking conflicts using Drizzle ORM
-      const conflicts = await tx
+      const conflictingCount = await tx
         .select({ id: appointments.id })
         .from(appointments)
         .where(
@@ -107,32 +108,11 @@ export class AppointmentRepository {
               (${appointments.startTime} = ${data.startTime} AND ${appointments.endTime} = ${endTime})
             )`,
           ),
-        );
+        )
+        .then((res) => res.length);
 
-      if (conflicts.length > 0) {
-        bookingLogger.logConflictDetection("time_slot_conflict", false, {
-          businessId: data.businessId,
-          appointmentDate: data.appointmentDate,
-          startTime: data.startTime,
-        });
-        throw BookingErrors.conflict("This time slot is no longer available");
-      }
-
-      // Verify the time slot is within business availability
       const dayOfWeek = getDayOfWeekFromDate(data.appointmentDate);
-      if (dayOfWeek === -1) {
-        bookingLogger.logValidationError(
-          "appointmentDate",
-          data.appointmentDate,
-          "Invalid date format",
-        );
-        throw BookingErrors.validation(
-          "Invalid appointment date",
-          "appointmentDate",
-        );
-      }
 
-      // Check for availability exception
       const exception = await tx.query.availabilityExceptions.findFirst({
         where: and(
           eq(availabilityExceptions.businessId, data.businessId),
@@ -140,64 +120,24 @@ export class AppointmentRepository {
         ),
       });
 
-      // If there's an exception and it's marked as unavailable, reject the booking
-      if (exception && !exception.isAvailable) {
-        bookingLogger.logConflictDetection("business_unavailable_date", false, {
-          businessId: data.businessId,
-          appointmentDate: data.appointmentDate,
-          reason: exception.reason ?? "Business closed",
-        });
-        throw BookingErrors.businessUnavailable(
-          exception.reason ?? "Business is not available on this date",
-        );
-      }
+      const weeklyAvail = await tx.query.weeklyAvailability.findFirst({
+        where: and(
+          eq(weeklyAvailability.businessId, data.businessId),
+          eq(weeklyAvailability.dayOfWeek, dayOfWeek),
+          eq(weeklyAvailability.isAvailable, true),
+        ),
+      });
 
-      // Check weekly availability if no exception or exception is available
-      if (!exception || exception.isAvailable) {
-        const weeklyAvail = await tx.query.weeklyAvailability.findFirst({
-          where: and(
-            eq(weeklyAvailability.businessId, data.businessId),
-            eq(weeklyAvailability.dayOfWeek, dayOfWeek),
-            eq(weeklyAvailability.isAvailable, true),
-          ),
-        });
-
-        if (!weeklyAvail) {
-          bookingLogger.logConflictDetection(
-            "business_unavailable_day",
-            false,
-            {
-              businessId: data.businessId,
-              appointmentDate: data.appointmentDate,
-              dayOfWeek,
-            },
-          );
-          throw BookingErrors.businessUnavailable(
-            `Business is not available on ${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dayOfWeek]}`,
-          );
-        }
-
-        // Check if appointment time is within business hours
-        const startTimeMinutes = timeStringToMinutes(data.startTime);
-        const endTimeMinutes = timeStringToMinutes(endTime);
-        const businessStartMinutes = timeStringToMinutes(weeklyAvail.startTime);
-        const businessEndMinutes = timeStringToMinutes(weeklyAvail.endTime);
-
-        if (
-          startTimeMinutes < businessStartMinutes ||
-          endTimeMinutes > businessEndMinutes
-        ) {
-          const businessHours = `${weeklyAvail.startTime} - ${weeklyAvail.endTime}`;
-          bookingLogger.logConflictDetection("outside_business_hours", false, {
-            businessId: data.businessId,
-            appointmentDate: data.appointmentDate,
-            startTime: data.startTime,
-            endTime,
-            businessHours,
-          });
-          throw BookingErrors.outsideBusinessHours(businessHours);
-        }
-      }
+      // Pass gathered data into the pure business rule validator
+      validateAppointmentAvailability({
+        businessId: data.businessId,
+        appointmentDate: data.appointmentDate,
+        startTime: data.startTime,
+        endTime,
+        conflictingAppointmentsCount: conflictingCount,
+        exception,
+        weeklyAvail,
+      });
 
       // Create the appointment
       const [appointment] = await tx

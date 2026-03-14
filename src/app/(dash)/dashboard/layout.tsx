@@ -1,28 +1,9 @@
-"use client";
-import React, { useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import {
-  IconCalendarTime,
-  IconChartBar,
-  IconDashboard,
-  IconHelp,
-  IconListDetails,
-  IconReport,
-  IconSearch,
-  IconSettings,
-  IconUsers,
-  type Icon,
-  type IconProps,
-} from "@tabler/icons-react";
+import React from "react";
+import { auth } from "@/server/auth";
+import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-
-export type NavLink = {
-  title: string;
-  url: string;
-  icon: React.ForwardRefExoticComponent<IconProps & React.RefAttributes<Icon>>;
-};
+import { businessRepository } from "@/server/repositories/business-repository";
 
 export type NavProps = {
   user: {
@@ -30,94 +11,41 @@ export type NavProps = {
     email: string;
     avatar: string;
   };
-  navMain: NavLink[];
-  navSecondary: NavLink[];
 };
 
-export default function ClientLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  // Show loading while checking authentication
-  if (status === "loading") {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"></div>
-      </div>
-    );
-  }
+  const session = await auth();
 
   // Don't render if not authenticated (will redirect)
-  if (status === "unauthenticated" || !session) {
-    return null;
+  if (!session?.user) {
+    redirect("/login?callbackUrl=/dashboard");
   }
 
-  // Don't render if admin (will redirect to admin dashboard)
-  if (session.user?.role === "admin") {
-    router.replace("/admin");
-    return null;
+  // Admin routes protection
+  if (session?.user.role === "admin") {
+    redirect("/admin");
+  }
+
+  // Handle onboarding state
+  // Fallback to DB check if session says not onboarded (prevents redirect loop if session is stale)
+  if (!session?.user.isOnboarded) {
+    const businesses = await businessRepository.findByOwnerId(session.user.id!);
+    if (businesses.length === 0) {
+      redirect("/onboarding/welcome");
+    }
   }
 
   const data: NavProps = {
     user: {
-      name: session.user?.name || "User",
-      email: session.user?.email || "",
-      avatar: session.user?.image || "/avatars/shadcn.jpg",
+      name: session.user.name || "User",
+      email: session.user.email || "",
+      avatar: session.user.image || "/avatars/shadcn.jpg",
     },
-    navMain: [
-      {
-        title: "Dashboard",
-        url: "/dashboard",
-        icon: IconDashboard,
-      },
-      {
-        title: "Services",
-        url: "/dashboard/services",
-        icon: IconListDetails,
-      },
-      {
-        title: "Analytics",
-        url: "/dashboard/analytics",
-        icon: IconChartBar,
-      },
-      {
-        title: "appointments",
-        url: "/dashboard/appointments",
-        icon: IconCalendarTime,
-      },
-      // {
-      //   title: "Locations",
-      //   url: "/dashboard/locations",
-      //   icon: IconUsers,
-      // },
-    ],
-    navSecondary: [
-      {
-        title: "Settings",
-        url: "/settings",
-        icon: IconSettings,
-      },
-      {
-        title: "Get Help",
-        url: "#",
-        icon: IconHelp,
-      },
-      {
-        title: "Search",
-        url: "#",
-        icon: IconSearch,
-      },
-    ],
   };
-
-  if (!session.user?.isOnboarded) {
-    router.replace("/onboarding/welcome");
-    return null;
-  }
 
   return (
     <SidebarProvider

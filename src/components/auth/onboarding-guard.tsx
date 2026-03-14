@@ -1,5 +1,6 @@
 import { auth } from "@/server/auth";
 import { redirect } from "next/navigation";
+import { businessRepository } from "@/server/repositories/business-repository";
 
 interface OnboardingGuardProps {
   children: React.ReactNode;
@@ -20,11 +21,13 @@ export default async function OnboardingGuard({
   // Check onboarding status
   if (session.user.role === "admin") {
     redirect("/admin");
-  } else {
-    if (requireOnboarded && !session.user.isOnboarded) {
-      redirect("/onboarding");
-    } else {
-      redirect("/dashboard");
+  }
+
+  if (requireOnboarded && !session.user.isOnboarded) {
+    // Check DB as fallback for stale session
+    const businesses = await businessRepository.findByOwnerId(session.user.id!);
+    if (businesses.length === 0) {
+      redirect("/onboarding/welcome");
     }
   }
 

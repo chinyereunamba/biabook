@@ -9,6 +9,7 @@ import {
   businessNotificationPreferences,
 } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
+import { inngest } from "@/inngest/client";
 import type { Appointment } from "@/types/appointment";
 import type { Service } from "@/types/service";
 import type { Business } from "@/types/business";
@@ -512,24 +513,38 @@ export class NotificationScheduler {
    * Schedule a notification
    */
   private async scheduleNotification(notification: {
-  type: NotificationType;
-  recipientId: string;
-  recipientType: "business" | "customer";
-  recipientEmail: string;
-  recipientPhone?: string;
-  payload: Record<string, unknown>;
-  scheduledFor: Date | number;
-}): Promise<string> {
-  // Runtime conversion
-  if (typeof notification.scheduledFor === "number") {
-    notification.scheduledFor = new Date(notification.scheduledFor * 1000);
-  }
+    type: NotificationType;
+    recipientId: string;
+    recipientType: "business" | "customer";
+    recipientEmail: string;
+    recipientPhone?: string;
+    payload: Record<string, unknown>;
+    scheduledFor: Date | number;
+  }): Promise<string> {
+    // Runtime conversion to seconds
+    let scheduledForSec = notification.scheduledFor;
+    if (notification.scheduledFor instanceof Date) {
+      scheduledForSec = Math.floor(notification.scheduledFor.getTime() / 1000);
+    } else if (typeof notification.scheduledFor === "number" && notification.scheduledFor > 9999999999) {
+      scheduledForSec = Math.floor(notification.scheduledFor / 1000);
+    }
 
-  // TypeScript assertion: now it's definitely a Date
-  return notificationQueueService.enqueue(
-    notification as Omit<typeof notification, "scheduledFor"> & { scheduledFor: Date }
-  );
-}
+    await inngest.send({
+      name: "notification/send",
+      data: {
+        type: notification.type,
+        recipientType: notification.recipientType,
+        payload: {
+          appointmentId: (notification.payload.appointment as Appointment)?.id,
+          serviceId: (notification.payload.service as Service)?.id,
+          businessId: (notification.payload.business as Business)?.id,
+        },
+        scheduledFor: scheduledForSec,
+      },
+    });
+
+    return "inngest-dispatched";
+  }
   /**
    * Get business notification preferences
    */

@@ -14,7 +14,12 @@ const globalForDb = globalThis as unknown as {
 
 export const client =
   globalForDb.client ??
-  createClient({ url: env.DATABASE_URL, authToken: env.DATABASE_AUTH_TOKEN! });
+  createClient({ 
+    url: env.DATABASE_URL, 
+    authToken: env.DATABASE_AUTH_TOKEN!,
+    // Increase timeout for high-latency connections
+    fetch: (url: string, options: any) => fetch(url, { ...options, connectTimeout: 30000 })
+  });
 if (env.NODE_ENV !== "production") globalForDb.client = client;
 
 export const db = drizzle(client, { schema });

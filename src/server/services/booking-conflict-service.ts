@@ -14,6 +14,7 @@ import {
 } from "@/server/repositories/utils/availability-validation";
 import { toBookingError } from "@/server/errors/booking-errors";
 import { bookingLogger, logExecution } from "@/server/logging/booking-logger";
+import { redis } from "@/server/cache/redis";
 
 export interface ConflictCheckResult {
   isAvailable: boolean;
@@ -33,6 +34,7 @@ export interface BookingValidationInput {
   appointmentDate: string;
   startTime: string;
   excludeAppointmentId?: string;
+  lockToken?: string;
 }
 
 /**
@@ -111,6 +113,19 @@ export class BookingConflictService {
         context,
       );
       throw toBookingError(error);
+    }
+
+    // Check Redis Provisional Lock FIRST to fail fast before querying SQLite
+    const lockKey = `slot_lock:${input.businessId}:${input.serviceId}:${input.appointmentDate}:${input.startTime}`;
+    try {
+      const existingLockToken = await redis.get<string>(lockKey);
+      if (existingLockToken && existingLockToken !== input.lockToken) {
+        conflicts.push("This time slot is currently being booked by someone else.");
+        return { isAvailable: false, conflicts };
+      }
+    } catch (e) {
+      bookingLogger.error("Redis lock check failed", e instanceof Error ? e : new Error(String(e)), context);
+      // non-fatal, fallback to database checks
     }
 
     // Get service details
@@ -459,6 +474,48 @@ export class BookingConflictService {
     });
 
     return result.conflicts;
+  }
+
+  /**
+   * Acquire a 5-minute provisional lock on a time slot
+   */
+  async acquireProvisionalLock(
+    businessId: string,
+    serviceId: string,
+    date: string,
+    time: string,
+    lockToken: string,
+  ): Promise<boolean> {
+    const lockKey = `slot_lock:${businessId}:${serviceId}:${date}:${time}`;
+    try {
+      // SETNX with 5 min expiry (300s)
+      const acquired = await redis.set(lockKey, lockToken, { nx: true, ex: 300 });
+      return acquired === "OK";
+    } catch (e) {
+      bookingLogger.error("Redis acquire lock failed", e instanceof Error ? e : new Error(String(e)));
+      return false;
+    }
+  }
+
+  /**
+   * Release a provisional lock safely if the token matches
+   */
+  async releaseProvisionalLock(
+    businessId: string,
+    serviceId: string,
+    date: string,
+    time: string,
+    lockToken: string,
+  ): Promise<void> {
+    const lockKey = `slot_lock:${businessId}:${serviceId}:${date}:${time}`;
+    try {
+      const currentOwner = await redis.get<string>(lockKey);
+      if (currentOwner === lockToken) {
+        await redis.del(lockKey);
+      }
+    } catch (e) {
+      bookingLogger.error("Redis release lock failed", e instanceof Error ? e : new Error(String(e)));
+    }
   }
 }
 
