@@ -10,9 +10,9 @@ export function CTA() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary-container/20 via-transparent to-transparent"></div>
         <div className="relative z-10">
           <h2 className="font-display text-4xl md:text-6xl font-extrabold text-white mb-8 tracking-tight">
-            Ready to grow your <br /><span className="text-secondary italic">artisan business?</span>
+            Ready to grow your <br /><span className="text-secondary-container italic">artisan business?</span>
           </h2>
-          <p className="text-primary-container text-xl mb-12 max-w-2xl mx-auto font-sans leading-relaxed">
+          <p className="text-white text-xl mb-12 max-w-2xl mx-auto font-sans leading-relaxed">
             Join Nigeria's leading professionals and start booking clients with modern precision. No setup fee, no stress.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">

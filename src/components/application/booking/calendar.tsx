@@ -1,13 +1,7 @@
-"use client";
-
 import { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateToYYYYMMDD, getTodayDateString } from "@/lib/date-utils";
-import { useAccessibleGrid } from "@/hooks/use-accessibility";
-import { KEYBOARD_KEYS } from "@/lib/accessibility";
 
 interface CalendarProps {
   selectedDate?: string;
@@ -28,23 +22,6 @@ export function Calendar({
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
   });
-
-  // Enhanced accessibility for calendar grid
-  const { containerRef, currentCell, setCurrentCell } =
-    useAccessibleGrid<HTMLDivElement>({
-      rowCount: 6, // Maximum rows in a calendar
-      columnCount: 7, // Days of the week
-      onCellSelect: (row, col) => {
-        // Calculate the day based on grid position
-        const dayNumber = row * 7 + col - firstDayOfMonth + 1;
-        if (dayNumber > 0 && dayNumber <= daysInMonth) {
-          const dateStr = formatDateString(dayNumber);
-          if (!isDateDisabled(dateStr)) {
-            onDateSelect(dateStr);
-          }
-        }
-      },
-    });
 
   const { monthName, year, daysInMonth, firstDayOfMonth, today } =
     useMemo(() => {
@@ -80,7 +57,6 @@ export function Calendar({
   };
 
   const formatDateString = (day: number): string => {
-    // Create date and format using our utility to ensure consistency
     const date = new Date(year, currentMonth.getMonth(), day);
     return formatDateToYYYYMMDD(date);
   };
@@ -90,28 +66,19 @@ export function Calendar({
   };
 
   const isDateDisabled = (dateStr: string): boolean => {
-    // Compare date strings directly to avoid timezone issues
     const todayStr = getTodayDateString();
-
-    // Disable past dates
     if (dateStr < todayStr) return true;
-
-    // Check min/max date constraints
     if (minDate && dateStr < minDate) return true;
     if (maxDate && dateStr > maxDate) return true;
-
     return false;
   };
 
   const renderCalendarDays = () => {
     const days = [];
-
-    // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push(<div key={`empty-${i}`} className="p-2" />);
+      days.push(<div key={`empty-${i}`} className="h-14 w-14" />);
     }
 
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = formatDateString(day);
       const isSelected = selectedDate === dateStr;
@@ -124,107 +91,75 @@ export function Calendar({
           key={day}
           onClick={() => !isDisabled && onDateSelect(dateStr)}
           disabled={isDisabled}
-          role="gridcell"
-          aria-label={`${new Date(dateStr).toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}${isAvailable ? ", available" : ", unavailable"}${isToday ? ", today" : ""}`}
-          aria-pressed={isSelected}
-          aria-current={isToday ? "date" : undefined}
-          tabIndex={isSelected ? 0 : -1}
           className={cn(
-            "relative min-h-[44px] min-w-[44px] touch-manipulation rounded-md p-2 text-sm transition-colors",
-            "hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none",
+            "relative h-14 w-14 rounded-2xl text-sm transition-all duration-300 font-sans flex items-center justify-center",
             {
-              "bg-blue-600 text-white hover:bg-blue-700": isSelected,
-              "cursor-not-allowed text-gray-400": isDisabled,
-              "font-semibold ring-2 ring-blue-200": isToday && !isSelected,
-              "font-medium text-green-600":
-                isAvailable && !isSelected && !isDisabled,
-              "text-gray-500": !isAvailable && !isSelected && !isDisabled,
+              "bg-primary text-on-primary shadow-xl scale-110 z-10": isSelected,
+              "text-on-surface-variant/30 cursor-not-allowed": isDisabled,
+              "hover:bg-surface-container-high": !isDisabled && !isSelected,
+              "ring-2 ring-primary/20 ring-offset-2": isToday && !isSelected,
+              "text-primary font-bold": isAvailable && !isSelected && !isDisabled,
+              "text-on-surface": !isAvailable && !isSelected && !isDisabled,
             },
           )}
         >
           {day}
-          {isAvailable && !isSelected && (
-            <div
-              className="absolute bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 transform rounded-full bg-green-500"
-              aria-hidden="true"
-            />
+          {isAvailable && !isSelected && !isDisabled && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
           )}
         </button>,
       );
     }
-
     return days;
   };
 
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">
-            {monthName} {year}
-          </CardTitle>
-          <div className="flex space-x-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigateMonth("prev")}
-              className="h-10 w-10 touch-manipulation p-0" // Increased touch target
-              aria-label="Previous month"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigateMonth("next")}
-              className="h-10 w-10 touch-manipulation p-0" // Increased touch target
-              aria-label="Next month"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-          </div>
+    <div className="bg-surface-container-low p-8 rounded-[2.5rem] border border-surface-container shadow-sm">
+      <div className="flex items-center justify-between mb-8 px-2">
+        <h3 className="text-xl font-display font-bold text-primary">
+          {monthName} <span className="opacity-40">{year}</span>
+        </h3>
+        <div className="flex gap-2">
+          <button
+            onClick={() => navigateMonth("prev")}
+            className="p-3 rounded-full hover:bg-surface-container-high transition-colors text-primary border border-surface-container"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => navigateMonth("next")}
+            className="p-3 rounded-full hover:bg-surface-container-high transition-colors text-primary border border-surface-container"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </div>
-      </CardHeader>
-      <CardContent>
-        {/* Day headers */}
-        <div className="mb-2 grid grid-cols-7 gap-1">
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-            <div
-              key={day}
-              className="p-2 text-center text-sm font-medium text-foreground"
-            >
-              {day.substring(0, 1)}
-              <span className="hidden sm:inline">{day.substring(1)}</span>
-            </div>
-          ))}
-        </div>
+      </div>
 
-        {/* Calendar days */}
-        <div
-          ref={containerRef}
-          className="grid grid-cols-7 gap-1"
-          role="grid"
-          aria-label={`Calendar for ${monthName} ${year}`}
-        >
-          {renderCalendarDays()}
-        </div>
+      <div className="grid grid-cols-7 gap-2 mb-4">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+          <div
+            key={day}
+            className="h-10 flex items-center justify-center text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40"
+          >
+            {day.substring(0, 3)}
+          </div>
+        ))}
+      </div>
 
-        {/* Legend */}
-        <div className="mt-4 flex items-center justify-center space-x-4 text-xs text-foreground">
-          <div className="flex items-center space-x-1">
-            <div className="h-2 w-2 rounded-full bg-green-500" />
-            <span>Available</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <div className="h-2 w-2 rounded-full bg-secondary" />
-            <span>Unavailable</span>
-          </div>
+      <div className="grid grid-cols-7 gap-2">
+        {renderCalendarDays()}
+      </div>
+
+      <div className="mt-8 pt-8 border-t border-surface-container flex justify-center gap-6">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-primary" />
+          <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">Available</span>
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-surface-container-high" />
+          <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">Fully Booked</span>
+        </div>
+      </div>
+    </div>
   );
 }

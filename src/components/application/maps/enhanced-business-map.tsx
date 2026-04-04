@@ -100,23 +100,23 @@ export function EnhancedBusinessMap({
       const services = business.services?.slice(0, 2).join(", ") || "";
 
       return `
-      <div class="p-4 min-w-[250px] max-w-[300px]">
-        <div class="flex items-start justify-between mb-2">
-          <h3 class="font-semibold text-lg text-gray-900 pr-2">${business.name}</h3>
-          ${rating ? `<span class="text-sm text-gray-600 whitespace-nowrap">${rating}</span>` : ""}
+      <div className="p-4 min-w-[250px] max-w-[300px]">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="font-semibold text-lg text-gray-900 pr-2">${business.name}</h3>
+          ${rating ? `<span className="text-sm text-gray-600 whitespace-nowrap">${rating}</span>` : ""}
         </div>
-        <p class="text-sm text-gray-600 mb-2">${business.address}</p>
-        ${distance ? `<p class="text-sm text-gray-500 mb-2">${distance}</p>` : ""}
-        ${services ? `<p class="text-xs text-gray-500 mb-3 border-t pt-2">${services}</p>` : ""}
-        <div class="flex gap-2">
+        <p className="text-sm text-gray-600 mb-2">${business.address}</p>
+        ${distance ? `<p className="text-sm text-gray-500 mb-2">${distance}</p>` : ""}
+        ${services ? `<p className="text-xs text-gray-500 mb-3 border-t pt-2">${services}</p>` : ""}
+        <div className="flex gap-2">
           <button 
-            class="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors"
             onclick="window.dispatchEvent(new CustomEvent('selectBusiness', { detail: '${business.id}' }))"
           >
             View Details
           </button>
           <button 
-            class="px-3 py-2 border border-gray-300 rounded text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="px-3 py-2 border border-gray-300 rounded text-sm font-medium hover:bg-gray-50 transition-colors"
             onclick="window.dispatchEvent(new CustomEvent('getDirections', { detail: '${business.id}' }))"
           >
             Directions

@@ -1,61 +1,13 @@
-"use client";
-
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { User, Mail, Phone, MessageSquare, Loader2 } from "lucide-react";
+import { User, Mail, Phone, MessageSquare, Loader2, ArrowRight } from "lucide-react";
 import { z } from "zod";
-import { useAccessibleForm } from "@/hooks/use-accessibility";
-import { FormFeedback, ErrorFeedback } from "@/components/ui/feedback-states";
+import { cn } from "@/lib/utils";
 
-// Validation schema
 const customerFormSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .min(2, "Name must be at least 2 characters")
-    .max(255, "Name is too long")
-    .regex(
-      /^[a-zA-Z\s'-\.]+$/,
-      "Name can only contain letters, spaces, hyphens, apostrophes, and periods",
-    )
-    .refine(
-      (name) => name.trim().split(/\s+/).length >= 1,
-      "Please enter your full name",
-    ),
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address")
-    .max(255, "Email is too long")
-    .refine(
-      (email) => !email.includes(".."),
-      "Email cannot contain consecutive dots",
-    )
-    .refine(
-      (email) => !email.startsWith(".") && !email.endsWith("."),
-      "Email cannot start or end with a dot",
-    ),
-  phone: z
-    .string()
-    .min(1, "Phone number is required")
-    .refine((phone) => {
-      const digits = phone.replace(/\D/g, "");
-      return digits.length >= 10 && digits.length <= 15;
-    }, "Phone number must be between 10-15 digits")
-    .refine((phone) => {
-      // Allow international format or US format
-      const cleanPhone = phone.replace(/\D/g, "");
-      return /^[\d]{10,15}$/.test(cleanPhone);
-    }, "Please enter a valid phone number"),
-  notes: z
-    .string()
-    .max(500, "Notes cannot exceed 500 characters")
-    .optional()
-    .transform((val) => val?.trim() ?? undefined),
+  name: z.string().min(2, "Please enter your full name"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Please enter a valid phone number"),
+  notes: z.string().max(500).optional(),
 });
 
 export interface CustomerFormData {
@@ -90,335 +42,125 @@ export function CustomerForm({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-
-  // Enhanced accessibility for form
-  const { containerRef, announceToScreenReader } = useAccessibleForm({
-    onSubmit: async () => {
-      if (isFormValid) {
-        await handleSubmit(new Event("submit") as any);
-      }
-    },
-  });
-
-  const validateField = (field: keyof CustomerFormData, value: string) => {
-    try {
-      const fieldSchema = customerFormSchema.shape[field];
-      if (fieldSchema) {
-        fieldSchema.parse(value);
-        setErrors((prev) => ({ ...prev, [field]: "" }));
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setErrors((prev) => ({
-          ...prev,
-          [field]: error.issues[0]?.message ?? "Invalid value",
-        }));
-      }
-    }
-  };
-
-  const handleInputChange = (field: keyof CustomerFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-
-    // Validate on change if field has been touched
-    if (touched[field]) {
-      validateField(field, value);
-    }
-  };
-
-  const handleInputBlur = (field: keyof CustomerFormData) => {
-    setTouched((prev) => ({ ...prev, [field]: true }));
-    validateField(field, formData[field] ?? "");
-  };
-
-  const formatPhoneNumber = (value: string) => {
-    // Remove all non-digits except + at the beginning
-    let digits = value.replace(/[^\d+]/g, "");
-
-    // Handle international numbers starting with +
-    if (digits.startsWith("+")) {
-      const countryCode = digits.slice(1);
-      if (countryCode.length <= 15) {
-        return `+${countryCode}`;
-      }
-      return `+${countryCode.slice(0, 15)}`;
-    }
-
-    // Format US numbers as (XXX) XXX-XXXX
-    digits = digits.replace(/^\+?1?/, ""); // Remove country code if present
-
-    if (digits.length <= 3) {
-      return digits;
-    } else if (digits.length <= 6) {
-      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-    } else if (digits.length <= 10) {
-      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-    } else {
-      // Limit to 10 digits for US numbers
-      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
-    }
-  };
-
-  const handlePhoneChange = (value: string) => {
-    const formatted = formatPhoneNumber(value);
-    handleInputChange("phone", formatted);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Clear any external errors when user tries to submit
-    onErrorClear?.();
-
-    // Mark all fields as touched
-    const allFields = Object.keys(formData) as (keyof CustomerFormData)[];
-    setTouched(Object.fromEntries(allFields.map((field) => [field, true])));
-
-    // Validate all fields
     try {
       const validatedData = customerFormSchema.parse(formData);
-
-      // Clear any existing errors
       setErrors({});
-
-      // Submit the form
       await onSubmit(validatedData);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
+    } catch (err) {
+      if (err instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
-        error.issues.forEach((err) => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0] as string] = err.message;
-          }
+        err.issues.forEach((issue) => {
+          if (issue.path[0]) fieldErrors[issue.path[0] as string] = issue.message;
         });
         setErrors(fieldErrors);
-
-        // Announce validation errors to screen readers
-        const errorCount = Object.keys(fieldErrors).length;
-        announceToScreenReader(
-          `Form has ${errorCount} error${errorCount !== 1 ? "s" : ""}. Please review and correct the highlighted fields.`,
-        );
       }
     }
   };
 
-  const hasErrors = Object.values(errors).some((error) => error !== "");
-  const isFormValid =
-    formData.name && formData.email && formData.phone && !hasErrors;
-
   return (
-    <Card className={className}>
-      <CardContent>
-        <div ref={containerRef as React.RefObject<HTMLDivElement>}>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <FormFeedback errors={errors} />
-            {/* Name Field */}
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">
-                Full Name *
-              </Label>
-              <div className="relative">
-                <User className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Enter your full name"
-                  className={`pl-10 ${errors.name ? "border-red-500 focus:border-red-500" : touched.name && !errors.name ? "border-green-500" : ""}`}
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  onBlur={() => handleInputBlur("name")}
-                  disabled={loading}
-                  required
-                  autoComplete="name"
-                />
-              </div>
-              {errors.name && (
-                <p
-                  className="flex items-center text-sm text-red-600"
-                  role="alert"
-                  aria-live="polite"
-                >
-                  <span className="mr-1" aria-hidden="true">
-                    ⚠️
-                  </span>
-                  {errors.name}
-                </p>
-              )}
-              {touched.name && !errors.name && formData.name && (
-                <p
-                  className="flex items-center text-sm text-green-600"
-                  aria-live="polite"
-                >
-                  <span className="mr-1" aria-hidden="true">
-                    ✓
-                  </span>
-                  Looks good!
-                </p>
-              )}
-            </div>
-
-            {/* Email Field */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Email Address *
-              </Label>
-              <div className="relative">
-                <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  className={`pl-10 ${errors.email ? "border-red-500 focus:border-red-500" : touched.email && !errors.email ? "border-green-500" : ""}`}
-                  value={formData.email}
-                  onChange={(e) =>
-                    handleInputChange("email", e.target.value.toLowerCase())
-                  }
-                  onBlur={() => handleInputBlur("email")}
-                  disabled={loading}
-                  required
-                  autoComplete="email"
-                />
-              </div>
-              {errors.email && (
-                <p
-                  className="flex items-center text-sm text-red-600"
-                  role="alert"
-                  aria-live="polite"
-                >
-                  <span className="mr-1" aria-hidden="true">
-                    ⚠️
-                  </span>
-                  {errors.email}
-                </p>
-              )}
-              {touched.email && !errors.email && formData.email && (
-                <p
-                  className="flex items-center text-sm text-green-600"
-                  aria-live="polite"
-                >
-                  <span className="mr-1" aria-hidden="true">
-                    ✓
-                  </span>
-                  Valid email address
-                </p>
-              )}
-              <p className="text-xs text-gray-500">
-                We&apos;ll send your booking confirmation here
-              </p>
-            </div>
-
-            {/* Phone Field */}
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-sm font-medium">
-                Phone Number *
-              </Label>
-              <div className="relative">
-                <Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="(555) 123-4567 or +1 555 123 4567"
-                  className={`pl-10 ${errors.phone ? "border-red-500 focus:border-red-500" : touched.phone && !errors.phone ? "border-green-500" : ""}`}
-                  value={formData.phone}
-                  onChange={(e) => handlePhoneChange(e.target.value)}
-                  onBlur={() => handleInputBlur("phone")}
-                  disabled={loading}
-                  required
-                  autoComplete="tel"
-                />
-              </div>
-              {errors.phone && (
-                <p
-                  className="flex items-center text-sm text-red-600"
-                  role="alert"
-                  aria-live="polite"
-                >
-                  <span className="mr-1" aria-hidden="true">
-                    ⚠️
-                  </span>
-                  {errors.phone}
-                </p>
-              )}
-              {touched.phone && !errors.phone && formData.phone && (
-                <p
-                  className="flex items-center text-sm text-green-600"
-                  aria-live="polite"
-                >
-                  <span className="mr-1" aria-hidden="true">
-                    ✓
-                  </span>
-                  Valid phone number
-                </p>
-              )}
-              <p className="text-xs text-gray-500">
-                We&apos;ll use this to send you appointment reminders via SMS
-              </p>
-            </div>
-
-            {/* Notes Field */}
-            <div className="space-y-2">
-              <Label htmlFor="notes" className="text-sm font-medium">
-                Additional Notes (Optional)
-              </Label>
-              <div className="relative">
-                <MessageSquare className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
-                <Textarea
-                  id="notes"
-                  placeholder="Any special requests or information..."
-                  className={`min-h-[80px] resize-none pl-10 ${errors.notes ? "border-red-500 focus:border-red-500" : ""}`}
-                  value={formData.notes}
-                  onChange={(e) => handleInputChange("notes", e.target.value)}
-                  onBlur={() => handleInputBlur("notes")}
-                  disabled={loading}
-                  maxLength={500}
-                />
-              </div>
-              {errors.notes && (
-                <p className="text-sm text-red-600">{errors.notes}</p>
-              )}
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Optional - any special requests or information</span>
-                <span>{formData.notes?.length ?? 0}/500</span>
-              </div>
-            </div>
-
-            {/* External Error Display */}
-            {error && (
-              <ErrorFeedback
-                title="Booking Error"
-                message={error}
-                dismissible={!!onErrorClear}
-                onDismiss={onErrorClear}
+    <div className={cn("bg-surface-container-low p-8 md:p-12 rounded-[2.5rem] border border-surface-container shadow-sm", className)}>
+      <form onSubmit={handleSubmit} className="space-y-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          {/* Name Field */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60 ml-4">Full Name</label>
+            <div className="relative group">
+              <User className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary opacity-30 group-focus-within:opacity-100 transition-opacity" />
+              <input
+                type="text"
+                placeholder="Chinyere Okafor"
+                className={cn(
+                  "w-full bg-background border-2 border-transparent focus:border-primary/20 rounded-3xl py-5 pl-14 pr-8 text-primary font-sans transition-all outline-none",
+                  errors.name ? "border-error/20 bg-error/5" : "bg-white"
+                )}
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
-            )}
+              {errors.name && <p className="text-[10px] font-bold text-error mt-2 ml-4 uppercase tracking-wider">{errors.name}</p>}
+            </div>
+          </div>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              size="default"
-              className="w-full"
-              disabled={loading ?? !isFormValid}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Confirming Booking...
-                </>
-              ) : (
-                "Confirm Booking"
-              )}
-            </Button>
+          {/* Email Field */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60 ml-4">Email Address</label>
+            <div className="relative group">
+              <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary opacity-30 group-focus-within:opacity-100 transition-opacity" />
+              <input
+                type="email"
+                placeholder="chinyere@example.com"
+                className={cn(
+                  "w-full bg-background border-2 border-transparent focus:border-primary/20 rounded-3xl py-5 pl-14 pr-8 text-primary font-sans transition-all outline-none",
+                  errors.email ? "border-error/20 bg-error/5" : "bg-white"
+                )}
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+              {errors.email && <p className="text-[10px] font-bold text-error mt-2 ml-4 uppercase tracking-wider">{errors.email}</p>}
+            </div>
+          </div>
 
-            {/* Privacy Notice */}
-            <p className="text-center text-xs text-gray-500">
-              By booking, you agree to receive appointment confirmations and
-              reminders via email and SMS. Your information will only be shared
-              with the business you&apos;re booking with.
-            </p>
-          </form>
+          {/* Phone Field */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60 ml-4">Phone Number</label>
+            <div className="relative group">
+              <Phone className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-primary opacity-30 group-focus-within:opacity-100 transition-opacity" />
+              <input
+                type="tel"
+                placeholder="+234 800 000 0000"
+                className={cn(
+                  "w-full bg-background border-2 border-transparent focus:border-primary/20 rounded-3xl py-5 pl-14 pr-8 text-primary font-sans transition-all outline-none",
+                  errors.phone ? "border-error/20 bg-error/5" : "bg-white"
+                )}
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
+              {errors.phone && <p className="text-[10px] font-bold text-error mt-2 ml-4 uppercase tracking-wider">{errors.phone}</p>}
+            </div>
+          </div>
+
+          {/* Notes Field */}
+          <div className="space-y-3 md:col-span-2">
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60 ml-4">Special Requests (Optional)</label>
+            <div className="relative group">
+              <MessageSquare className="absolute left-6 top-6 w-5 h-5 text-primary opacity-30 group-focus-within:opacity-100 transition-opacity" />
+              <textarea
+                placeholder="Any details you'd like to share..."
+                className="w-full bg-white border-2 border-transparent focus:border-primary/20 rounded-[2rem] py-6 pl-14 pr-8 text-primary font-sans transition-all outline-none min-h-[150px] resize-none"
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              />
+            </div>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+
+        {error && (
+          <div className="p-6 rounded-2xl bg-error/5 border border-error/10 text-error text-sm font-medium flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-error animate-pulse" />
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-6 rounded-full bg-primary text-on-primary font-bold uppercase tracking-[0.2em] text-xs shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              Confirm Appointment
+              <ArrowRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+      </form>
+    </div>
   );
 }

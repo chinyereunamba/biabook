@@ -230,7 +230,7 @@ export function Benefits() {
                   <div className="bg-white p-5 rounded-3xl rounded-tl-none shadow-sm max-w-[90%]">
                     <p className="text-sm text-on-surface leading-snug font-sans">
                       <span className="font-bold text-[#075E54]">Booking Confirmed! ✅</span><br /><br />
-                      Hi Zainab, your session for <span className="font-bold">Bridal Styling</span> is set for tomorrow at <span class="font-bold">10:30 AM</span>.<br /><br />
+                      Hi Zainab, your session for <span className="font-bold">Bridal Styling</span> is set for tomorrow at <span className="font-bold">10:30 AM</span>.<br /><br />
                       📍 Location: Lekki Phase 1
                     </p>
                     <p className="text-right text-[10px] text-on-surface-variant mt-2 font-sans">14:02</p>

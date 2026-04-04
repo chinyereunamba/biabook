@@ -63,7 +63,7 @@ export function Pricing() {
                 }`}
             >
               {plan.highlighted && (
-                <div className="absolute top-0 right-0 bg-secondary px-6 py-2 rounded-bl-2xl text-secondary-foreground text-xs font-black tracking-widest uppercase font-sans">
+                <div className="absolute top-0 right-0 bg-secondary-container px-6 py-2 rounded-bl-2xl text-secondary-foreground text-xs font-black tracking-widest uppercase font-sans">
                   Popular
                 </div>
               )}
@@ -81,7 +81,7 @@ export function Pricing() {
               <ul className="space-y-4 mb-10 flex-grow">
                 {plan.features.map((feature, j) => (
                   <li key={j} className={`flex items-center gap-3 font-sans ${plan.highlighted ? "text-primary-foreground" : "text-on-surface-variant"}`}>
-                    <Check className={`w-5 h-5 ${plan.highlighted ? "text-secondary" : "text-primary"}`} />
+                    <Check className={`w-5 h-5 ${plan.highlighted ? "text-secondary-container" : "text-primary"}`} />
                     {feature}
                   </li>
                 ))}

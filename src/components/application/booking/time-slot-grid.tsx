@@ -1,13 +1,5 @@
-"use client";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Clock, Calendar, RefreshCw, AlertCircle, Globe } from "lucide-react";
+import { Clock, RefreshCw, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAccessibility } from "@/hooks/use-accessibility";
-import { KEYBOARD_KEYS } from "@/lib/accessibility";
-import { getTimezoneAbbreviation } from "@/lib/timezone-utils";
 
 export interface TimeSlot {
   date: string;
@@ -56,218 +48,97 @@ export function TimeSlotGrid({
     });
   };
 
-  // Enhanced accessibility for time slot selection
-  const { containerRef, announceToScreenReader } =
-    useAccessibility<HTMLDivElement>({
-      label: "Available time slots",
-      enableKeyboardNavigation: true,
-      onArrowKeys: (key) => {
-        // Handle arrow key navigation between time slots
-        const buttons = containerRef.current?.querySelectorAll(
-          "button:not([disabled])",
-        );
-        if (!buttons) return;
-
-        const currentIndex = Array.from(buttons).findIndex(
-          (btn) => btn === document.activeElement,
-        );
-        let nextIndex = currentIndex;
-
-        if (
-          key === KEYBOARD_KEYS.ARROW_RIGHT ||
-          key === KEYBOARD_KEYS.ARROW_DOWN
-        ) {
-          nextIndex = (currentIndex + 1) % buttons.length;
-        } else if (
-          key === KEYBOARD_KEYS.ARROW_LEFT ||
-          key === KEYBOARD_KEYS.ARROW_UP
-        ) {
-          nextIndex =
-            currentIndex === 0 ? buttons.length - 1 : currentIndex - 1;
-        }
-
-        (buttons[nextIndex] as HTMLElement)?.focus();
-      },
-    });
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Clock className="h-5 w-5" />
-            <span>Available Times</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   if (!selectedDate) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Clock className="h-5 w-5" />
-            <span>Available Times</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-8 text-text">
-            <Calendar className="mb-4 h-12 w-12 text-foreground" />
-            <p className="text-center">
-              Please select a date to see available times
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-surface-container-low p-8 rounded-[2.5rem] border border-surface-container min-h-[400px] flex flex-col items-center justify-center text-center">
+        <div className="w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center text-primary mb-6">
+          <Clock className="w-8 h-8 opacity-20" />
+        </div>
+        <h3 className="text-xl font-display font-bold text-primary mb-2">Awaiting Schedule</h3>
+        <p className="text-on-surface-variant/60 font-sans text-sm max-w-[200px]">
+          Please select a date on the calendar to reveal available times
+        </p>
+      </div>
     );
   }
 
   const availableSlots = timeSlots.filter((slot) => slot.available);
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center space-x-2">
-              <Clock className="h-5 w-5" />
-              <span>Available Times</span>
-              {businessTimezone && (
-                <Badge variant="secondary" className="text-xs">
-                  <Globe className="mr-1 h-3 w-3" />
-                  {getTimezoneAbbreviation(businessTimezone)}
-                </Badge>
-              )}
-            </CardTitle>
-            {selectedDate && (
-              <p className="text-sm text-gray-600">
-                {formatDate(selectedDate)}
-                {businessTimezone && businessName && (
-                  <span className="ml-2 text-xs text-primary">
-                    • Times shown in {businessName}'s timezone
-                  </span>
-                )}
-              </p>
-            )}
-          </div>
-          {onRefresh && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onRefresh}
-              disabled={loading}
-              className="h-8 w-8 p-0"
-            >
-              <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
-              <span className="sr-only">Refresh availability</span>
-            </Button>
-          )}
+    <div className="bg-surface-container-low p-8 rounded-[2.5rem] border border-surface-container shadow-sm">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h3 className="text-xl font-display font-bold text-primary">
+            Available Times
+          </h3>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40 mt-1">
+            {formatDate(selectedDate)}
+          </p>
         </div>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3">
-            <div className="flex items-start space-x-2">
-              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
-              <div className="text-sm text-red-800">
-                <p className="font-medium">Availability Error</p>
-                <p>{error}</p>
-              </div>
-            </div>
-          </div>
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            disabled={loading}
+            className="p-3 rounded-full hover:bg-surface-container-high transition-colors text-primary border border-surface-container"
+          >
+            <RefreshCw className={cn("w-5 h-5", loading && "animate-spin")} />
+          </button>
         )}
+      </div>
 
-        {availableSlots.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-            <Clock className="mb-4 h-12 w-12 text-gray-300" />
-            <p className="text-center font-medium">No available times</p>
-            <p className="text-center text-sm">
-              Please select a different date or check back later
-            </p>
-            {onRefresh && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRefresh}
-                disabled={loading}
-                className="mt-3"
+      {error && (
+        <div className="mb-6 p-4 rounded-2xl bg-error/5 border border-error/10 text-error text-xs flex items-center gap-3">
+          <AlertCircle className="w-4 h-4" />
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <RefreshCw className="w-8 h-8 animate-spin text-primary opacity-20" />
+        </div>
+      ) : availableSlots.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-on-surface-variant/60 font-sans text-sm">No slots available for this date</p>
+          <button
+            onClick={onRefresh}
+            className="mt-4 text-xs font-bold uppercase tracking-widest text-primary hover:underline"
+          >
+            Check again
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          {availableSlots.map((slot) => {
+            const isSelected = selectedTime === slot.startTime;
+            return (
+              <button
+                key={slot.startTime}
+                onClick={() => onTimeSelect(slot.startTime, slot.endTime)}
+                className={cn(
+                  "py-4 rounded-2xl text-sm font-bold transition-all duration-300 font-sans",
+                  isSelected
+                    ? "bg-primary text-on-primary shadow-xl scale-[1.05] z-10"
+                    : "bg-white text-primary border border-surface-container hover:border-primary/20 hover:bg-primary/5"
+                )}
               >
-                <RefreshCw
-                  className={cn("mr-2 h-4 w-4", loading && "animate-spin")}
-                />
-                Refresh Availability
-              </Button>
-            )}
+                {formatTime(slot.startTime)}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="mt-8 pt-8 border-t border-surface-container">
+        <div className="flex items-center gap-3 text-on-surface-variant/60">
+          <div className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-primary">
+            <Clock className="w-4 h-4" />
           </div>
-        ) : (
-          <>
-            <div
-              ref={containerRef}
-              className="grid grid-cols-2 gap-2 sm:grid-cols-3"
-              role="group"
-              aria-label="Available time slots"
-            >
-              {availableSlots.map((slot, index) => {
-                const isSelected = selectedTime === slot.startTime;
-                const timeKey = `${selectedDate ?? slot.date}-${slot.startTime}`;
-
-                return (
-                  <Button
-                    key={timeKey}
-                    variant={isSelected ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      onTimeSelect(slot.startTime, slot.endTime);
-                      announceToScreenReader(
-                        `Selected time ${formatTime(slot.startTime)}`,
-                      );
-                    }}
-                    className={cn(
-                      "min-h-[44px] touch-manipulation justify-center text-sm font-medium transition-all",
-                      {
-                        "bg-primary text-white hover:bg-primary/80":
-                          isSelected,
-                        "hover:border-purple-300 hover:bg-purple-50":
-                          !isSelected,
-                      },
-                    )}
-                    aria-label={`Select time ${formatTime(slot.startTime)}${isSelected ? ", currently selected" : ""}`}
-                    aria-pressed={isSelected}
-                    tabIndex={index === 0 ? 0 : -1}
-                  >
-                    {formatTime(slot.startTime)}
-                  </Button>
-                );
-              })}
-            </div>
-
-            <div className="mt-4 rounded-lg bg-secondary p-3">
-              <div className="flex items-start space-x-2">
-                <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-text" />
-                <div className="text-sm text-text">
-                  <p className="font-medium">Booking Information</p>
-                  <p className="text-text">
-                    {availableSlots.length} time slot
-                    {availableSlots.length !== 1 ? "s" : ""} available
-                  </p>
-                  {selectedTime && (
-                    <p className="mt-1 text-secondary-foreground">
-                      Selected: {formatTime(selectedTime)}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+          <div className="text-[10px] font-bold uppercase tracking-widest">
+            {businessTimezone ? `Times in ${businessTimezone.split('/').pop()?.replace('_', ' ')}` : "Local Timezone"}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
