@@ -1,25 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Mail, ArrowLeft, Calendar, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "../ui/field";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-export function ForgotPasswordForm({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -56,92 +41,77 @@ export function ForgotPasswordForm({
 
   if (isSubmitted) {
     return (
-      <div className="flex flex-col gap-6">
-        <div className="w-full max-w-md">
-          <Card>
-            <CardHeader className="text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-              <CardTitle className="text-xl">Check your email</CardTitle>
-              <p className="">
-                We've sent password reset instructions to{" "}
-                <span className="font-medium">{email}</span>
-              </p>
-            </CardHeader>
-
-            <CardContent className="space-y-6">
-              <div className="space-y-3">
-                <Link href="/login" className="block">
-                  <Button className="w-full">Back to Sign In</Button>
-                </Link>
-
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setIsSubmitted(false);
-                    setEmail("");
-                  }}
-                  className="w-full"
-                >
-                  Try a different email address
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="mt-6 text-center text-xs text-gray-500">
-            Need help?{" "}
-            <Link
-              href="/support"
-              className="underline transition-colors hover:text-gray-700"
-            >
-              Contact support
-            </Link>
+      <div className="w-full space-y-6">
+        <div className="bg-surface-container-low p-8 rounded-2xl border border-border/10 text-center space-y-4">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-secondary/10">
+            <span className="material-symbols-outlined text-secondary text-4xl">check_circle</span>
           </div>
+          <h2 className="font-display text-2xl font-bold text-primary">Check your email</h2>
+          <p className="text-on-surface-variant font-sans">
+            We've sent password reset instructions to{" "}
+            <span className="font-bold text-primary">{email}</span>
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <Link href="/login" className="block">
+            <Button variant="artisan" size="lg" className="w-full">
+              Back to Sign In
+            </Button>
+          </Link>
+
+          <button
+            onClick={() => {
+              setIsSubmitted(false);
+              setEmail("");
+            }}
+            className="w-full text-secondary font-bold hover:underline font-sans text-sm"
+          >
+            Try a different email address
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>Forgot your password</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </Field>
-              <Field>
-                {error && <p className="text-sm text-red-500">{error}</p>}
-              </Field>
-              <Field>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Sending link..." : "Reset Password"}
-                </Button>
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-      <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our{" "}
-        <Link href="terms">Terms of Service</Link> and{" "}
-        <Link href="/privacy">Privacy Policy</Link>.
-      </FieldDescription>
-    </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant font-sans">
+          Email Address
+        </label>
+        <div className="relative">
+          <input
+            className="w-full bg-surface-container border-none rounded-xl py-4 px-5 text-on-surface focus:ring-2 focus:ring-primary/50 placeholder:text-on-surface-variant/40 transition-all font-sans outline-none"
+            placeholder="name@company.com"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40">
+            mail
+          </span>
+        </div>
+      </div>
+
+      {error && <p className="text-sm text-error font-sans font-medium">{error}</p>}
+
+      <button
+        className="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold py-4 rounded-xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-display disabled:opacity-70 disabled:cursor-not-allowed"
+        type="submit"
+        disabled={isLoading}
+      >
+        {isLoading ? "Sending link..." : "Reset Password"}
+      </button>
+
+      <div className="pt-4 text-center">
+        <p className="text-xs text-on-surface-variant/60 font-sans">
+          By clicking continue, you agree to our{" "}
+          <Link href="/terms" className="hover:text-secondary transition-colors underline">Terms</Link> and{" "}
+          <Link href="/privacy" className="hover:text-secondary transition-colors underline">Privacy Policy</Link>.
+        </p>
+      </div>
+    </form>
   );
 }

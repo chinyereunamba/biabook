@@ -116,13 +116,14 @@ export function LoginForm() {
         {error && <p className="text-sm text-error font-sans font-medium">{error}</p>}
 
         {/* Submit Button */}
-        <button
-          className="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold py-4 rounded-xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-display disabled:opacity-70 disabled:cursor-not-allowed"
+        <Button
           type="submit"
-          disabled={isLoading}
+          variant="artisan"
+          className="w-full"
+          isLoading={isLoading}
         >
-          {isLoading ? "Logging in..." : "Log In"}
-        </button>
+          Sign In to BiaBook
+        </Button>
       </form>
 
       {/* Divider */}
@@ -158,7 +159,7 @@ export function LoginForm() {
             fill="#EA4335"
           />
         </svg>
-        <span>Google Account</span>
+        <span>Google</span>
       </button>
     </div>
   );

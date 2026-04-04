@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Check } from "lucide-react";
 
 export function Pricing() {
   const plans = [
@@ -15,7 +17,6 @@ export function Pricing() {
       ],
       cta: "Get Started",
       highlighted: false,
-      buttonClass: "bg-surface-container-highest text-primary hover:bg-primary hover:text-primary-foreground",
     },
     {
       name: "Pro",
@@ -29,7 +30,6 @@ export function Pricing() {
       ],
       cta: "Go Pro Now",
       highlighted: true,
-      buttonClass: "bg-gradient-to-r from-secondary to-secondary-container text-secondary-foreground hover:scale-105",
     },
     {
       name: "Business",
@@ -43,7 +43,6 @@ export function Pricing() {
       ],
       cta: "Choose Business",
       highlighted: false,
-      buttonClass: "bg-surface-container-highest text-primary hover:bg-primary hover:text-primary-foreground",
     },
   ];
 
@@ -59,8 +58,8 @@ export function Pricing() {
             <div
               key={i}
               className={`p-10 rounded-[2.5rem] flex flex-col transition-all duration-500 ${plan.highlighted
-                  ? "bg-primary transform scale-105 shadow-2xl shadow-primary/20 relative overflow-hidden"
-                  : "bg-surface"
+                ? "bg-primary transform scale-105 shadow-2xl shadow-primary/20 relative overflow-hidden"
+                : "bg-surface"
                 }`}
             >
               {plan.highlighted && (
@@ -82,15 +81,15 @@ export function Pricing() {
               <ul className="space-y-4 mb-10 flex-grow">
                 {plan.features.map((feature, j) => (
                   <li key={j} className={`flex items-center gap-3 font-sans ${plan.highlighted ? "text-primary-foreground" : "text-on-surface-variant"}`}>
-                    <span className={`material-symbols-outlined text-xl ${plan.highlighted ? "text-secondary" : "text-primary"}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                      check_circle
-                    </span>
+                    <Check className={`w-5 h-5 ${plan.highlighted ? "text-secondary" : "text-primary"}`} />
                     {feature}
                   </li>
                 ))}
               </ul>
               <Button
-                className={`w-full py-6 rounded-xl font-bold transition-all duration-300 h-auto border-none ${plan.buttonClass}`}
+                variant={plan.highlighted ? "secondary" : "artisan"}
+                size="lg"
+                className={plan.highlighted ? "bg-white text-primary hover:bg-white/90" : ""}
               >
                 {plan.cta}
               </Button>

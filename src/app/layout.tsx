@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import { Providers } from "./providers";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 
 export const metadata = {
   title: "BiaBook | Scheduling Simplified for Nigeria",
@@ -8,11 +8,22 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+})
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-display",
+})
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
+  }) {
+  
   return (
     <html lang="en">
       <head>
@@ -21,7 +32,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-sans antialiased text-foreground bg-background">
+      <body className="font-sans font-display antialiased text-foreground bg-background">
         <Providers>
           {/* <TRPCReactProvider cookies={cookies().toString()}> */}
           {children}

@@ -19,11 +19,15 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        artisan: "bg-primary text-white shadow-lg shadow-primary/10 hover:shadow-primary/20 rounded-xl font-bold font-display transition-colors",
+        "artisan-secondary": "bg-surface-container-highest text-on-surface hover:bg-surface-container-high shadow-md rounded-xl font-bold font-display",
+        "artisan-outline": "border-2 border-primary text-primary hover:bg-primary/5 rounded-xl font-bold font-display",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        default: "px-4 py-4 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        lg: "h-11 rounded-xl px-8 has-[>svg]:px-6 text-base",
+        xl: "h-14 rounded-xl px-10 has-[>svg]:px-8 text-lg",
         icon: "size-9",
         "icon-sm": "size-8",
         "icon-lg": "size-10",
@@ -41,10 +45,14 @@ function Button({
   variant,
   size,
   asChild = false,
+  isLoading = false,
+  children,
+  disabled,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    isLoading?: boolean
   }) {
   const Comp = asChild ? Slot : "button"
 
@@ -52,8 +60,18 @@ function Button({
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      disabled={isLoading || disabled}
       {...props}
-    />
+    >
+      {isLoading ? (
+        <>
+          <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          {children}
+        </>
+      ) : (
+        children
+      )}
+    </Comp>
   )
 }
 

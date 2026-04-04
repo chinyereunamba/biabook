@@ -15,14 +15,14 @@ export default function LoginPage() {
         </div>
         {/* Editorial Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent z-10 p-16 flex flex-col justify-end">
-          <div className="max-w-xl">
-            <span className="font-display text-primary-container uppercase tracking-widest text-sm mb-4 block font-bold">
+          <div className="max-w-xl text-white">
+            <span className="font-display text-secondary-container uppercase tracking-widest text-sm mb-4 block font-bold">
               BiaBook Experience
             </span>
-            <h1 className="font-display text-5xl lg:text-7xl text-on-primary font-extrabold tracking-tight mb-6">
+            <h1 className="font-display text-5xl lg:text-7xl  font-extrabold tracking-tight mb-6">
               Elevate your scheduling.
             </h1>
-            <p className="text-primary-container text-lg lg:text-xl leading-relaxed font-light">
+            <p className="text-white text-lg lg:text-xl leading-relaxed font-light">
               Join the community of modern artisans defining the future of professional services in Nigeria.
             </p>
           </div>
@@ -55,7 +55,7 @@ export default function LoginPage() {
             <p className="mt-10 text-center text-on-surface-variant text-sm font-sans">
               New to BiaBook?{" "}
               <Link href="/signup" className="text-secondary font-bold hover:underline underline-offset-4">
-                Create your salon
+                Create your Business page
               </Link>
             </p>
           </div>

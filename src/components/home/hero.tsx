@@ -16,16 +16,16 @@ export function Hero() {
           </p>
           <div className="flex flex-wrap gap-4">
             <Button
-              size="lg"
-              className="px-8 py-6 bg-gradient-to-r from-primary to-primary-container text-primary-foreground rounded-2xl font-bold text-lg hover:scale-105 transition-transform duration-200 shadow-xl shadow-primary/10 h-auto"
+              variant="artisan"
+              size="xl"
               asChild
             >
               <Link href="/signup">Start for Free</Link>
             </Button>
             <Button
-              size="lg"
-              variant="secondary"
-              className="px-8 py-6 bg-surface-container-highest text-on-surface rounded-2xl font-bold text-lg hover:scale-105 transition-transform duration-200 h-auto border-none"
+              variant="artisan-secondary"
+              size="xl"
+              className="border-none"
               asChild
             >
               <Link href="#">See a Demo</Link>

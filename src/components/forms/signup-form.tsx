@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function SignupForm() {
   const [email, setEmail] = useState("");
@@ -134,14 +135,15 @@ export function SignupForm() {
       {error && <p className="text-sm text-error font-sans font-medium">{error}</p>}
 
       <div className="pt-2">
-        <button
-          className="w-full py-5 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-primary/10 flex justify-center items-center gap-3 font-display disabled:opacity-70 disabled:cursor-not-allowed"
+        <Button
+          variant={'artisan'}
           type="submit"
+          className="w-full"
           disabled={isLoading}
         >
           {isLoading ? "Creating Account..." : "Create Account"}
           <span className="material-symbols-outlined">arrow_forward</span>
-        </button>
+        </Button>
       </div>
 
       <div className="flex items-center justify-center gap-2 py-4 px-6 bg-surface-container-low rounded-xl">

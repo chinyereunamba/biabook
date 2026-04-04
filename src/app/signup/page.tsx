@@ -3,9 +3,9 @@ import Link from "next/link";
 
 export default function SignupPage() {
   return (
-    <main className="min-h-screen flex flex-col md:flex-row bg-background">
+    <main className="min-h-screen flex flex-col md:flex-row-reverse bg-background">
       {/* Form Side (Left) */}
-      <section className="w-full md:w-1/2 flex flex-col justify-center px-6 py-12 md:px-16 lg:px-24 bg-surface z-10">
+      <section className="w-full md:w-1/2 lg:2/5 flex flex-col justify-center px-6 py-12 md:px-16 lg:px-24 bg-surface z-10">
         <div className="mb-12">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-3xl font-extrabold font-display tracking-tight text-primary">BiaBook</span>
@@ -42,7 +42,7 @@ export default function SignupPage() {
       </section>
 
       {/* Visual Narrative Side (Right) - Hidden on Mobile */}
-      <section className="hidden md:flex w-1/2 bg-primary relative overflow-hidden flex-col items-center justify-center p-12">
+      <section className="hidden  md:w-1/2 lg:3/5 bg-primary relative overflow-hidden flex-col items-center justify-center p-12">
         {/* Background Graphic Elements */}
         <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-primary-container rounded-full opacity-30 blur-3xl"></div>
         <div className="absolute bottom-[-5%] left-[-5%] w-80 h-80 bg-secondary-container rounded-full opacity-20 blur-3xl"></div>
