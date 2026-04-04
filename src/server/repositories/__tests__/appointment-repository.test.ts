@@ -23,6 +23,7 @@ vi.mock("@/server/db", () => {
     from: vi.fn().mockReturnThis(),
     where: vi.fn().mockReturnThis(),
     returning: vi.fn().mockReturnValue([]),
+    transaction: vi.fn((cb) => cb(mockDb)), // Mock transaction to call callback with mockDb
     query: {
       appointments: {
         findFirst: vi.fn(),
@@ -31,6 +32,12 @@ vi.mock("@/server/db", () => {
       services: {
         findFirst: vi.fn(),
       },
+      availabilityExceptions: {
+        findFirst: vi.fn(),
+      },
+      weeklyAvailability: {
+        findFirst: vi.fn(),
+      }
     },
   };
 
@@ -55,15 +62,17 @@ describe("AppointmentRepository", () => {
     id: "appt-123",
     businessId: "biz-123",
     serviceId: "svc-123",
+    servicePrice: 1000,
     customerName: "John Doe",
     customerEmail: "john@example.com",
     customerPhone: "123-456-7890",
-    appointmentDate: "2025-07-20",
+    appointmentDate: new Date("2025-07-20"),
     startTime: "10:00",
     endTime: "11:00",
-    status: "pending",
+    status: "pending" as const,
     notes: "Test notes",
     confirmationNumber: "ABC123",
+    version: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

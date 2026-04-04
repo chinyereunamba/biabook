@@ -436,7 +436,7 @@ export class AppointmentRepository {
       const conflicts = await this.checkForConflicts(
         appointment.businessId,
         data.appointmentDate?.toString() ??
-          appointment?.appointmentDate.toString(),
+        appointment?.appointmentDate.toString(),
         newStartTime,
         endTime,
         id,
@@ -458,15 +458,15 @@ export class AppointmentRepository {
         endTime: endTime,
         status: data.status ?? appointment.status,
         notes: data.notes !== undefined ? data.notes : appointment.notes,
-        // version: appointment?.version + 1, // Increment version for optimistic locking
+        version: appointment.version + 1, // Increment version for optimistic locking
         updatedAt: new Date(),
       })
       .where(
         expectedVersion !== undefined
           ? and(
-              eq(appointments.id, id),
-              eq(appointments.version, expectedVersion),
-            )
+            eq(appointments.id, id),
+            eq(appointments.version, expectedVersion),
+          )
           : eq(appointments.id, id),
       )
       .returning();

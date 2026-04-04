@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Check, X } from "lucide-react";
 
 export function PlanComparison() {
@@ -146,20 +147,20 @@ export function PlanComparison() {
                 <th className="text-primary bg-primary/5 p-4 text-center font-semibold md:p-6">
                   <div>Pro</div>
                   <div className="text-foreground/60 mt-1 text-sm font-normal">
-                    $19/mo
+                    $29/mo
                   </div>
                 </th>
                 <th className="text-foreground p-4 text-center font-semibold md:p-6">
                   <div>Enterprise</div>
                   <div className="text-foreground/60 mt-1 text-sm font-normal">
-                    $49/mo
+                    Custom
                   </div>
                 </th>
               </tr>
             </thead>
             <tbody>
               {features.map((category, categoryIndex) => (
-                <>
+                <React.Fragment key={`category-group-${categoryIndex}`}>
                   <tr
                     key={`category-${categoryIndex}`}
                     className="bg-foreground/5"
@@ -190,7 +191,7 @@ export function PlanComparison() {
                       </td>
                     </tr>
                   ))}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>

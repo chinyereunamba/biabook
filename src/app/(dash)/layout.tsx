@@ -10,7 +10,15 @@ export default function DashboardLayout({
 }) {
   return (
     <OnboardingGuard requireOnboarded={true}>
-      <main className="bg-background flex min-h-screen">{children}</main>
+      <div className="flex min-h-screen bg-neutral-50/50">
+        <Sidebar className="hidden md:block w-72" />
+        <div className="flex flex-1 flex-col">
+          <DashboardHeader />
+          <main className="flex-1 p-4 md:p-8">
+            {children}
+          </main>
+        </div>
+      </div>
     </OnboardingGuard>
   );
 }

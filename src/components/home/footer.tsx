@@ -1,87 +1,44 @@
 "use client";
 
-import Link from "next/link";
-import { appConfig } from "@/utils/config";
-import { Logo } from "@/utils/logo";
-
 export function Footer() {
   return (
-    <footer className="py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 grid gap-8 md:grid-cols-4">
-          <div>
-            <div className="mb-4 flex items-center gap-2">
-              <Logo height={36}/>
-            </div>
-            <p className="text-foreground text-sm">
-              The easiest way for businesses to manage appointments and get
-              WhatsApp notifications.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="mb-4 font-semibold">Product</h4>
-            <ul className="text-primary-foreground/70 text-text space-y-2 text-sm">
-              <li>
-                <a href="#" className="hover:underline text-foreground">
-                  Features
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline text-foreground">
-                  Pricing
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="mb-4 font-semibold">Company</h4>
-            <ul className="text-primary-foreground/70 space-y-2 text-sm">
-              <li>
-                <a href="#" className="hover:underline text-foreground">
-                  About
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="mb-4 font-semibold">Support</h4>
-            <ul className="text-primary-foreground/70 space-y-2 text-sm">
-              {/* <li>
-                <a href="#" className="hover:underline text-foreground">
-                  Help Center
-                </a>
-              </li> */}
-              {/* <li>
-                <Link href="/contact" className="hover:underline text-foreground">
-                  Contact
-                </Link>
-              </li> */}
-              <li>
-                <Link
-                  href="/privacy"
-                  className="hover:underline text-foreground"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms"
-                  className="hover:underline text-foreground"
-                >
-                  Terms of Service
-                </Link>
-              </li>
-            </ul>
+    <footer className="bg-surface-container pt-16 pb-8 border-t border-border/30">
+      <div className="max-w-7xl mx-auto px-8 grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
+        <div className="col-span-2 md:col-span-1">
+          <div className="text-xl font-black text-primary mb-6 font-display">BiaBook</div>
+          <p className="text-on-surface-variant font-sans text-sm leading-relaxed max-w-xs">
+            Empowering the modern Nigerian artisan with high-end scheduling tools designed for our unique market.
+          </p>
+        </div>
+        <div>
+          <h4 className="font-bold text-primary mb-6 font-display">Product</h4>
+          <ul className="space-y-4">
+            <li><a className="text-on-surface-variant hover:text-secondary transition-colors font-sans text-sm" href="#">Features</a></li>
+            <li><a className="text-on-surface-variant hover:text-secondary transition-colors font-sans text-sm" href="#">Pricing</a></li>
+            <li><a className="text-on-surface-variant hover:text-secondary transition-colors font-sans text-sm" href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-bold text-primary mb-6 font-display">Company</h4>
+          <ul className="space-y-4">
+            <li><a className="text-on-surface-variant hover:text-secondary transition-colors font-sans text-sm" href="#">Careers</a></li>
+            <li><a className="text-on-surface-variant hover:text-secondary transition-colors font-sans text-sm" href="#">Contact</a></li>
+            <li><a className="text-on-surface-variant hover:text-secondary transition-colors font-sans text-sm" href="#">Privacy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-bold text-primary mb-6 font-display">Follow Us</h4>
+          <div className="flex gap-4">
+            <a className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-all" href="#">
+              <span className="material-symbols-outlined text-xl">share</span>
+            </a>
           </div>
         </div>
-
-        <div className="border-primary-foreground/20 text-foreground/70 border-t pt-8 text-center text-sm">
-          <p>&copy; 2025 {appConfig.name}. All rights reserved.</p>
-        </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-8 pt-8 border-t border-border/20 text-center">
+        <p className="text-on-surface-variant text-xs font-sans">
+          &copy; {new Date().getFullYear()} BiaBook. All rights reserved.
+        </p>
       </div>
     </footer>
   );
