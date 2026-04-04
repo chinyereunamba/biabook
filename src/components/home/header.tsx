@@ -24,10 +24,10 @@ export function Header() {
             Pricing
           </Link>
           <Link
-            href="#"
+            href="/browse"
             className="text-primary hover:text-secondary transition-colors font-sans tracking-tight font-bold text-sm"
           >
-            Blog
+            Explore
           </Link>
         </div>
         <div className="flex items-center gap-4">

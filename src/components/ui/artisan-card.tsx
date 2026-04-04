@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 interface ArtisanCardProps {
     id: string;
+    slug: string;
     name: string;
     category: string;
     image: string;
@@ -19,7 +20,7 @@ interface ArtisanCardProps {
 }
 
 export const ArtisanCard: React.FC<ArtisanCardProps> = ({
-    id,
+    slug,
     name,
     category,
     image,
@@ -35,7 +36,7 @@ export const ArtisanCard: React.FC<ArtisanCardProps> = ({
     return (
         <div
             className={cn(
-                "group bg-surface rounded-[2rem] overflow-hidden hover:shadow-2xl transition-all duration-500",
+                "group bg-surface rounded-[2rem] overflow-hidden hover:shadow-2xl shadow transition-all duration-500",
                 isHorizontal ? "flex-shrink-0 w-80 md:w-[500px] snap-center" : "flex flex-col h-full",
                 className
             )}
@@ -88,7 +89,7 @@ export const ArtisanCard: React.FC<ArtisanCardProps> = ({
                         className="w-full"
                         asChild
                     >
-                        <Link href={`/book/${id}`}>
+                        <Link href={`/business/${slug}`}>
                             Book Instant Appointment
                             <span className="material-symbols-outlined ml-2 text-[1.25em]">arrow_forward</span>
                         </Link>

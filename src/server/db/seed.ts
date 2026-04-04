@@ -172,7 +172,7 @@ async function seedServices(
         name: `${biz.name} Standard Service`,
         description: `A standard service at ${biz.name}`,
         duration: 60,
-        price: 5000, // in cents
+        price: 500000, // ₦5,000 in Kobo
         isActive: true,
         bufferTime: 15,
         category: null,
@@ -185,7 +185,7 @@ async function seedServices(
         name: `${biz.name} Premium Service`,
         description: `A premium service at ${biz.name}`,
         duration: 90,
-        price: 10000,
+        price: 1000000, // ₦10,000 in Kobo
         isActive: true,
         bufferTime: 15,
         category: null,

@@ -6,7 +6,7 @@ import { Search, MapPin, Star, Map as MapIcon, ChevronRight } from "lucide-react
 import Link from "next/link";
 import { BusinessSkeleton } from "@/components/home/browse/business-list-skeleton";
 import { ArtisanCard } from "@/components/ui/artisan-card";
-
+import { Button } from "@/components/ui/button";
 function FindBusinessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -84,13 +84,13 @@ function FindBusinessContent() {
       <header className="max-w-7xl mx-auto px-6 pt-8 mb-12">
         <div className="relative bg-primary-container rounded-[2.5rem] p-8 md:p-16 overflow-hidden flex flex-col md:flex-row items-center gap-12 shadow-2xl shadow-primary/20">
           <div className="relative z-10 w-full md:w-1/2">
-            <span className="inline-block bg-primary-fixed text-on-primary-fixed px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6 font-sans">
+            <span className="inline-block bg-primary-fixed text-secondary-container px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6 font-sans">
               Discover Local Artisans
             </span>
-            <h1 className="font-display text-5xl md:text-7xl font-extrabold text-on-primary leading-[1.1] mb-6 tracking-tight">
-              Excellence in <br /><span className="text-secondary italic">Every Detail.</span>
+            <h1 className="font-display text-5xl md:text-7xl font-extrabold text-white leading-[1.1] mb-6 tracking-tight">
+              Excellence in <br /><span className="text-secondary-container italic">Every Detail.</span>
             </h1>
-            <p className="text-on-primary/80 text-lg md:text-xl max-w-md font-sans">
+            <p className="text-white/80 text-lg md:text-xl max-w-md font-sans">
               Book Nigeria’s finest tailors, barbers, and creative consultants with artisan precision and modern ease.
             </p>
           </div>
@@ -161,10 +161,10 @@ function FindBusinessContent() {
                 Skilled professionals within 5km of your location in <span className="text-secondary font-bold">Lagos</span>.
               </p>
             </div>
-            <button className="hidden md:flex bg-secondary text-white px-8 py-4 rounded-2xl font-bold items-center gap-3 transition-all shadow-xl shadow-secondary/20 font-display">
+            <Button variant="secondary" className="hidden md:flex text-white px-8 py-4 rounded-2xl font-bold items-center gap-3 transition-all shadow-xl shadow-secondary/20 font-display">
               <span className="material-symbols-outlined">map</span>
               View Map
-            </button>
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -177,11 +177,12 @@ function FindBusinessContent() {
                 <ArtisanCard
                   key={business.id}
                   id={business.id}
+                  slug={business.slug}
                   name={business.name}
                   category={business.category}
                   image={business.image || (idx === 0 ? "https://lh3.googleusercontent.com/aida-public/AB6AXuAXJ1DD0eq7P91EtNPVYSu1I_Sshk34dxCqK0-Xk2UsZCDw7mFyuZznEGL_dzar4PfNXi2sbYJvarJU62co7WAUQFG3HZHfOYwcQa3TWUIn8sWO3QBu6i3v_UUogB49dskAE1vzTKg3SRodzC_iMXOThOwc4VledvTM7vYnQ2RDRpvDbXhct0llS5CyOtZIyI5n58_NHCwQRicjCpU2pLdHD4RxEvelXwEV4hOtRUeWTaAU78iDd6ilF_UIi2Y8I1BBcCxhGDPjUVDY" : idx === 1 ? "https://lh3.googleusercontent.com/aida-public/AB6AXuBs0TmAj9WmEunPAvfr3N3tTgfXdSQtF4y8ko9BFYzMXZebIf9yJAB2LqK7Vk8pPc3lQG_2rajR1B7tNa4IMOAauLWcSl-MgdxkkQtGyFYeXQ4yhVtK2-JTpegeD0KmEYPBfMFdA6lXQpfXyqGkmHVW2G37bpv-JZVFRkjYpYMa0lI4JOlXgTznYpSs5NOzawfCwwExqIO0yHz8zVvpQkYvUW16ZLeRXy4cscTSFs7gFRWQzzBm0pSIMtnJrHA6S6mWmcoqNBRWRFBB" : "https://lh3.googleusercontent.com/aida-public/AB6AXuBIVrIZeB8HWG9gd_EG3KOTtMpsjJMD3W31rP5sLC17GMpmQ4fp9wwDaWOl4cojlLR7ujFwae-vczjuOxUFZzg2OKlYEWNa0iNDEGoeRkjlw6uGgthwAGfGLs9RaCt_lR-vwKhejpa-3wKtAVDgxBqciwPdGXJooXZnBfuHtl701bTFkXv1ty6pqsFE_KD-IYpdvWruQXjW4Oggws50RDBdL5M3oq-lV4NwXpw8EA0TZH5LWnBWkSReRrA4yB6YqPOZhr9qIPDfQsjX")}
                   rating={4.8}
-                  price={business.priceRange}
+                  price={business.formattedPrice}
                   description={business.description}
                   variant="grid"
                 />
@@ -249,11 +250,32 @@ export default function FindBusinessPage() {
 function FindBusinessPageFallback() {
   return (
     <div className="bg-background min-h-screen">
-      <div className="max-w-7xl mx-auto px-6 py-12 animate-pulse space-y-12">
-        <div className="h-96 bg-surface-container rounded-[3rem]"></div>
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-12">
+        {/* Hero Skeleton */}
+        <div className="h-96 w-full bg-surface-container rounded-[3rem] animate-pulse"></div>
+
+        {/* Grid Skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-[400px] bg-surface-container rounded-[2.5rem]"></div>
+            <div key={i} className="bg-surface-container-low rounded-[2rem] overflow-hidden flex flex-col h-[480px] border border-surface-container animate-pulse">
+              <div className="h-80 bg-surface-container-high w-full"></div>
+              <div className="p-6 space-y-6 flex-1">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2 flex-1">
+                    <div className="h-7 w-3/4 bg-surface-container-high rounded-lg"></div>
+                    <div className="h-4 w-24 bg-surface-container-high rounded-md"></div>
+                  </div>
+                  <div className="h-8 w-16 bg-surface-container-high rounded-lg"></div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 w-full bg-surface-container-high rounded-md"></div>
+                  <div className="h-4 w-5/6 bg-surface-container-high rounded-md"></div>
+                </div>
+                <div className="mt-auto pt-4">
+                  <div className="h-14 w-full bg-surface-container-high rounded-full"></div>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>

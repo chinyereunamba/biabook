@@ -33,7 +33,7 @@ export function ShowcaseHero({
             {/* Cover Image Area */}
             <div className="relative h-64 md:h-[400px] w-full overflow-hidden">
                 <Image
-                    src={coverImage ?? "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=80&w=2070&auto=format&fit=crop"}
+                    src={coverImage ?? "https://images.unsplash.com/photo-1775206352570-10538a3e5093?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxOXx8fGVufDB8fHx8fA%3D%3D?q=80&w=2070&auto=format&fit=crop"}
                     alt={`${name} cover`}
                     fill
                     className="object-cover"
