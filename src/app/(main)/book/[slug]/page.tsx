@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ChevronRight, MapPin } from "lucide-react";
@@ -154,7 +156,7 @@ export default function BookingPage() {
             </div>
 
             <div className="flex-1 max-w-2xl mx-auto">
-              <BookingStepper steps={STEPS} currentStep={step} className="w-full" />
+              <BookingStepper steps={STEPS.map(s => s.title)} currentStep={step} className="w-full" />
             </div>
 
             <div className="hidden lg:block w-[140px]" /> {/* Spacer for balance */}
