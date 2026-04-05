@@ -1,92 +1,102 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Check } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Check } from "lucide-react";
 
 export function Pricing() {
   const plans = [
     {
       name: "Starter",
       price: "Free",
-      desc: "Forever",
-      features: ["Up to 50 bookings/month", "Basic booking page", "Email notifications", "Customer management"],
-      cta: "Get started",
+      period: "/forever",
+      features: [
+        "10 Bookings/mo",
+        "Custom Booking Link",
+        "Email Notifications",
+      ],
+      cta: "Get Started",
       highlighted: false,
     },
     {
       name: "Pro",
-      price: "$19",
-      desc: "/month",
+      price: "₦9,900",
+      period: "/mo",
       features: [
-        "Unlimited bookings",
-        "WhatsApp notifications",
-        "Custom booking page",
-        "Analytics & reports",
-        "Priority support",
+        "Unlimited Bookings",
+        "WhatsApp Automations",
+        "Payment Collection",
+        "Google Calendar Sync",
       ],
-      cta: "Start free trial",
+      cta: "Go Pro Now",
       highlighted: true,
     },
     {
-      name: "Enterprise",
-      price: "$49",
-      desc: "/month",
-      features: ["Multiple locations", "Team management", "API access", "White-label options", "Dedicated support"],
-      cta: "Contact sales",
+      name: "Business",
+      price: "₦24,900",
+      period: "/mo",
+      features: [
+        "Up to 5 Staff Members",
+        "Multiple Locations",
+        "Advanced Analytics",
+        "Priority 24/7 Support",
+      ],
+      cta: "Choose Business",
       highlighted: false,
     },
-  ]
+  ];
 
   return (
-    <section className="py-20 md:py-32 bg-foreground/5">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Simple, transparent pricing</h2>
-          <p className="text-lg text-foreground/70">Start free, upgrade when you grow</p>
+    <section className="py-24 bg-surface-container-low">
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="text-center mb-20">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-primary mb-4">Simple, honest pricing.</h2>
+          <p className="text-on-surface-variant text-lg font-sans">No hidden fees. No credit card required to start.</p>
         </div>
-
         <div className="grid md:grid-cols-3 gap-8">
           {plans.map((plan, i) => (
             <div
               key={i}
-              className={`rounded-xl border transition ${
-                plan.highlighted ? "border-primary bg-primary/5 shadow-lg scale-105" : "border-border bg-card"
-              }`}
+              className={`p-10 rounded-[2.5rem] flex flex-col transition-all duration-500 ${plan.highlighted
+                ? "bg-primary transform scale-105 shadow-2xl shadow-primary/20 relative overflow-hidden"
+                : "bg-surface"
+                }`}
             >
-              <div className="p-8">
-                <h3 className="text-xl font-semibold text-foreground mb-2">{plan.name}</h3>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                  <span className="text-foreground/70 ml-2">{plan.desc}</span>
+              {plan.highlighted && (
+                <div className="absolute top-0 right-0 bg-secondary-container px-6 py-2 rounded-bl-2xl text-secondary-foreground text-xs font-black tracking-widest uppercase font-sans">
+                  Popular
                 </div>
-
-                <Button
-                  className={`w-full mb-8 ${
-                    plan.highlighted
-                      ? "bg-primary hover:bg-primary/90"
-                      : "bg-foreground/10 hover:bg-foreground/20 text-foreground"
-                  }`}
-                >
-                  {plan.cta}
-                </Button>
-
-                <ul className="space-y-4">
-                  {plan.features.map((feature, j) => (
-                    <li key={j} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-foreground/80">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+              )}
+              <h3 className={`text-xl font-bold mb-4 font-display ${plan.highlighted ? "text-primary-foreground" : "text-primary"}`}>
+                {plan.name}
+              </h3>
+              <div className="flex items-baseline gap-1 mb-8">
+                <span className={`text-4xl font-extrabold font-display ${plan.highlighted ? "text-primary-foreground" : "text-primary"}`}>
+                  {plan.price}
+                </span>
+                <span className={`font-medium font-sans ${plan.highlighted ? "text-primary-foreground/70" : "text-on-surface-variant"}`}>
+                  {plan.period}
+                </span>
               </div>
+              <ul className="space-y-4 mb-10 flex-grow">
+                {plan.features.map((feature, j) => (
+                  <li key={j} className={`flex items-center gap-3 font-sans ${plan.highlighted ? "text-primary-foreground" : "text-on-surface-variant"}`}>
+                    <Check className={`w-5 h-5 ${plan.highlighted ? "text-secondary-container" : "text-primary"}`} />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Button
+                variant={plan.highlighted ? "secondary" : "artisan"}
+                size="lg"
+                className={plan.highlighted ? "bg-white text-primary hover:bg-white/90" : ""}
+              >
+                {plan.cta}
+              </Button>
             </div>
           ))}
         </div>
-
-        <p className="text-center text-sm text-foreground/60 mt-12">
-          All plans include SSL security, 99.9% uptime, and mobile-responsive booking pages
-        </p>
       </div>
     </section>
-  )
+  );
 }

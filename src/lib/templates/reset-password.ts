@@ -1,5 +1,5 @@
 const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link: string }) => {
-    const emailHtml = /*html*/ `
+  const emailHtml = /*html*/ `
       <!DOCTYPE html>
       <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
       
@@ -199,21 +199,21 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
         <!--<![endif]--><!--[if mso]><style type="text/css">.pc-font-alt{font-family:Arial,Helvetica,sans-serif !important;}</style><![endif]--><!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
       </head>
       
-      <body class="body pc-font-alt"
+      <body className="body pc-font-alt"
         style="width:100% !important;min-height:100% !important;margin:0 !important;padding:0 !important;mso-line-height-rule:exactly;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;font-variant-ligatures:normal;text-rendering:optimizeLegibility;-moz-osx-font-smoothing:grayscale;background-color:#f4f4f4"
         bgcolor="#f4f4f4">
-        <table class="pc-project-body" style="table-layout:fixed;width:100%;min-width:600px;background-color:#f4f4f4"
+        <table className="pc-project-body" style="table-layout:fixed;width:100%;min-width:600px;background-color:#f4f4f4"
           bgcolor="#f4f4f4" border="0" cellspacing="0" cellpadding="0" role="presentation">
           <tr>
             <td align="center" valign="top" style="width:auto">
-              <table class="pc-project-container" align="center" border="0" cellpadding="0" cellspacing="0"
+              <table className="pc-project-container" align="center" border="0" cellpadding="0" cellspacing="0"
                 role="presentation">
                 <tr>
                   <td style="padding:20px 0" align="left" valign="top">
-                    <table class="pc-component" style="width:600px;max-width:600px" width="600" align="center" border="0"
+                    <table className="pc-component" style="width:600px;max-width:600px" width="600" align="center" border="0"
                       cellspacing="0" cellpadding="0" role="presentation">
                       <tr>
-                        <td valign="top" class="pc-w520-padding-30-30-30-30 pc-w620-padding-35-35-35-35"
+                        <td valign="top" className="pc-w520-padding-30-30-30-30 pc-w620-padding-35-35-35-35"
                           style="padding:40px;height:unset;background-color:#1B1B1B" bgcolor="#1B1B1B">
                           <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
                             <tr>
@@ -222,7 +222,7 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
                                   style="margin-right:auto;margin-left:auto">
                                   <tr>
                                     <td valign="top" align="center">
-                                      <div class="pc-font-alt" style="text-decoration:none">
+                                      <div className="pc-font-alt" style="text-decoration:none">
                                         <div
                                           style="font-size:16px;line-height:121%;text-align:center;text-align-last:center;color:#40be65;font-family:'Fira Sans',Arial,Helvetica,sans-serif;letter-spacing:-0.2px;font-style:normal">
                                           <div style="font-family:'Fira Sans',Arial,Helvetica,sans-serif"><span
@@ -244,7 +244,7 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
                                 <table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%">
                                   <tr>
                                     <td valign="top" align="left">
-                                      <div class="pc-font-alt" style="text-decoration:none">
+                                      <div className="pc-font-alt" style="text-decoration:none">
                                         <div
                                           style="font-size:18px;line-height:156%;text-align:left;text-align-last:left;color:#fff;font-family:'Fira Sans',Arial,Helvetica,sans-serif;font-style:normal;letter-spacing:-0.2px">
                                           <div style="font-family:'Fira Sans',Arial,Helvetica,sans-serif"><span
@@ -269,7 +269,7 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
                             style="min-width:100%">
                             <tr>
                               <th valign="top" align="center" style="text-align:center;font-weight:normal">
-                                <!--[if mso]><table border="0" cellpadding="0" cellspacing="0" role="presentation" align="center" style="border-collapse:separate;border-spacing:0;margin-right:auto;margin-left:auto"><tr><td valign="middle" align="center" style="border-radius:8px;background-color:#1595e7;text-align:center;color:#fff;padding:15px 17px;mso-padding-left-alt:0;margin-left:17px" bgcolor="#1595e7"><a class="pc-font-alt" style="display:inline-block;text-decoration:none;text-align:center" href="https://postcards.email/" target="_blank"><span style="font-size:16px;line-height:150%;color:#fff;font-family:'Fira Sans',Arial,Helvetica,sans-serif;letter-spacing:-0.2px;font-style:normal;display:inline-block;vertical-align:top"><span style="font-family:'Fira Sans',Arial,Helvetica,sans-serif;display:inline-block"><span style="font-family:'Fira Sans',Arial,Helvetica,sans-serif;font-size:16px;line-height:150%;font-weight:500">Reset p</span><span style="font-family:'Fira Sans',Arial,Helvetica,sans-serif;font-weight:500;font-size:16px;line-height:150%">assword</span></span></span></a></td></tr></table><![endif]--><!--[if !mso]><!-- --><a
+                                <!--[if mso]><table border="0" cellpadding="0" cellspacing="0" role="presentation" align="center" style="border-collapse:separate;border-spacing:0;margin-right:auto;margin-left:auto"><tr><td valign="middle" align="center" style="border-radius:8px;background-color:#1595e7;text-align:center;color:#fff;padding:15px 17px;mso-padding-left-alt:0;margin-left:17px" bgcolor="#1595e7"><a className="pc-font-alt" style="display:inline-block;text-decoration:none;text-align:center" href="https://postcards.email/" target="_blank"><span style="font-size:16px;line-height:150%;color:#fff;font-family:'Fira Sans',Arial,Helvetica,sans-serif;letter-spacing:-0.2px;font-style:normal;display:inline-block;vertical-align:top"><span style="font-family:'Fira Sans',Arial,Helvetica,sans-serif;display:inline-block"><span style="font-family:'Fira Sans',Arial,Helvetica,sans-serif;font-size:16px;line-height:150%;font-weight:500">Reset p</span><span style="font-family:'Fira Sans',Arial,Helvetica,sans-serif;font-weight:500;font-size:16px;line-height:150%">assword</span></span></span></a></td></tr></table><![endif]--><!--[if !mso]><!-- --><a
                                   style="display:inline-block;box-sizing:border-box;border-radius:8px;background-color:#1595e7;padding:15px 17px;vertical-align:top;text-align:center;text-align-last:center;text-decoration:none;-webkit-text-size-adjust:none"
                                   href=${link} target="_blank"><span
                                     style="font-size:16px;line-height:150%;color:#fff;font-family:'Fira Sans',Arial,Helvetica,sans-serif;letter-spacing:-0.2px;font-style:normal;display:inline-block;vertical-align:top"><span
@@ -282,10 +282,10 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
                         </td>
                       </tr>
                     </table>
-                    <table class="pc-component" style="width:600px;max-width:600px" width="600" align="center" border="0"
+                    <table className="pc-component" style="width:600px;max-width:600px" width="600" align="center" border="0"
                       cellspacing="0" cellpadding="0" role="presentation">
                       <tr>
-                        <td valign="top" class="pc-w520-padding-30-30-30-30 pc-w620-padding-35-35-35-35"
+                        <td valign="top" className="pc-w520-padding-30-30-30-30 pc-w620-padding-35-35-35-35"
                           style="padding:40px;height:unset;background-color:#1b1b1b" bgcolor="#1b1b1b">
                           <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
                             <tr>
@@ -293,11 +293,11 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
                                 <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation">
                                   <tr>
                                     <td style="width:unset" valign="top">
-                                      <table class="pc-width-hug" align="center" border="0" cellpadding="0" cellspacing="0"
+                                      <table className="pc-width-hug" align="center" border="0" cellpadding="0" cellspacing="0"
                                         role="presentation">
                                         <tbody>
                                           <tr>
-                                            <td class="pc-g-rpt pc-g-rpb pc-w620-itemsVSpacings-0" valign="middle"
+                                            <td className="pc-g-rpt pc-g-rpb pc-w620-itemsVSpacings-0" valign="middle"
                                               style="padding-top:0;padding-bottom:0">
                                               <table border="0" cellpadding="0" cellspacing="0" role="presentation">
                                                 <tr>
@@ -322,9 +322,9 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
                                                 </tr>
                                               </table>
                                             </td>
-                                            <td class="pc-w620-itemsHSpacings-20" valign="middle"
+                                            <td className="pc-w620-itemsHSpacings-20" valign="middle"
                                               style="padding-right:15px;padding-left:15px"></td>
-                                            <td class="pc-g-rpt pc-g-rpb pc-w620-itemsVSpacings-0" valign="middle"
+                                            <td className="pc-g-rpt pc-g-rpb pc-w620-itemsVSpacings-0" valign="middle"
                                               style="padding-top:0;padding-bottom:0">
                                               <table border="0" cellpadding="0" cellspacing="0" role="presentation">
                                                 <tr>
@@ -365,7 +365,7 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
                                   style="margin-right:auto;margin-left:auto">
                                   <tr>
                                     <td valign="top" align="center">
-                                      <div class="pc-font-alt"
+                                      <div className="pc-font-alt"
                                         style="line-height:143%;letter-spacing:-0.2px;font-family:'Fira Sans',Arial,Helvetica,sans-serif;font-size:14px;font-weight:normal;color:#d8d8d8;text-align:center;text-align-last:center">
                                         King street, 2901 Marmara road, <br />New&zwnj;york, WA 98122&zwnj;-1090</div>
                                     </td>
@@ -380,11 +380,11 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
                                 <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation">
                                   <tr>
                                     <td style="width:unset" valign="top">
-                                      <table class="pc-width-hug" align="center" border="0" cellpadding="0" cellspacing="0"
+                                      <table className="pc-width-hug" align="center" border="0" cellpadding="0" cellspacing="0"
                                         role="presentation">
                                         <tbody>
                                           <tr>
-                                            <td class="pc-g-rpt pc-g-rpb" valign="top" style="padding-top:0;padding-bottom:0">
+                                            <td className="pc-g-rpt pc-g-rpb" valign="top" style="padding-top:0;padding-bottom:0">
                                               <table border="0" cellpadding="0" cellspacing="0" role="presentation">
                                                 <tr>
                                                   <td align="center" valign="top">
@@ -396,7 +396,7 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
                                                             role="presentation" align="center">
                                                             <tr>
                                                               <td valign="top">
-                                                                <div class="pc-font-alt"
+                                                                <div className="pc-font-alt"
                                                                   style="line-height:171%;letter-spacing:-0.2px;font-family:'Fira Sans',Arial,Helvetica,sans-serif;font-size:14px;font-weight:500;color:#1595e7">
                                                                   Unsubscribe</div>
                                                               </td>
@@ -442,7 +442,7 @@ const resetPasswordTemplate = ({ name, link }: { name: string | undefined; link:
       </body>
       
       </html>`
-    return emailHtml;
+  return emailHtml;
 }
 
 export { resetPasswordTemplate }

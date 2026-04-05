@@ -70,10 +70,10 @@ export function isDatabaseConstraintError(error: unknown): boolean {
 
   // SQLite constraint error patterns
   return (
-    message.includes("unique constraint") ??
-    message.includes("constraint failed") ??
-    message.includes("foreign key constraint") ??
-    dbError.code === "SQLITE_CONSTRAINT" ??
+    message.includes("unique constraint") ||
+    message.includes("constraint failed") ||
+    message.includes("foreign key constraint") ||
+    dbError.code === "SQLITE_CONSTRAINT" ||
     dbError.errno === 19 // SQLite constraint error code
   );
 }

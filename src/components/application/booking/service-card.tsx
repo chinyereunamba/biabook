@@ -1,11 +1,5 @@
-"use client";
-
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Clock, DollarSign, CheckCircle } from "lucide-react";
+import { Clock, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAccessibleButton } from "@/hooks/use-accessibility";
-import { KEYBOARD_KEYS } from "@/lib/accessibility";
 import type { BusinessService } from "@/hooks/use-business";
 
 interface ServiceCardProps {
@@ -22,108 +16,95 @@ export function ServiceCard({
   className,
 }: ServiceCardProps) {
   const formatPrice = (cents: number): string => {
-    return `${(cents / 100).toFixed(2)}`;
+    return `₦${(cents / 100).toLocaleString()}`;
   };
 
   const formatDuration = (minutes: number): string => {
-    if (minutes < 60) {
-      return `${minutes}m`;
-    }
+    if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0
-      ? `${hours}h ${remainingMinutes}m`
-      : `${hours}h`;
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
   };
-
-  // Enhanced accessibility for service card
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (
-      event.key === KEYBOARD_KEYS.ENTER ||
-      event.key === KEYBOARD_KEYS.SPACE
-    ) {
-      event.preventDefault();
-      onSelect(service.id);
-    }
-  };
-
-  const cardLabel = `${service.name} service, ${formatDuration(service.duration)}, $${formatPrice(service.price)}${isSelected ? ", currently selected" : ""}`;
 
   return (
     <div
+      onClick={() => onSelect(service.id)}
       className={cn(
-        "relative cursor-pointer rounded-lg border p-4 transition-all",
-        "touch-action-manipulation active:scale-[0.98]",
-        "hover:border-purple-300 hover:shadow-sm",
-        "focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:outline-none",
-        {
-          "border-purple-500 bg-purple-50 shadow-sm": isSelected,
-          "border-gray-200": !isSelected,
-        },
+        "group relative p-8 rounded-[2rem] transition-all duration-500 cursor-pointer overflow-hidden border-2",
+        isSelected
+          ? "bg-surface-container-highest border-primary shadow-2xl scale-[1.02]"
+          : "bg-surface-container-low border-transparent hover:border-surface-container-high hover:bg-surface-container",
         className,
       )}
-      role="button"
-      tabIndex={0}
-      aria-label={cardLabel}
-      aria-pressed={isSelected}
-      onClick={() => onSelect(service.id)}
-      onKeyDown={handleKeyDown}
     >
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="text-text text-lg font-semibold">
+      {/* Background Accent */}
+      <div
+        className={cn(
+          "absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-16 -mt-16 transition-transform duration-700 group-hover:scale-150",
+          isSelected && "bg-primary/10"
+        )}
+      />
+
+      <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="space-y-4 flex-1">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h3 className="text-2xl font-display font-bold text-primary group-hover:text-primary/80 transition-colors">
                 {service.name}
               </h3>
-              {service.category && (
-                <Badge variant="outline" className="mt-1 text-xs">
-                  {service.category}
-                </Badge>
+              {isSelected && (
+                <div className="bg-primary text-on-primary p-1 rounded-full animate-in zoom-in-50 duration-300">
+                  <Check className="w-4 h-4" strokeWidth={3} />
+                </div>
               )}
             </div>
+            {service.category && (
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60 font-sans">
+                {service.category}
+              </span>
+            )}
           </div>
 
           {service.description && (
-            <p className="text-text mt-2 line-clamp-2 text-sm leading-relaxed">
+            <p className="text-on-surface-variant text-md leading-relaxed font-sans max-w-xl opacity-80">
               {service.description}
             </p>
           )}
 
-          <div className="text-text mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            <div className="flex items-center">
-              <Clock className="mr-1 h-4 w-4" />
+          <div className="flex items-center gap-6 text-on-surface-variant/70 font-sans text-sm font-medium">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
               <span>{formatDuration(service.duration)}</span>
             </div>
-            <div className="flex items-center">
-              <DollarSign className="mr-1 h-4 w-4" />
-              <span>{formatPrice(service.price)}</span>
-            </div>
             {service.bufferTime && service.bufferTime > 0 && (
-              <div className="text-text text-xs">
-                +{service.bufferTime}m buffer
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary/30" />
+                <span>+{service.bufferTime}m gap</span>
               </div>
             )}
           </div>
         </div>
 
-        <div className="flex items-center justify-between sm:ml-4 sm:flex-col sm:items-end">
-          <p className="text-text text-xl font-bold" aria-hidden="true">
-            {formatPrice(service.price)}
-          </p>
-          <Button
-            size="sm"
-            variant={isSelected ? "default" : "outline"}
-            className="mt-2 min-w-[90px]"
-            aria-label={`${isSelected ? "Selected" : "Select"} ${service.name} service`}
-            aria-pressed={isSelected}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect(service.id);
-            }}
+        <div className="flex flex-row md:flex-col items-center md:items-end w-full md:w-auto gap-6 pt-6 md:pt-0 border-t md:border-t-0 md:border-l border-surface-container-high md:pl-8">
+          <div className="flex-1 md:flex-none text-left md:text-right">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40 block mb-1">
+              Investment
+            </span>
+            <span className="text-3xl font-display font-black text-primary">
+              {formatPrice(service.price)}
+            </span>
+          </div>
+
+          <button
+            className={cn(
+              "px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-300",
+              isSelected
+                ? "bg-primary text-on-primary shadow-xl"
+                : "bg-background text-primary border-2 border-primary/20 hover:border-primary hover:bg-primary/5"
+            )}
           >
-            {isSelected ? "Selected" : "Select"}
-          </Button>
+            {isSelected ? "Selected" : "Select Service"}
+          </button>
         </div>
       </div>
     </div>

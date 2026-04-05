@@ -291,7 +291,7 @@ export function BookingRescheduleForm({ booking }: BookingRescheduleFormProps) {
 
         <Button
           onClick={handleReschedule}
-          disabled={isSubmitting ?? !selectedDate ?? !selectedTimeSlot}
+          disabled={isSubmitting || !selectedDate || !selectedTimeSlot}
         >
           {isSubmitting ? (
             <>

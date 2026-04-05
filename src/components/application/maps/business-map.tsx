@@ -175,14 +175,14 @@ function createInfoWindowContent(business: BusinessLocation): string {
   const services = business.services?.slice(0, 3).join(", ") || "";
 
   return `
-    <div class="p-3 min-w-[200px]">
-      <h3 class="font-semibold text-lg mb-1">${business.name}</h3>
-      <p class="text-sm text-gray-600 mb-2">${business.address}</p>
-      ${rating ? `<p class="text-sm mb-1">${rating}</p>` : ""}
-      ${distance ? `<p class="text-sm mb-1">${distance}</p>` : ""}
-      ${services ? `<p class="text-xs text-gray-500 mb-2">${services}</p>` : ""}
+    <div className="p-3 min-w-[200px]">
+      <h3 className="font-semibold text-lg mb-1">${business.name}</h3>
+      <p className="text-sm text-gray-600 mb-2">${business.address}</p>
+      ${rating ? `<p className="text-sm mb-1">${rating}</p>` : ""}
+      ${distance ? `<p className="text-sm mb-1">${distance}</p>` : ""}
+      ${services ? `<p className="text-xs text-gray-500 mb-2">${services}</p>` : ""}
       <button 
-        class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+        className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
         onclick="window.dispatchEvent(new CustomEvent('selectBusiness', { detail: '${business.id}' }))"
       >
         View Details

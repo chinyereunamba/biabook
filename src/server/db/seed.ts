@@ -107,6 +107,8 @@ async function seedBusinesses(
       id: randomUUID(),
       ...biz,
       ownerId: owner.id,
+      coverImage: index === 0 ? "https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2074&auto=format&fit=crop" : null,
+      profileImage: index === 0 ? "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=2069&auto=format&fit=crop" : null,
       createdAt: new Date(), // Use Date object for timestamp
       updatedAt: new Date(),
     };
@@ -119,6 +121,41 @@ async function seedBusinesses(
   console.log(`🌱 Seeded ${insertedBusinesses.length} businesses!`);
 
   return insertedBusinesses;
+}
+
+async function seedGallery(insertedBusinesses: { id: string; slug: string }[]) {
+  console.log("⏳ Seeding gallery images...");
+  const galleryImages = [];
+
+  const mainBiz = insertedBusinesses.find(b => b.slug === "glow-go-salon");
+  if (mainBiz) {
+    const images = [
+      { url: "https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=2069&auto=format&fit=crop", caption: "Signature Bridal Styling" },
+      { url: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=2069&auto=format&fit=crop", caption: "Precision Cutting & Layering" },
+      { url: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?q=80&w=2070&auto=format&fit=crop", caption: "Custom Color & Balayage" },
+      { url: "https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?q=80&w=1974&auto=format&fit=crop", caption: "Luxury Treatment Suite" },
+      { url: "https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2074&auto=format&fit=crop", caption: "Our Modern Studio Space" },
+    ];
+
+    for (let i = 0; i < images.length; i++) {
+      galleryImages.push({
+        id: randomUUID(),
+        businessId: mainBiz.id,
+        imageUrl: images[i]!.url,
+        caption: images[i]!.caption,
+        order: i,
+        createdAt: new Date()
+      });
+    }
+  }
+
+  if (galleryImages.length > 0) {
+    // Import businessGallery dynamically or use the local reference if available
+    // For now, I'll assume it's imported in the top of the file
+    const { businessGallery } = await import("./schema");
+    await db.insert(businessGallery).values(galleryImages);
+    console.log(`🌱 Seeded ${galleryImages.length} gallery images.`);
+  }
 }
 
 async function seedServices(
@@ -135,7 +172,7 @@ async function seedServices(
         name: `${biz.name} Standard Service`,
         description: `A standard service at ${biz.name}`,
         duration: 60,
-        price: 5000, // in cents
+        price: 500000, // ₦5,000 in Kobo
         isActive: true,
         bufferTime: 15,
         category: null,
@@ -148,7 +185,7 @@ async function seedServices(
         name: `${biz.name} Premium Service`,
         description: `A premium service at ${biz.name}`,
         duration: 90,
-        price: 10000,
+        price: 1000000, // ₦10,000 in Kobo
         isActive: true,
         bufferTime: 15,
         category: null,
@@ -201,6 +238,7 @@ async function main() {
     await seedCategories();
     const insertedUsers = await seedUsers();
     const insertedBusinesses = await seedBusinesses(insertedUsers);
+    await seedGallery(insertedBusinesses);
     await seedServices(insertedBusinesses);
     await seedWeeklyAvailability(insertedBusinesses);
 

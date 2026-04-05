@@ -39,11 +39,22 @@ export async function GET(req: Request) {
     });
 
     const businessesWithServices = businesses.map((business) => {
-      const services = servicesByBusiness.get(business.id) || [];
+      const businessServices = servicesByBusiness.get(business.id) || [];
       const category = categoryMap.get(business.categoryId) ?? "Unknown";
+
+      // Calculate minimum price among active services
+      const activeServices = businessServices.filter(s => s.isActive);
+      const minPriceCents = activeServices.length > 0
+        ? Math.min(...activeServices.map(s => s.price))
+        : 0;
+
+      const formattedPrice = minPriceCents > 0
+        ? `₦${(minPriceCents / 100).toLocaleString()}`
+        : "Contact for pricing";
 
       return {
         id: business.id,
+        slug: business.slug,
         name: business.name,
         description: business.description ?? "",
         category,
@@ -51,11 +62,12 @@ export async function GET(req: Request) {
         location: business.location ?? "",
         phone: business.phone ?? "",
         email: business.email ?? "",
-        services: services.map((s) => s.name),
-        serviceCount: services.length,
+        services: businessServices.map((s) => s.name),
+        serviceCount: businessServices.length,
         rating: 4.5,
         reviews: Math.floor(Math.random() * 50) + 10,
-        priceRange: "$50 - $150",
+        priceMin: minPriceCents,
+        formattedPrice,
       };
     });
 

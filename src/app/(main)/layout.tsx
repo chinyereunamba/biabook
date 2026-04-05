@@ -14,10 +14,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Header />
-      {children}
+      <main className="flex-grow pt-16">
+        {children}
+      </main>
       <Footer />
-    </>
+    </div>
   );
 }

@@ -24,7 +24,7 @@ export interface Appointment {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  version?: number;
+  version: number;
   appointmentDate: Date | string; // YYYY-MM-DD format
   startTime: string; // HH:MM format
   endTime: string; // HH:MM format
@@ -207,7 +207,7 @@ export interface BusinessAnalytics {
 }
 
 export type AppointmentQueryOptions = {
-  recentLimit?: number; 
+  recentLimit?: number;
   week?: boolean; // current week
   forChart?: boolean; // group by day
 };

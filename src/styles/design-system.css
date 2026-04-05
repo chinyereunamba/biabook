@@ -37,29 +37,29 @@
   --ds-font-semibold: 600;
   --ds-font-bold: 700;
 
-  /* DESIGN SYSTEM COLORS - Mobile accessibility optimized */
-  --ds-color-primary-50: rgb(249 248 255);
-  --ds-color-primary-100: rgb(237 233 254);
-  --ds-color-primary-200: rgb(221 214 254);
-  --ds-color-primary-300: rgb(196 181 253);
-  --ds-color-primary-400: rgb(167 139 250);
-  --ds-color-primary-500: rgb(109 92 255); /* Main brand color */
-  --ds-color-primary-600: rgb(91 75 219);
-  --ds-color-primary-700: rgb(76 63 184);
-  --ds-color-primary-800: rgb(67 56 158);
-  --ds-color-primary-900: rgb(49 39 120);
+  /* DESIGN SYSTEM COLORS - Azure Sanctuary (Deep blue & soft neutrals) */
+  --ds-color-primary-50: #f0f7ff;
+  --ds-color-primary-100: #e0f0ff;
+  --ds-color-primary-200: #acc7ff;
+  --ds-color-primary-300: #81a9ff;
+  --ds-color-primary-400: #5587ff;
+  --ds-color-primary-500: #004593; /* Main brand color */
+  --ds-color-primary-600: #002f69;
+  --ds-color-primary-700: #001f40;
+  --ds-color-primary-800: #001530;
+  --ds-color-primary-900: #000a1a;
 
-  --ds-color-neutral-0: rgb(255 255 255);
-  --ds-color-neutral-50: rgb(249 250 251);
-  --ds-color-neutral-100: rgb(243 244 246);
-  --ds-color-neutral-200: rgb(229 231 235);
-  --ds-color-neutral-300: rgb(209 213 219);
-  --ds-color-neutral-400: rgb(156 163 175);
-  --ds-color-neutral-500: rgb(107 114 128);
-  --ds-color-neutral-600: rgb(75 85 99);
-  --ds-color-neutral-700: rgb(55 65 81);
-  --ds-color-neutral-800: rgb(31 41 55);
-  --ds-color-neutral-900: rgb(17 24 39);
+  --ds-color-neutral-0: #ffffff;
+  --ds-color-neutral-50: #f8f9fa;
+  --ds-color-neutral-100: #f3f4f5;
+  --ds-color-neutral-200: #edeeef;
+  --ds-color-neutral-300: #e7e8e9;
+  --ds-color-neutral-400: #e1e3e4;
+  --ds-color-neutral-500: #d9dadb;
+  --ds-color-neutral-600: #c3c6d3;
+  --ds-color-neutral-700: #737782;
+  --ds-color-neutral-800: #434751;
+  --ds-color-neutral-900: #191c1d;
 
   --ds-color-success-50: rgb(236 253 245);
   --ds-color-success-500: rgb(16 185 129);

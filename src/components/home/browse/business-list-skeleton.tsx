@@ -1,49 +1,49 @@
 import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function BusinessSkeleton() {
-  // Show 6 placeholders (you can adjust this count)
   const placeholders = Array.from({ length: 6 });
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
       {placeholders.map((_, i) => (
         <div
           key={i}
-          className="border-border bg-card overflow-hidden rounded-xl border"
+          className="bg-surface-container-low rounded-[2rem] overflow-hidden flex flex-col h-full border border-surface-container shadow-sm"
         >
           {/* Image placeholder */}
-          <div className="from-primary/10 to-accent/10 h-48 animate-pulse bg-gradient-to-br" />
-
-          <div className="space-y-4 p-6">
-            {/* Name + Category */}
-            <div className="flex items-start justify-between">
-              <div className="bg-muted h-5 w-2/3 animate-pulse rounded" />
-              <div className="bg-muted h-4 w-16 animate-pulse rounded" />
+          <div className="relative h-80 w-full overflow-hidden">
+            <Skeleton className="h-full w-full rounded-none" variant="shimmer" />
+            <div className="absolute top-6 left-6">
+              <Skeleton className="h-8 w-24 rounded-full" variant="shimmer" />
             </div>
+          </div>
 
-            {/* Rating */}
-            <div className="flex items-center gap-2">
-              <div className="bg-muted h-4 w-4 animate-pulse rounded-full" />
-              <div className="bg-muted h-4 w-8 animate-pulse rounded" />
-              <div className="bg-muted h-4 w-10 animate-pulse rounded" />
-            </div>
-
-            {/* Location */}
-            <div className="flex items-center gap-1">
-              <div className="bg-muted h-4 w-4 animate-pulse rounded-full" />
-              <div className="bg-muted h-4 w-24 animate-pulse rounded" />
+          <div className="p-6 flex flex-col flex-1 space-y-6">
+            {/* Header: Name + Price */}
+            <div className="flex justify-between items-start">
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-7 w-3/4 rounded-lg" variant="shimmer" />
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-4 rounded-full" variant="shimmer" />
+                  <Skeleton className="h-4 w-20 rounded-md" variant="shimmer" />
+                </div>
+              </div>
+              <div className="space-y-1 text-right pl-4">
+                <Skeleton className="h-3 w-8 rounded-sm ml-auto" variant="shimmer" />
+                <Skeleton className="h-7 w-16 rounded-lg" variant="shimmer" />
+              </div>
             </div>
 
             {/* Description */}
-            <div className="space-y-2">
-              <div className="bg-muted h-3 w-full animate-pulse rounded" />
-              <div className="bg-muted h-3 w-5/6 animate-pulse rounded" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-full rounded-md" variant="shimmer" />
+              <Skeleton className="h-4 w-5/6 rounded-md" variant="shimmer" />
             </div>
 
-            {/* Price + Button */}
-            <div className="mt-4 flex items-center justify-between">
-              <div className="bg-muted h-5 w-16 animate-pulse rounded" />
-              <div className="bg-muted h-8 w-20 animate-pulse rounded" />
+            {/* Button */}
+            <div className="mt-auto pt-4">
+              <Skeleton className="h-14 w-full rounded-full" variant="shimmer" />
             </div>
           </div>
         </div>

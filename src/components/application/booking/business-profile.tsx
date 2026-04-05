@@ -1,12 +1,4 @@
-"use client";
-
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  ContactSharingComponent,
-  SharingComponent,
-} from "@/components/ui/sharing";
-import { MapPin, Phone, Mail, Star } from "lucide-react";
+import { Star, MapPin, Phone, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BusinessProfile } from "@/hooks/use-business";
 
@@ -19,59 +11,68 @@ interface BusinessProfileProps {
 
 export function BusinessProfileComponent({
   business,
-  showSharing = false,
-  showContact = false,
   className,
 }: BusinessProfileProps) {
   return (
-    <div className={cn("space-y-6", className)}>
-      <div className="border-border bg-card rounded-xl border p-6">
-        <div className="from-primary/20 to-accent/20 mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-gradient-to-br">
-          {/* <span className="text-4xl">{business.image}</span> */}
+    <div className={cn("space-y-8 py-4", className)}>
+      {/* Business Identity */}
+      <div className="space-y-6">
+        <div className="aspect-square w-24 rounded-[2rem] bg-surface-container-high border border-surface-container overflow-hidden relative group">
+          <div className="absolute inset-0 bg-primary/5 group-hover:bg-transparent transition-colors duration-500" />
+          {/* Business Image would go here */}
         </div>
 
-        <h1 className="text-foreground mb-2 text-2xl font-bold">
-          {business.name}
-        </h1>
-
-        <div className="mb-4 flex items-center gap-2">
-          <span className="text-foreground font-semibold">
-            {business.rating}
-          </span>
-          <div className="flex gap-1">
-            {[...Array(5)].map((_, i) => (
-              <span key={i} className="text-accent">
-                ★
-              </span>
-            ))}
+        <div className="space-y-2">
+          <h1 className="text-4xl font-display font-black text-primary leading-tight tracking-tight">
+            {business.name}
+          </h1>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-primary">
+              <Star className="w-4 h-4 fill-current" />
+              <span className="text-sm font-bold font-sans">{business.rating || "5.0"}</span>
+            </div>
+            <span className="w-1 h-1 rounded-full bg-on-surface-variant/20" />
+            <span className="text-sm text-on-surface-variant/60 font-sans">
+              {business.reviews || 0} Reviews
+            </span>
           </div>
-          <span className="text-foreground/60 text-sm">
-            ({business.reviews ?? 0})
-          </span>
         </div>
 
-        <p className="text-foreground/70 mb-4">{business.description}</p>
+        <p className="text-on-surface-variant/70 font-sans leading-relaxed text-sm max-w-xs">
+          {business.description || "A master artisan dedicated to their craft, providing premium services with unparalleled attention to detail."}
+        </p>
       </div>
 
-      {/* Contact Sharing Component */}
-      {showContact && (
-        <ContactSharingComponent
-          businessName={business.name}
-          businessPhone={business.phone ?? undefined}
-          businessEmail={business.email ?? undefined}
-          businessLocation={business.location ?? undefined}
-        />
-      )}
-
-      {/* Business Sharing Component */}
-      {showSharing && (
-        <SharingComponent
-          title={`Book with ${business.name}`}
-          url={typeof window !== "undefined" ? window.location.href : ""}
-          businessName={business.name}
-          businessPhone={business.phone ?? undefined}
-        />
-      )}
+      {/* Quick Details */}
+      <div className="space-y-4 pt-8 border-t border-surface-container">
+        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40">Studio Details</h4>
+        <div className="space-y-4">
+          {business.location && (
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-primary flex-shrink-0">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-bold text-primary py-1">{business.location}</span>
+            </div>
+          )}
+          {business.phone && (
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-primary flex-shrink-0">
+                <Phone className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-bold text-primary py-1">{business.phone}</span>
+            </div>
+          )}
+          {business.email && (
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-primary flex-shrink-0">
+                <Mail className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-bold text-primary py-1 truncate">{business.email}</span>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

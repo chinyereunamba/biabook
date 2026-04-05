@@ -104,20 +104,21 @@ export default function Sidebar({
                 href={item.href}
                 onClick={onClose}
                 className={cn(
-                  // Mobile-first touch-friendly navigation items
-                  "flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition-colors",
-                  "min-h-[44px]", // Touch target
+                  "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200",
+                  "min-h-[44px]",
                   isActive
-                    ? "bg-primary/10 text-primary-700"
-                    : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900",
+                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    : "text-neutral-500 hover:bg-neutral-100/80 hover:text-neutral-900",
                 )}
               >
-                <Icon className="size-5 shrink-0" />
-                <span className="flex-1">{item.label}</span>
+                <Icon className={cn("size-5 shrink-0", isActive ? "text-white" : "text-neutral-400")} />
+                <span className="flex-1 font-display">{item.label}</span>
                 {item.badge && (
                   <Badge
-                    variant="secondary"
-                    className="ml-auto flex size-6 items-center justify-center rounded-full text-xs"
+                    className={cn(
+                      "ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold",
+                      isActive ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+                    )}
                   >
                     {item.badge}
                   </Badge>
@@ -129,20 +130,18 @@ export default function Sidebar({
       </nav>
 
       {/* Upgrade card */}
-      <div className="border-t border-neutral-200 p-6">
-        <Card className="border">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Upgrade to Pro</CardTitle>
-            <CardDescription className="text-sm">
-              Unlock all features and get unlimited access to our support team.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button size="sm" className="w-full">
-              Upgrade
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="p-6">
+        <div className="rounded-[2rem] bg-neutral-900 p-6 text-white shadow-xl">
+          <div className="mb-4 space-y-2">
+            <p className="font-display text-sm font-bold">Upgrade to Pro</p>
+            <p className="font-sans text-xs text-white/60 leading-relaxed">
+              Unlock the full potential of your digital sanctuary.
+            </p>
+          </div>
+          <Button size="sm" className="w-full bg-white text-neutral-900 hover:bg-neutral-100 rounded-xl font-bold py-5">
+            View Plans
+          </Button>
+        </div>
       </div>
       {/* User profile */}
       <div className="border-t border-neutral-200 p-6">

@@ -1,7 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { IconInnerShadowTop } from "@tabler/icons-react";
+import {
+  IconCalendarTime,
+  IconChartBar,
+  IconDashboard,
+  IconHelp,
+  IconInnerShadowTop,
+  IconListDetails,
+  IconSearch,
+  IconSettings,
+} from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
@@ -23,6 +32,48 @@ export function AppSidebar({
 }: {
   data: NavProps;
 } & React.ComponentProps<typeof Sidebar>) {
+  const navigation = {
+    navMain: [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: IconDashboard,
+      },
+      {
+        title: "Services",
+        url: "/dashboard/services",
+        icon: IconListDetails,
+      },
+      {
+        title: "Analytics",
+        url: "/dashboard/analytics",
+        icon: IconChartBar,
+      },
+      {
+        title: "Appointments",
+        url: "/dashboard/appointments",
+        icon: IconCalendarTime,
+      },
+    ],
+    navSecondary: [
+      {
+        title: "Settings",
+        url: "/settings",
+        icon: IconSettings,
+      },
+      {
+        title: "Get Help",
+        url: "/#",
+        icon: IconHelp,
+      },
+      {
+        title: "Search",
+        url: "/#",
+        icon: IconSearch,
+      },
+    ],
+  };
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -41,8 +92,8 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navigation.navMain} />
+        <NavSecondary items={navigation.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

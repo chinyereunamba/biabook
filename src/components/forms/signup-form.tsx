@@ -1,46 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
-
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-export function SignupForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [showMagicLink, setShowMagicLink] = useState(false);
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [businessName, setBusinessName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-
-  const handleMagicLink = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowMagicLink(true);
-    // Handle magic link sending
-    console.log("Magic link sent to:", email);
-  };
 
   const handleCredentialsSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +20,6 @@ export function SignupForm({
     setError("");
 
     try {
-      // Register user
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
@@ -58,6 +29,7 @@ export function SignupForm({
           name,
           email,
           password,
+          // businessName is currently not used by the API but kept for UI fidelity
         }),
       });
 
@@ -77,82 +49,109 @@ export function SignupForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Create your account</CardTitle>
-          <CardDescription>
-            Enter your email below to create your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          
-          <form onSubmit={handleCredentialsSignup}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="John Doe"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </Field>
-              <Field>
-                <FieldLabel>Password</FieldLabel>
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <Input
-                    id="confirm-password"
-                    name="confirmPassword"
-                    type="password"
-                    required
-                  />
-                </div>
-                <FieldDescription>
-                  Must be at least 8 characters long.
-                </FieldDescription>
-              </Field>
-              {error && <p className="text-sm text-red-500">{error}</p>}
-              <Field>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Creating..." : "Create Account"}
-                </Button>
-                <FieldDescription className="text-center">
-                  Already have an account? <Link href="/login">Sign in</Link>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-      <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our{" "}
-        <Link href="/terms">Terms of Service</Link> and{" "}
-        <Link href="/privacy">Privacy Policy</Link>.
-      </FieldDescription>
-    </div>
+    <form onSubmit={handleCredentialsSignup} className="space-y-6">
+      <div className="space-y-5">
+        {/* Full Name */}
+        <div className="group">
+          <label
+            className="block text-xs font-bold uppercase tracking-widest text-primary mb-2 font-sans"
+            htmlFor="full_name"
+          >
+            Full Name
+          </label>
+          <input
+            className="w-full px-5 py-4 bg-surface-container border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/50 text-on-surface font-sans outline-none"
+            id="full_name"
+            name="full_name"
+            placeholder="Chidi Adebayo"
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+
+        {/* Business Name */}
+        <div className="group">
+          <label
+            className="block text-xs font-bold uppercase tracking-widest text-primary mb-2 font-sans"
+            htmlFor="business_name"
+          >
+            Business Name
+          </label>
+          <input
+            className="w-full px-5 py-4 bg-surface-container border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/50 text-on-surface font-sans outline-none"
+            id="business_name"
+            name="business_name"
+            placeholder="Luxe Barber Studio"
+            type="text"
+            value={businessName}
+            onChange={(e) => setBusinessName(e.target.value)}
+          />
+        </div>
+
+        {/* Email Address */}
+        <div className="group">
+          <label
+            className="block text-xs font-bold uppercase tracking-widest text-primary mb-2 font-sans"
+            htmlFor="email"
+          >
+            Email Address
+          </label>
+          <input
+            className="w-full px-5 py-4 bg-surface-container border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/50 text-on-surface font-sans outline-none"
+            id="email"
+            name="email"
+            placeholder="hello@artisan.ng"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+
+        {/* Password */}
+        <div className="group">
+          <label
+            className="block text-xs font-bold uppercase tracking-widest text-primary mb-2 font-sans"
+            htmlFor="password"
+          >
+            Password
+          </label>
+          <input
+            className="w-full px-5 py-4 bg-surface-container border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/50 text-on-surface font-sans outline-none"
+            id="password"
+            name="password"
+            placeholder="••••••••••••"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Error Message */}
+      {error && <p className="text-sm text-error font-sans font-medium">{error}</p>}
+
+      <div className="pt-2">
+        <Button
+          variant={'artisan'}
+          type="submit"
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? "Creating Account..." : "Create Account"}
+          <span className="material-symbols-outlined">arrow_forward</span>
+        </Button>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 py-4 px-6 bg-surface-container-low rounded-xl">
+        <span className="material-symbols-outlined text-secondary">verified_user</span>
+        <span className="text-sm font-medium text-on-surface-variant font-sans">
+          No credit card required to get started
+        </span>
+      </div>
+    </form>
   );
 }

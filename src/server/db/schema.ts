@@ -9,26 +9,6 @@ import { index, primaryKey, sqliteTableCreator } from "drizzle-orm/sqlite-core";
  */
 export const createTable = sqliteTableCreator((name) => `biabook_${name}`);
 
-export const posts = createTable(
-  "post",
-  (d) => ({
-    id: d.integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
-    name: d.text({ length: 256 }),
-    createdById: d
-      .text({ length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: d
-      .integer({ mode: "timestamp" })
-      .default(sql`(unixepoch())`)
-      .notNull(),
-    updatedAt: d.integer({ mode: "timestamp" }).$onUpdate(() => new Date()),
-  }),
-  (t) => [
-    index("created_by_idx").on(t.createdById),
-    index("name_idx").on(t.name),
-  ],
-);
 
 export const users = createTable("user", (d) => ({
   id: d
@@ -189,6 +169,8 @@ export const businesses = createTable("businesses", (d) => ({
   location: d.text("location"),
   phone: d.text("phone"),
   email: d.text("email"),
+  coverImage: d.text("cover_image"),
+  profileImage: d.text("profile_image"),
   categoryId: d.text("category_id").notNull(),
   ownerId: d
     .text("owner_id")
@@ -201,6 +183,21 @@ export const businesses = createTable("businesses", (d) => ({
   updatedAt: d
     .integer("updated_at", { mode: "timestamp" })
     .$onUpdate(() => new Date()),
+}));
+
+export const businessGallery = createTable("business_gallery", (d) => ({
+  id: d.text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  businessId: d
+    .text("business_id")
+    .notNull()
+    .references(() => businesses.id, { onDelete: "cascade" }),
+  imageUrl: d.text("image_url").notNull(),
+  caption: d.text("caption"),
+  order: d.integer("order").default(0),
+  createdAt: d
+    .integer("created_at", { mode: "timestamp" })
+    .default(sql`(unixepoch())`)
+    .notNull(),
 }));
 
 export const services = createTable(
@@ -374,9 +371,17 @@ export const businessesRelations = relations(businesses, ({ one, many }) => ({
   weeklyAvailability: many(weeklyAvailability),
   availabilityExceptions: many(availabilityExceptions),
   appointments: many(appointments),
+  gallery: many(businessGallery),
   location: one(businessLocations, {
     fields: [businesses.id],
     references: [businessLocations.businessId],
+  }),
+}));
+
+export const businessGalleryRelations = relations(businessGallery, ({ one }) => ({
+  business: one(businesses, {
+    fields: [businessGallery.businessId],
+    references: [businesses.id],
   }),
 }));
 

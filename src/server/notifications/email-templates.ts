@@ -12,7 +12,7 @@ import {
 // src/lib/email-templates/base.ts
 
 export const emailHeader = () => `
-  <div class="header" style="
+  <div className="header" style="
     background-color: #7c3aed;
     padding: 24px 0;
     text-align: center;
@@ -29,7 +29,7 @@ export const emailHeader = () => `
 `;
 
 export const emailFooter = () => `
-  <div class="footer" style="
+  <div className="footer" style="
     background-color: #f9fafb;
     padding: 20px;
     text-align: center;
@@ -94,9 +94,9 @@ const baseTemplate = (content: string) => `
   </style>
 </head>
 <body>
-  <div class="container">
+  <div className="container">
     ${emailHeader()}
-    <div class="content">
+    <div className="content">
       ${content}
     </div>
     ${emailFooter()}
@@ -153,10 +153,9 @@ export const bookingConfirmationEmail = async (
 
         timezoneInfo = `
           <p><strong>Your Local Time:</strong> ${customerTimeDisplay}</p>
-          ${
-            conversion.businessTime.date !== conversion.customerTime.date
-              ? '<p style="color: #f59e0b;"><strong>Note:</strong> Due to timezone differences, this appointment is on a different date in your local time.</p>'
-              : ""
+          ${conversion.businessTime.date !== conversion.customerTime.date
+            ? '<p style="color: #f59e0b;"><strong>Note:</strong> Due to timezone differences, this appointment is on a different date in your local time.</p>'
+            : ""
           }
         `;
       }
@@ -172,7 +171,7 @@ export const bookingConfirmationEmail = async (
     <p>Dear ${appointment.customerName},</p>
     <p>Your booking has been confirmed with ${business.name}.</p>
     
-    <div class="details">
+    <div className="details">
       <p><strong>Service:</strong> ${service.name}</p>
       <p><strong>Date:</strong> ${formatDate(appointment.appointmentDate)}</p>
       <p><strong>Time:</strong> ${timeDisplay}</p>
@@ -184,7 +183,7 @@ export const bookingConfirmationEmail = async (
     <p>If you need to make changes to your booking, you can use the links below:</p>
     
     <p>
-      <a href="${rescheduleUrl}" class="button">Reschedule</a>
+      <a href="${rescheduleUrl}" className="button">Reschedule</a>
       <a href="${cancellationUrl}" style="margin-left: 10px; color: #6b7280; text-decoration: underline;">Cancel</a>
     </p>
     
@@ -205,7 +204,7 @@ export const bookingCancellationEmail = (
     <p>Dear ${appointment.customerName},</p>
     <p>Your booking with ${business.name} has been cancelled.</p>
     
-    <div class="details">
+    <div className="details">
       <p><strong>Service:</strong> ${service.name}</p>
       <p><strong>Date:</strong> ${formatDate(appointment.appointmentDate)}</p>
       <p><strong>Time:</strong> ${formatTime(appointment.startTime)} - ${formatTime(appointment.endTime)}</p>
@@ -267,10 +266,9 @@ export const bookingReminderEmail = async (
 
         timezoneInfo = `
           <p><strong>Your Local Time:</strong> ${customerTimeDisplay}</p>
-          ${
-            conversion.businessTime.date !== conversion.customerTime.date
-              ? '<p style="color: #f59e0b;"><strong>Note:</strong> Due to timezone differences, this appointment is on a different date in your local time.</p>'
-              : ""
+          ${conversion.businessTime.date !== conversion.customerTime.date
+            ? '<p style="color: #f59e0b;"><strong>Note:</strong> Due to timezone differences, this appointment is on a different date in your local time.</p>'
+            : ""
           }
         `;
       }
@@ -286,7 +284,7 @@ export const bookingReminderEmail = async (
     <p>Dear ${appointment.customerName},</p>
     <p>This is a reminder of your upcoming appointment with ${business.name}.</p>
     
-    <div class="details">
+    <div className="details">
       <p><strong>Service:</strong> ${service.name}</p>
       <p><strong>Date:</strong> ${formatDate(appointment.appointmentDate)}</p>
       <p><strong>Time:</strong> ${timeDisplay}</p>
@@ -297,7 +295,7 @@ export const bookingReminderEmail = async (
     <p>If you need to make changes to your booking, you can use the links below:</p>
     
     <p>
-      <a href="${rescheduleUrl}" class="button">Reschedule</a>
+      <a href="${rescheduleUrl}" className="button">Reschedule</a>
       <a href="${cancellationUrl}" style="margin-left: 10px; color: #6b7280; text-decoration: underline;">Cancel</a>
     </p>
     
@@ -319,7 +317,7 @@ export const bookingRescheduledEmail = (
     <p>Dear ${appointment.customerName},</p>
     <p>Your booking with ${business.name} has been rescheduled.</p>
     
-    <div class="details">
+    <div className="details">
       <p><strong>Service:</strong> ${service.name}</p>
       <p><strong>New Date:</strong> ${formatDate(appointment.appointmentDate)}</p>
       <p><strong>New Time:</strong> ${formatTime(appointment.startTime)} - ${formatTime(appointment.endTime)}</p>
@@ -348,7 +346,7 @@ export const businessNewBookingEmail = (
     <h2>New Booking</h2>
     <p>You have a new booking!</p>
     
-    <div class="details">
+    <div className="details">
       <p><strong>Customer:</strong> ${appointment.customerName}</p>
       <p><strong>Email:</strong> ${appointment.customerEmail}</p>
       <p><strong>Phone:</strong> ${appointment.customerPhone}</p>
@@ -360,7 +358,7 @@ export const businessNewBookingEmail = (
     </div>
     
     <p>
-      <a href="${viewBookingUrl}" class="button">View Booking</a>
+      <a href="${viewBookingUrl}" className="button">View Booking</a>
     </p>
   `;
 
@@ -379,7 +377,7 @@ export const emailVerificationEmail = (
     <p>Welcome to BiaBook! To complete your registration and start using your account, please confirm your email address by clicking the button below.</p>
     
     <p>
-      <a href="${verificationUrl}" class="button">Confirm Email Address</a>
+      <a href="${verificationUrl}" className="button">Confirm Email Address</a>
     </p>
     
     <p>Or copy and paste this link in your browser:</p>
